@@ -1,0 +1,35 @@
+YFKlog 0.1.0  INSTALLATION GUIDE
+--------------------------------
+
+1 Unpack the tarball into a directory of your choice.
+
+2 Download K1EA's cty.dat file from http://www.k1ea.com/cty/cty.dat
+  and put it into the YFKlog directory.
+
+3 Create a Database (this example uses YFKlog as dbname) and 
+  give the user the needed permissions for it:
+
+  $ mysqladmin -u root -p create YFKlog
+  $ mysql -u root -p
+ 
+  mysql> GRANT ALL ON YFKlog.* TO username@localhost IDENTIFIED BY 'passwd';
+  mysql> quit
+
+4 Create the tables for club memberships and operator names/qths:
+  Make sure to change the database name in dbs.sql to your name, if it's not
+  yfklog.
+
+  $ mysql -p < dbs.sql
+
+  Now at your option import any of the .sql files in the 'clubs' subdirectory
+  in the same way. 
+
+5 Edit the configuration file .yfklog 
+ 
+6 Start YFKlog:
+
+  & ./yfk.pl
+
+  and create a new logbook under menu point "Logbook config".
+
+

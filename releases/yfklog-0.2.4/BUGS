@@ -1,0 +1,3 @@
+None that I know of. There is one 'feature' which might be considered as a bug:
+When reading input from a field, and there is only one single letter in the
+field, and the cursor is right on this field, it will always be overwritten.

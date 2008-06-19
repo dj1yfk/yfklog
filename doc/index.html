@@ -1,0 +1,804 @@
+<html>
+
+<head>
+		<title>YFKlog v0.3.5 Manual</title>
+</head>
+
+<style> <!-- 
+		body,td,a,p{font-family:arial,sans-serif}
+		-->
+</style>
+
+<body>
+
+<h1>YFKlog v0.3.5 Manual</h1>
+<p><em>Preliminary version (11-Mar-2008). Always under construction.</em></p>
+<p><code>Copyright (c)  2008  Fabian Kurz, DJ1YFK &lt;<a href="mailto:mail&#64;fkurz.net">mail&#64;fkurz.net</a>&gt;<br>
+		Permission is granted to copy, distribute and/or modify this document<br>
+		under the terms of the GNU Free Documentation License, Version 1.2<br>
+		or any later version published by the Free Software Foundation;<br>
+		with no Invariant Sections, no Front-Cover Texts, and no Back-Cover<br>
+		Texts.  A copy of the license is included in the section entitled "GNU<br>
+Free Documentation License".
+</code></p>
+
+<hr noshade>
+
+<p>YFKlog is a general purpose ham radio logbook program designed to run on
+*nix systems. This manual tries to give a detailed description of all features
+and functions of YFKlog.</p>
+<p>The main website of YFKlog is located at:
+<a href="http://fkurz.net/ham/yfklog.html">http://fkurz.net/ham/yfklog.html</a>
+</p>
+
+<hr>
+<h2>Contents</h2>
+<ol>
+		<li><a href="#install">Installation</a>
+		<ol>
+				<li>SQLite</li>
+				<li>MySQL</li>
+		</ol>
+		</li>
+		<li><a href="#setup">Setup</a>
+		<ol>
+				<li>Mandatory settings</li>
+				<li>Optional settings</li>
+		</ol>
+		</li>
+		<li><a href="#menu">Main Menu</a></li>
+		<li><a href="#logging">Logging QSOs</a></li>
+		<li><a href="#search">Searching and editing QSOs</a></li>
+		<li><a href="#qsl">Handling QSL-cards</a>
+		<ol>
+				<li>Incoming cards</li>
+				<li>Outgoing cards</li>
+		</ol>
+		</li>
+		<li><a href="#adif">ADIF import and export</a></li>
+		<li><a href="#online">Online log</a></li>
+		<li><a href="#config">Select Logbook, create new Logbook</a></li>
+		<li><a href="#awards">Awards/Statistics</a>
+		<ol>
+				<li>Standings for awards</li>
+				<li>Statistics, Xplanet markers</li>
+		</ol>
+		</li>
+		<li><a href="#name">Name/QTH database</a></li>
+		<li><a href="#lotw">LOTW functions</a>
+		<ol>
+				<li>LOTW export</li>
+				<li>LOTW import</li>
+		</ol>
+		</li>
+		<li><a href="#hamlib">Transceiver control, hamlib</a></li>
+		<li><a href="#remote">Remote logging (for fldigi)</a></li>
+		<li><a href="#appendix">Appendix</a></li>
+		<li><a href="#GNUFDL">GNU Free Documentation License</a></li>
+
+</ol>
+
+
+<hr>
+<h2><a id="install" name="install">1. Installation</a></h2>
+
+<p>Download the <a href="http://fkurz.net/ham/yfklog/">latest version</a> of
+YFKlog and unpack the tarball to a directory of your choice, then run 
+<code>make install</code>.</p> 
+<code><pre>
+$ wget http://fkurz.net/ham/yfklog/yfklog-0.3.5.tar.gz
+$ tar zxfv yfklog-0.3.5.tar.gz
+$ cd yfklog-0.3.5 
+$ su
+# make install
+</pre></code>
+<p>By default, YFKlog will be installed to <code>/usr</code>, but you can specify
+another directory by adding the option
+<code>DESTDIR=/your/favorite/directory</code>. If you have no root privileges on
+the machine, a path within your home-directory would be suitable.</p>
+
+<p>Now you are ready to run YFKlog, the executable is simply called
+<code>yfk</code> and should be in your <code>PATH</code>.</p>
+
+<p>On your first run, YFKlog will create a directory, <code>~/.yfklog/</code>,
+where it stores your configuration and (in case of SQLite) your logbook. A
+setup screen appears, where you can edit the most important settings (see <a
+href="#setup">Setup</a> below).
+
+You can chose between two databases, 
+<a href="http://sqlite.org/">SQLite</a> or 
+<a href="http://www.mysql.com/">MySQL</a>.</p>
+<p>SQLite is a lightweight,
+self-contained, zero-configuration SQL database engine and probably the right
+choice for most users of YFKlog. It's very easy to set up (for example in
+Debian, just install <code>libdbd-sqlite3-perl</code> and
+<code>libclass-dbi-sqlite-perl</code> and you're set!) and surprisingly fast.
+</p>
+
+<p>MySQL is pretty much the opposite. Don't use it, unless you know why you'd
+want to.</p>
+
+<h3>1.1 SQLite</h3>
+<p>There is nothing really to set up, this is the default setting. 
+SQLite will autmatically create a SQLite database file
+of the name as set in <code>dbname=...</code>. This single file contains the
+whole database. It's trivial to back up and (if needed) accessible via the
+<code>sqlite3</code> command line utility just like a MySQL database.</p>
+
+<h3>1.2 MySQL</h3>
+<p>Create a database (in this example it's called <code>YFKlog</code>, the user
+is <code>dj1yfk</code> and the password is <code>notmypassword</code>) and
+grant the user the neccessary permissions:
+
+<code><pre>
+$ mysqladmin -u root -p create YFKlog
+$ mysql -u root -p
+mysql> GRANT ALL ON YFKlog.* TO dj1yfk@localhost IDENTIFIED BY 'notmypassword';
+mysql> FLUSH PRIVILEGES;
+mysql> quit
+</pre></code>
+
+<p>Now start YFKlog and change at least the
+mandatory settings (see below) according to your database setup. If YFKlog can
+properly connect the database, it will automatically create its database tables
+after the first start. When updating from an older version, all upgrades of
+the database structure are performed automatically as of version 0.2.3.</p>
+
+<hr>
+
+<h2><a id="setup" name="setup">2. Setup</a></h2>
+<p>Most of the permanent settings of YFKlog are stored in a file, called
+<code>~/.yfklog/config</code>. This file will automatically be created on your
+first run of YFKlog, and can be changed either from YFKlog itself (accessible
+from the main menu) or edited
+manually with your favourite text editor.</p>
+
+<p><strong>Have a careful look at the possible settings!</strong>
+</p>
+
+<p>If you're editing the file manually, note that the file-format allows an
+arbitrary placement of the variables in the file. If a variable is set more
+than once, the last occurance is used. The format <code>name=value</code> must
+be used, no spaces/tabs between <code>name=</code> and <code>value</code> are
+allowed.</p>
+
+<p>Some settings in this file are <em>mandatory</em>. YFKlog won't run properly
+without setting these. Other settings are <em>optional</em>, which doesn't mean
+they are not important.</p>
+
+<h3>2.1 Mandatory Settings</h3>
+<ul>
+	
+		<li><strong>mycall</strong> - Should be set to the callsign used. Any
+		callsign, including portable designators (like PA/DJ1YFK/P) is accepted
+		here. A logbook-table with this callsign will automatically be created
+		on first startup, unless it already exists.</li>
+
+		<li><strong>dbuser</strong> - The username for the database access for
+		MySQL. In
+		most cases this will be the same as your login name, but it could be
+		anything. For SQLite, set anything here.</li>
+
+		<li><strong>dbname</strong> - The name of the database in which YFKlog
+		stores its logbook tables.</li>
+
+		<li><strong>dbpass</strong> - The database password. Only for MySQL.</li>
+		
+		<li><strong>dbserver</strong> - For SQLite, set to <code>sqlite</code>.
+		For MySQL: The database server. In most cases this
+		is the same machine as YFKlog is running on. In that case, either
+		<em>localhost</em> (for a connection through a socket) or
+		<em>127.0.0.1</em>
+		(for a TCP/IP connection) should be used here. Note that (depending on
+		the server settings), either of these might not work.</li>
+
+		<li><strong>dbport</strong> - MySQL only: The database server port. Default
+		3306</li>
+</ul>
+
+<h3>2.2 Optional Settings</h3>
+<ul>
+		<li><strong>dband</strong> - Default band for logging after startup, in
+		meters.</li>
+
+		<li><strong>dmode</strong> - Default mode for logging after startup.
+		</li>
+
+		<li><strong>dpower</strong> - Default output power.  </li>
+		
+		<li><strong>dqsls</strong> - Default value for the 'QSL-sent' field.
+		This could be Q (Queued), Y (Yes), N (No).</li>
+
+		<li><strong>dqslr</strong> - Default value for the 'QSL-received' field.
+		In most cases it should make sense to default this to N.</li>
+
+		<li><strong>dqslsi</strong> - Default value for the 'QSL-sent' field
+		for QSOs that were imported from an ADIF file that doesn't have any
+		information about sent QSLs. This is useful for importing contest logs,
+		for which one may not wish to send cards for every QSO.</li>
+		
+		<li><strong>operator</strong> - Default value for the operator field.</li>
+
+		<li><strong>lat/lon</strong> - Latitude and longitude for distance and
+		beam heading calculations. North and West are positive.</li>
+		
+		<li><strong>onlinedata</strong> - Information (log table fields) to be
+		included in the online-log.</li>
+
+		<li><strong>ftp-information</strong> - FTP setup for the online log.
+		Self explanatory, see config file.</li>
+
+		<li><strong>awardbands</strong> - Default bands considered for awards
+		and statistics functions. Can be changed at runtime if needed.</li>
+
+		<li><strong>screenlayout</strong> - YFKlog offers two different screen
+		layouts for the main logging screen. The <a
+				href="screenlayout0.png">classic version</a> (0) and a
+		<a href="screenlayout1.png">version proposed by CT1DRB</a> (1).</li>
+
+		<li><strong>checklogs</strong> - Additional logbooks to be searched for
+		previous QSOs when entering a new callsign in the main logging
+		mode.</li>
+
+		<li><strong>rigmodel</strong> - Rig model for Hamlib.pm cat support.</li>
+
+		<li><strong>rigpath</strong> - Path to the device used by Hamlib, e.g.
+		<code>/dev/ttyS0</code></li>
+		
+		<li><strong>autoqueryrig</strong> - When 1, the frequency and mode is
+		automatically queried from the radio.</li>
+		
+		<li><strong>lotwdetails</strong> - Whether or not to use QSO details
+		from LOTW to update the log.</li>
+
+		<li><strong>directory</strong> - The default directory for every file
+		to be written or read by YFKlog (like ADIF logs, QSL labels etc). By
+		default: <code>/tmp</code></li>
+		
+		<li><strong>fieldorder</strong> - The (tab)order of the entry fields in
+		the main log form. You cannot only change their order, but also omit
+		fields you don't need.
+		All possible fields are	listed in <code>~/.yfklog/config</code>.
+		</li>
+
+		<li><strong>askme</strong> - If set to non-zero value, YFKlog asks for
+		confirmation if you press F3 (clear QSO) or F1 (back to menu) in the
+		logging mode. 
+		</li>
+
+		<li><strong>logsort</strong> - Specified the sort order of the logbook
+		display. Possible values: <strong>N</strong> for Number; QSOs displayed
+		in the order they were entered or imported. <strong>C</strong> for
+		chronologic order. (Default is N).</li>
+
+		<li><strong>prevsort</strong> - The sort order of the display of the
+		previous QSOs with a certain station. By date, either
+		<strong>A</strong> for ascending or <strong>D</strong> for descending.
+		Default: Ascending.
+		</li>
+
+		<li><strong>browser</strong> - Browser for QRZ.com lookups. (Default:
+		dillo)
+		</li>
+
+
+</ul>
+
+<hr>
+
+<img src= "menu.png" align="right">
+<h2><a id="menu" name="menu">3. Main Menu</a></h2>
+<p>All functions of YFKlog are accessible through the main menu, shown on the
+right. The single menu points will be described in greater detail in the
+following sections; some are self explanatory. A quick overview:</p>
+<ul>
+		<li><strong>Logging Mode</strong> - Obviously where you will spend most
+		of the time while using YFKlog. Mainly allows entering new QSOs, but
+		also limited editing of previous QSOs and callsign lookups.</li>
+		<li><strong>Search and Edit</strong> - Allows to search QSOs in the
+		database by certain search criteria and edit (or delete) them as
+		needed. All database fields can directly be changed here.</li>
+		<li><strong>QSL write mode</strong> - Displays a list of QSL cards that
+		are queued to be written or printed, in alphabetical order. Useful for
+		those who are writing their cards by hand. Entries can be checked as
+		'sent' by a single keystroke.</li>
+		<li><strong>QSL print mode</strong> - Prints the QSL queue into a
+		PDF-file. Several templates for different label formats are available,
+		some tips for writing your own label definitions are included.</li>
+		<li><strong>QSL enter mode</strong> - Here you can quickly check QSOs
+		as 'QSL received'. Useful to handle large quantities of incoming cards.
+		If needed, the same QSOs can be put into the outgoing QSL queue to
+		answer cards.</li>
+		<li><strong>ADIF Import</strong> - Import an ADIF log into the current
+		active log.</li>
+		<li><strong>ADIF Export</strong> - Export the current
+		active log.</li>
+		<li><strong>Update Onlinelog</strong> - Exports the log for an online
+		searchable log.</li>
+		<li><strong>Select Logbook</strong> - Change the active logbook or
+		create a new one.</li>
+		<li><strong>Awards/Statistics</strong> - Get standings for different
+		awards and generate statistics.</li>
+		<li><strong>Edit Name/QTH DB</strong> - YFKlog saves the name and QTH
+		for every station when it's first worked. When working the same station
+		again, this information is immediately available. Entries in this
+		database can be changed or deleted in this menu point.</li>
+		<li><strong>Import/Export LOTW</strong> - Support for working with
+		ARRL's LOTW. See <a href="#lotw">chapter LOTW</a> for details.</li>
+		<li><strong>Setup YFKlog</strong> - Most settings mentioned in <a
+				href="#setup">Setup</a> can be changed here. </li>
+</ul>
+
+<hr>
+
+<img src= "logmode1.png" align="right">
+<h2><a id="logging" name="logging">4. Logging QSOs</a></h2>
+<p>In the <strong>Logging Mode</strong>, as shown in the picture, the screen is
+split up into 4 main windows. A QSO can be saved with <strong>F2</strong>,
+cleared with <strong>F3</strong>, pressing <strong>F5</strong> queries
+band and more via hamlib. <strong>F6</strong> performs a callsign lookup for
+the current call with a browser as set in the config. <strong>F7</strong> enables <a href="#remote">remote
+ logging</a> mode for fldigi/gmFSK.</p>
+<p>You can switch between the Windows 1, 3 and 4 by pressing
+<strong>F8</strong>, <strong>F9</strong> and <strong>F10</strong>
+respectively.</p>
+
+<ol>
+		<li> This is the main entry window. It contains all important fields to
+		enter the QSO data during the QSO. <strong>Tab</strong>, <strong>cursor
+		down</strong>  or <strong>enter</strong> gets you to the next
+		field, <strong>cursor up</strong> or <strong>Shift-Tab</strong>  one
+		field back. The tab order of the fields can be freely configured, see
+		<a href="#setup">Setup</a>.  <br>
+		Additional to the fields which are shown here, you can save additional
+		information to the according <a href="">database fields</a> via the
+		Remarks field: 
+
+		<ul>
+				<li><strong>via:CALLSIGN</strong> - saves CALLSIGN as the
+				QSL-Manager. After saving it will disappear from the Remarks
+				field, and properly considered as Manager, for example when
+				printing QSL cards.</li>
+
+				<li><strong>STATE:XY</strong> - saves XY as state, for tracking
+				of the Worked All States award.</li>
+
+				<li><strong>IOTA:EU-123</strong> - saves EU-123 as the IOTA
+				reference number for this QSO. Only valid IOTA-References,
+				written in uppercase letters and with a dash are accepted.</li>
+
+				<li><strong>ITUZ:55, CQZ:11</strong> - saves 55/11 as ITU/CQ
+				zone for this QSO. Usually the zones are automatically
+				determined though.</li>
+
+				<li><strong>GRID:JO61UA</strong> - Saves JO61UA as gridsquare
+				of the worked station.</li>
+
+				<li><strong>OPERATOR:DJ1YFK</strong> - Saves DJ1YFK as the
+				operator of the current QSO. All following QSOs will be logged
+				with the same operator. Initially set from <code>
+				~/.yfklog/config</code></li>
+		</ul>
+
+		<li> This window shows information about the callsign entered, derived
+		from the country file <code>cty.dat</code>. The last line also shows -
+		if available
+		- known <a href="">club memberships</a>, if the DXCC was worked before,
+		and if so on which bands, and if the callsign appears in any other log,
+		as specified by <a href="">checklogs</a> in the config file.  <a
+				href="logmode2.png">This is an example</a> where all these
+		information are shown.</li>
+
+		<li>The last few QSOs in the log are shown in Window 3. You can jump
+		here by pressing <strong>F9</strong> and select any QSO to edit it. The
+		fields shown are: Callsign, Band, Mode, Time, Date, Name, QTH,
+		RST-sent, RST-received, QSL-sent, QSL-received, LOTW-status. Sort order
+		can be changed by "logsort" (see above).</li>
+
+		<li>Window 4 shows the last QSOs with the station you are currently
+		working. You can go to this window by pressing <strong>F10</strong> and
+		select a QSO to edit it. Sort order can be changed by "prevsort" (see
+		above).</li>
+
+</ol>
+
+<hr>
+
+<img src="edit1.png" align="right">
+<h2><a id="search" name="search">5. Searching and Editing QSOs</a></h2>
+
+<p>Logged QSOs can be searched and edited under the menu point <strong>Search
+and Edit</strong>. The interface is similar to the normal logging screen, but
+the entry form now has some additional fields. Actually, <em>all</em> 
+<a href="">database fields</a> can be directly seen and edited here.</p>
+<p>First, enter any search criteria into the given fields. For example, when
+you are looking for all contacts with Brazil on 40m, go to the field 'Band'
+and enter 40, then go to the 'DXCC' field and enter 'PY'. Pressing
+<strong>F5</strong> will start the search, and you can chose any of the
+matching QSOs to edit, as seen in the screen shot.</p>
+<p>Any matching QSO can now be selected and after pressing enter, the QSO
+details appear in the fields and can be edited. <strong>F2</strong> saves the
+changes made, <strong>F3</strong> cancels the changes, <strong>F4</strong>
+permanently deletes the selected QSO.</p>
+
+<p>In some cases, you may want to change a <em>group</em> of QSOs at once,
+which would be a lot of work via this <strong>Search and Edit</strong> mode one
+by one. For such occasions, it is advantageous to know some basic SQL commands
+to do the changes directly on the mysql command line. The <a href="">Appendix
+II</a> contains examples for several common scenarios (like toggling
+the QSL-sent flag for a number of QSOs, deleting QSOs from a date-range etc.)
+which can easily be adopted, even without knowledge of SQL.</p>
+
+<hr>
+
+<h2><a id="qsl" name="qsl">6. Handling QSL cards</a></h2>
+<p>Effective handling of QSL cards, both incoming and outgoing, is 
+easily done with YFKlog. This section describes how.</p>
+
+<img src="qslin1.png" align="right">
+<h3>6.1 Incoming QSL cards</h3>
+<p>The menu point <strong>QSL enter mode</strong> allows you to record received
+QSLs very effectively. After entering 3 or more letters of the callsign, all
+QSOs with matching callsigns from the current log are shown. The user can
+select a QSO, press <em>space bar</em> and the QSL-received status of this QSO
+toggles between 'N' to 'Y'. Pressing 's' on the same QSO toggles the QSL-sent
+status between 'N', 'Y' and 'Q', which makes it very easy to answer incoming
+QSL cards by putting them into the QSL queue and later process them.</p>
+<p>Any changes made to can be saved by pressing <strong>F2</strong> or
+cancelled by pressing <strong>F3</strong>. The screenshot shows an example
+screen, for the string 'UA9'.
+</p>
+
+<h3>6.2 Outgoing QSL cards, QSL queue</h3>
+<p>Outgoing QSL cards are saved in a QSL queue before they are processed. This
+happens either by logging a QSO with the QSL-S field set to 'Q', by importing a
+log with the <strong>qslsi</strong> option set to 'Q', or by changing the
+QSL-sent flag of a QSO to 'Q' in the QSL-enter mode as described above.</p>
+<p>The queue can be emptied in different ways, by printing or writing the
+cards:</p>
+
+<h4>6.2.1 Print cards/labels</h4>
+
+<p>The queued QSLs can be printed into a PDF file by selecting the <strong>QSL
+print</strong> mode. Different label definition files (*.lab) are
+available, and <a href="">Appendix III</a> gives a short tutorial how to write
+your own. The conversion to PDF is done with <a
+		href="http://www.latex-project.org/">LaTeX</a>. To work properly,
+<code>pdflatex</code>, with the <code>geometry</code> package must be
+installed on the system.</p>
+<p>Depending on the label definition file, an arbitrary number of QSOs may fit
+on one label. If the first label for one station is full, a new one is
+created. The output is alphanumerically sorted by the callsign.</p>
+<p>After generating the PDF-File with the QSL-labels, YFKlog asks the user to
+review the file, and if he's is happy to remove the printed cards from the
+QSL-queue and set their status to 'Y'. <strong>Note that this cannot be
+undone!</strong> When in doubt, select 'No'. You can always flush the queue
+later if needed.
+
+<h4>6.2.2 Writing cards</h4>
+
+<p>To write cards by hand, YFKlog has the "QSL write mode". When selected from
+the main menu, all queued QSL cards with their details are shown, sorted by
+callsigns.</p>
+
+<p>When a QSL card for a highlighted QSO has been written, pressing
+<em>space bar</em> will change it's QSL status from "Q" (queued) to "Y" (yes,
+sent), and you can continue with the next card.</p>
+
+<p>If you finished writing your cards, pressing <strong>F2</strong> will
+save all changed QSL-flags, <strong>F3</strong> cancels all changes and returns
+to the main menu.</p>
+
+<hr>
+
+<h2><a id="adif" name="adif">7. ADIF import and export</a></h2>
+<p>The <a href="http://www.adif.org/">ADIF</a> (Amateur Data Interchange
+Format) is now the <em>de facto</em> standard format to exchange logbook data.
+YFKlog can import and export this format, using a good subset of the available
+defined fields.</p>
+<p>See <a href="">Appendix X</a> for a detailled description of the database
+design of YFKlog and differences to ADIF.</p>
+
+<h3>7.1 ADIF export</h3>
+
+<p>Almost all fields in the log table in YFKlog's database can directly be mapped to
+an ADIF field. This means, that (almost) no data is lost when exporting to ADIF
+from YFKlog. There are two exceptions:</p>
+<ol><li>YFKlog has a separate log field for handling LOTW confirmations. This
+		field has no ADIF equivalent and is not used when exporting to
+		ADIF.</li>
+	<li>Exported logs from YFKlog currently don't include any DXCC information.
+	This will be fixed in foreseable future.</li>
+</ol>
+
+<p>To export the current logbook to an ADIF file, chose "ADIF export" in the
+main menu. You'll be asked to enter a filename (or accept the default,
+<code>yourcall.adi</code>) and specify a date-range for the log to be exported
+(or export the whole log). The ADIF file will then be written and saved in the
+current directory. If a file with the same name already exists, it will be
+overwritten.</p>
+
+
+<h3>7.2 ADIF import</h3>
+
+<p>As mentioned above, most of the possible (and all of the commonly used!)
+ADIF fields have an equivalent entry in the database used by YFKlog. To import
+an ADIF file, move it to the directory YFKlog resides in, and chose "ADIF
+import" from the main menu.</p>
+<p>You'll be given a list of ADIF files in the current directory and asked to
+chose one to import into the current logbook.</p>
+<p>The actual import procedure consists of three steps: First the ADIF file is
+<em>parsed</em>, that means, the ADIF data structure (<code>&lt;call:6&gt;DJ1YFK
+</code>...) is read. In the next step, each QSO is checked for sanity, the
+DXCC, prefix, ITU/CQ zones are determined (if not included in the file) and
+finally in the last step the log is added to the database.</p>
+
+<p>Note that currently the DXCC country information from an ADIF file is
+ignored. YFKlog always tries to determine the DXCC of each call itself. If the
+contact doesn't contain some information like power, or QSL-sent flags, the
+default value as set in the config file is used.</p>
+
+<p>The speed of the ADIF import is approximately 10 000 QSOs per minute on the
+author's PC (1.8GHz, 256MB RAM).</p>
+<hr>
+
+<h2><a id="online" name="online">8. Update Onlinelog</a></h2>
+<p>
+to be written...
+</p>
+<hr>
+
+<h2><a id="config" name="config">9. Select Logbook</a></h2>
+<p>Keeping several logs in one database is not a problem with YFKlog. Under the
+menu point "Select Logbook", you can change the current logbook or add a new
+logbook to the database.</p>
+
+<p>It makes sense to name them after the callsign used, but you could chose any
+name. Note that, if the callsign contains a slash (/), it's automatically
+replaced with an underscore (_) for the internal logbook name (i.e. PA/DJ1YFK/P
+will be <code>pa_dj1yfk_p</code> internally) to avoid several problems. When printing
+QSL labels however, or exporting the log, it's changed back to a slash.</p>
+
+<hr>
+
+<img src="awards1.png" align="right">
+<h2><a id="awards" name="awards">10. Awards and Statistics</a></h2>
+
+<h3>10.1 Standings for awards</h3>
+<p>The standings for several popular awards, namely DXCC, WPX (PFX),  WAZ
+(CQZ), IOTA and WAS (STATE) and VUCC (GRID) can be calculated by YFKlog. It considers both
+paper QSL and LOTW confirmations for this, and lists them once combined and
+once separately. Custom awards are possible with some limitations.</p>
+
+<p>The screenshot shows the author's DXCC score. You can see five columns:
+Band, number of worked entities, number of confirmed entities (either LOTW or
+paper), number of entities confirmed by paper QSO, number of entities confirmed
+by LOTW.</p>
+
+<p>The used date range (if any) and the bands to be included in these standings
+can be chosen/changed at runtime if wanted. The default bands are set in the
+<a href="">config file</a> as <code>awardbands</code>.</p>
+
+<p>Additionally to the overview as seen on the screenshot, a detailled list of
+each DXCC/Prefix/State/etc versus the bands is written to a file, as stated. 
+Examples: <a href="../examples/">DXCC, WPX, CQ-Zones, etc</a>.
+
+<p>Additional to the default awards, you can generate statistics for custom
+awards. The database structure is fixed, and adding additional fields for all
+kinds of awards is not the intention of the author, instead the "Remarks" field
+can be used for this purpose, in the format "$award:$value". For example to
+save a DOK for a QSO, an entry like "DOK:S07", "DOK:N16" has to be saved in the
+remarks field. Accordingly, RDAs would be entered as "RDA:MO-01", "RDA:VO-12"
+etc. In the award mode "Custom", you can generate statistics of those items
+(DOK, RDA, whatever), by specifying the name of the item. All QSOs are then
+searched for matching comments and  statistics like for the other awards are
+generated.</p>
+
+<h3>10.2 Statistics, Xplanet markers</h3>
+<p>Several statistics, such as QSOs per Band, Continent or Mode, can be
+retrieved in the same sub menu. Finally, it's possible to generate a marker
+file for <a href="http://xplanet.sourceforge.net/">Xplanet</a> which shows all
+DXCC entities in different colours: Red for needed, yellow for worked,
+and green for confirmed DXCCs. This can make a beautiful
+<a href="xplanet.jpg">desktop background</a>,
+which includes a realtime grayline
+map!</p>
+
+<hr>
+
+<h2><a id="name" name="name">11. Name / QTH database</a></h2>
+
+<p> YFKlog maintains a database of names/QTHs for callsigns. If you enter a QSO
+with a known call, the name- and QTH-fields are automatically filled.
+</p>
+
+<p>It's possible to edit or delete entries in this database by chosing "Edit
+Name/QTH DB" from the main menu.</p>
+
+<hr>
+
+<h2><a id="lotw" name="lotw">12. LOTW functions</a></h2>
+
+<p>YFKlog makes it easy to keep track with the LOTW status of your QSOs, but
+still is far away from <em>full LOTW integration</em>.</p>
+
+<p>For each QSO, YFKlog saves a value (called QSLrL, QSL-received-LOTW), which
+can be: 
+<ul>
+		<li><strong>N</strong> (No): This QSO has not been uploaded to LOTW</li>
+		<li><strong>R</strong> (Requested): This QSO has been uploaded to
+		LOTW, but no confirmation yet.</li>
+		<li><strong>Y</strong> (Yes): This QSO has been
+		<strong>confirmed</strong> via LOTW.</li>
+</ul>
+</p>
+
+<h3>12.1 LOTW export</h3>
+<p>Selecting "Export to LOTW" from the main menu will cause YFKlog to export
+all QSOs from the current log with the QSLrL-flag  <em>N</em> to an ADIF
+file, and changes these QSOs to <em>R</em> (requested). The ADIF file can
+then be signed with tQSL and uploaded to LOTW.</p>
+
+<h3>12.2 LOTW import</h3>
+<p>Received QSL records from LOTW can be downloaded via the LOTW web-interface,
+under "Your QSOs" -&gt; "Download report". A file called
+<code>lotwreport.adi</code> is generated, which contains all confirmations, by
+default since the last download of this file.</p>
+
+<p>This file may contain QSL records for <em>one or several</em> of your
+callsigns, and can be imported to YFKlog via "Import from LOTW" in the main
+menu.</p>
+
+<p>YFKlog will update the QSLrL flag of each confirmed contact accordingly. If
+the file contains confirmations for several callsigns, YFKlog automatically
+selects the proper logbook to update, and produces a warning if a QSO (or even a
+logbook) cannot be found.</p>
+
+<p>The <code>lotwreport.adi</code> file might contain additional information,
+like the CQ zone or IOTA reference of the station. By default, this
+information is not considered by YFKlog, but by setting
+<code>lotwdetails=1</code> in the config file they will be added to your
+logbook.</p>
+
+<p>Note that repeatedly importing the same lotwreport file doesn't cause any
+problems. In case you lost track of when you last imported a lotwreport, you
+can savely import a complete report of all your confirmations again.</p>
+
+<hr>
+
+<h2><a id="hamlib" name="hamlib">13. Transceiver control via Hamlib.pm</a></h2>
+
+<p>YFKlog supports very basic functions to retrieve the frequency and mode from
+a connected transceiver by means of the <a href="http://hamlib.org/">HamLib</a>
+Perl bindings.</p>
+
+<h3>13.1 Hamlib setup</h3>
+
+<p>The config file contains two parameters for hamlib: <code>rigmodel</code>
+and <code>rigpath</code>. The first is the number of the transceiver to be
+used, as shown in <code>rigctl --list</code>. The second is the path to the
+device to which the transceiver is connected, e.g. <code>/dev/ttyS0</code>.
+
+<code><pre>$ ./rigctl --list 2> /dev/null | grep K2
+221     Elecraft        K2                      0.5     Beta</pre> </code>
+
+<h3>13.2 Usage</h3>
+
+<p>Querying the frequency and mode from hamlib can be either automatically or
+on request. In the main logging window, pressing <strong>F5</strong> will query
+the frequency and mode and then write them into the fields of the logging form.
+</p>
+<p>Alternatively, it's possible to automatically retrieve frequency and mode
+with every new QSO, when setting <code>autoqueryrig=1</code> in the
+configuration.</p>
+
+<hr>
+
+<h2><a id="remote" name="remote">14. Remote logging (for fldigi/gmfsk)</a></h2>
+
+<p>As of Version 0.3.5 (January 2008), YFKlog can receive QSO data from another
+application my means of IPC. When in the main logging mode, press
+<strong>F7</strong> to enable the remote mode. YFKlog then waits for new QSOs
+from another application (tested with 
+<a href="http://www.w1hkj.com">fldigi</a> and gmfsk) and adds them to the log. Pressing
+F7 again leaves the remote mode and normal logging can continue.</p>
+
+<p>The current program design of YFKlog does not allow this to listen for
+remote QSOs in the background, but a logged QSO (by fldigi/gmfsk) will survive in the
+message queue and be fetched as soon as YFKlog enters the remote mode.</p>
+
+<hr>
+
+<h2><a id="appendix" name="appendix">Appendix (very much UNDER CONSTRUCTION)</a></h2>
+
+<h3>Using Putty</h3>
+<p>When using YFKlog via ssh with Putty, the F-keys may not work in the default
+configuration. In the putty configuration (Terminal -&gt; Keyboard), set
+&quot;The Function keys and keypad:&quot; to <em>Xterm R6</em>.</p> 
+
+
+<h3>Database backup</h3>
+<p>Regular backups of your logbook data are highly recommended. With SQLite and
+MySQL you can easily produce a so-called <em>SQL dump</em> of the database,
+from which you'll be able to completely restore your database in case of data
+loss.</p>
+<p>For SQLite, use the following command-line:</p>
+<pre><code>sqlite3 ~/.yfklog/YFKlog '.dump' | gzip -c > dump.sql.gz</code></pre>
+<p>This will produce a compressed file <code>dump.sql.gz</code> which contains the
+whole database in human readable SQL format. Replace
+<code>~/.yfklog/YFKlog</code> with the location of the SQLite database file, in
+case you don't use the default location.</p>
+<p>For MySQL, use the command line utility <code>mysqldump</code>:
+<pre><code>mysqldump -p YFKlog | gzip -c > dump.sql.gz</code></pre>
+Where <code>YFKlog</code> is the name of the database. You will be prompted to
+enter your password; alternatively you may directly include it in the command
+line (for example when invoked from cron): <code>mysqldump -pMYPASSWORD
+...</code>.</p>
+
+<h3>1. Database performance (only MySQL)</h3>
+
+<p>It's highly recommended to activate MySQL's <em>query cache</em>, since
+YFKlog does many repeated equal database queries, for example when scrolling
+through a list of QSOs. Enabling the cahce will significantly speed up
+scrolling.</p>
+
+<h3>2. SQL examples: Mass-editing, deletion, etc.</h3>
+
+<p>YFKlog offers the possibility to edit or delete QSOs, one by one. In some
+cases however, you might want to delete or modify a large number of QSOs. In
+this case, a few SQL commands can safe you a lot of time. Following are some
+real world examples which you might adopt for your own purposes.</p>
+
+<h4>Example 1: Mass editing</h4>
+<p>After importing my CQWW-CW QSOs, I noticed that I imported all QSOs with
+the default power (100W) instead of 750W, which was actually used. Solution:</p>
+
+<pre><code>
+[dj1yfk@dl0tud dj1yfk]$ mysql -p
+Enter password:
+
+mysql&gt; use DJ1YFK
+Database changed
+mysql&gt; update log_dj1yfk set pwr=750 where date='2006-11-25' or date='2006-11-26';
+Query OK, 3158 rows affected (1.73 sec)
+Rows matched: 3158  Changed: 3158  Warnings: 0
+
+mysql&gt;
+</code></pre>
+
+<h3>Database Backup</h3>
+
+<p>A backup of the complete database can be easily done by sqldump. In this
+example the database name is YFKlog.</p>
+
+<h4>MySQL</h4>
+<pre><code>mysqldump -p YFKlog | gzip - - > dump.sql.gz</code></pre>
+<p>mysqldump will promt you for the password to access the database. If you
+invoke mysqldump from a script, you may add the password in the command line
+(mysqldump -pPASSWORD) but be advised that this is not very secure. Everyone
+doing a <code>ps a</code> during the backup can see your password. You may want
+to consider using for example <code>expect</code> if this is an issue.</p>
+
+<h4>SQLite3</h4>
+<pre><code>sqlite3 ~/.yfklog/YFKlog .dump YFKlog | gzip - - > dump.sql.gz</code></pre>
+<p>Alternatively, just back up the database file itself, ~/.yfklog/YFKlog, but
+makre sure there is not currently any process writing to it.</p>
+
+
+
+<h2><a id="GNUFDL" name="GNUFDL"> GNU Free Documentation License </a></h2>
+
+<a href="http://www.gnu.org/licenses/fdl.txt">http://www.gnu.org/licenses/fdl.txt</a>
+
+</htmL>
+
+
+
+
+
+
+
+
+
+
+

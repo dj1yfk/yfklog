@@ -1,0 +1,14 @@
+c3d6a27bf4cfb751d185252b1f60caad  releases/yfklog-0.1.0.tar.gz
+a4dc9611b020cc2fd7af80566f8beca6  releases/yfklog-0.2.0.tar.gz
+e512c8c694ee558c42b505a7d5d4afa6  releases/yfklog-0.2.1.tar.gz
+45b0e5f7330851c95e53df70888eb404  releases/yfklog-0.2.2.tar.gz
+98ddab90d0a9fa15ace438fe39af2946  releases/yfklog-0.2.3.tar.gz
+0871fa52667fd2830f085db3d600fe6c  releases/yfklog-0.2.4.tar.gz
+2e212eba6047ff8b1e9d2fef678f0521  releases/yfklog-0.2.5.tar.gz
+688bcf7b8fbe46ace5b6069b45875c9e  releases/yfklog-0.3.0.tar.gz
+cf8a1707607f51e6fe8d65bc2fdd61eb  releases/yfklog-0.3.1.tar.gz
+a43a1fca16e741d55af004f70f907abf  releases/yfklog-0.3.2.tar.gz
+5a8889b7354defe84b730215f58dd2da  releases/yfklog-0.3.3.tar.gz
+28dedab2b6a51e5f34111448f06668fa  releases/yfklog-0.3.4.tar.gz
+b9dcffbd77d262676ed108be0ab2db0d  releases/yfklog-0.3.5.tar.gz
+75d4c0901d360c2622a559e6c637c0b1  releases/yfklog-0.3.6.tar.gz

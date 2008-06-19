@@ -1,0 +1,16 @@
+- Optimize the speed of DXCC and WPX lookup. During normal logging it is not a
+  problem, but when importing ADIF, it gets horribly slow. DXCC also calls WPX,
+  so these two should be combined to one function, or at least DXCC should
+  return the prefix too.
+
+- Database not well designed for multiple logs. Maybe store everything in one
+  table and add a "mycall" field.
+
+- In Search&Edit mode: Specifying a date-range, OR possibility to enter any
+  abritary SQL statement to select from the database. 
+
+- The subs &readw; (reads windows/fields in QSO Input mode) and &editw; are
+  mostly identical, except for handling of the F-Keys: Thee could be put into a
+  single sub which calls an external sub for F-key handling (for better
+  readibility).
+

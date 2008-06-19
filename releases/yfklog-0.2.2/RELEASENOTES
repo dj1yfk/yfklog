@@ -1,0 +1,74 @@
+RELEASENOTES for YFKlog 0.2.2
+==============================
+
+To update from an older version, just replace all files of the old
+YFKlog-version with the new ones and follow these instructions: 
+ 
+
+Update from YFKlog 0.1.0
+------------------------
+
+If you are updating from YFKlog 0.1.0, following additional changes are needed:
+
+1. Copy yfk-fixdxcc.pl into your yfklog-directory and run it. It fixes some
+   minor problems of DXCC-handling in 0.1.0.
+
+2. The config-file .yfklog had some changes in the "csadditions" and
+   "lidadditions"-lines. You might want to copy these lines to your old config
+    file. 
+ 
+3. Follow steps for update from 0.2.0 
+ 
+Update from YFKlog 0.2.0
+------------------------
+
+1. Some new lines were added to the config file .yfklog, in particular
+   "awardbands" and "screenlayout". Also changes in "lidadditions" and
+   "csadditions". Copy these lines into your old config-file.
+
+2. The database logging-table structure has changed: In order to allow logging
+on VHF-UHF, the "band" field was changed from INT to FLOAT. If you create new
+logbooks, you don't need to bother with it; existing logbooks can be converted
+by the following procedure: (replace YFKlog with your database name, if
+different. Repeat the ALTER TABLE statement for every logbook you want to
+change, note that the name of the logbook table [for example log_dj1yfk] is
+case sensitive, and internally all callsigns are lowercase. So if your call is
+DL1ABC, the line has to be "ALTER TABLE log_dl1abc MODIFY BAND FLOAT;".)
+
+.---[ Example ]---------------------------------------------------------------
+| $ mysql -p 
+| Enter password: **********
+| Welcome to the MySQL monitor.  Commands end with ; or \g.
+| Your MySQL connection id is 1324 to server version: 4.1.5-gamma
+| 
+| Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+| 
+| mysql> use YFKlog;
+| Reading table information for completion of table and column names
+| You can turn off this feature to get a quicker startup with -A
+| 
+| Database changed
+| mysql> ALTER TABLE log_dj1yfk MODIFY BAND FLOAT;
+| Query OK, 41861 rows affected (3.36 sec)
+| Records: 41861  Duplicates: 0  Warnings: 0
+| 
+| mysql> 
+`----------------------------------------------------------------------------- 
+
+Although nothing critical *should* happen, please make a backup of your
+logbooks (ADIF export) before you do this modification.
+
+
+Update from YFKlog 0.2.1
+------------------------
+
+1. Everything should work after simply replacing the old files. If you are running
+into trouble, let me know!
+
+
+
+
+That's it, enjoy YFKlog-0.2.2! 
+
+If you are encountering any problems, don't hesitate to ask me via e-Mail
+(mail@fkurz.net) or ICQ (169955833).

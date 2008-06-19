@@ -1,0 +1,16 @@
+None that I know of. There is one 'feature' which might be considered as a bug:
+When reading input from a field, and there is only one single letter in the
+field, and the cursor is right on this field, it will always be overwritten.
+
+
+* ADIF import: Length 0 doesn't work!
+
+
+* ADIF import   bemerkung -> QSL manager/???  (G0LWI)
+
+* ADIF IMPORT: freq:14 geht nicht, MUSS . hinter stehen
+
+* CALL/A gets A0, no DXCC
+
+* check if BAND and Freq in ADIF are the same
+

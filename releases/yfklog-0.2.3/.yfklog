@@ -1,0 +1,143 @@
+##############################################################################
+# Config file for YFKlog. 
+#
+# There are two different kinds of settings, MANDATORY settings without which
+# the program will NOT WORK and OPTIONAL settings which you might want to
+# change, but they have internal defaults if they are not specified.
+# Mandatory settings are marked with a "(M)", optional settings with a "(O)" 
+# in the first description line.
+##############################################################################
+
+# (M) mycall: YFKlog can handle several logs parallell, but this one
+# is the one YFKlog starts with. As the name suggests, you should use your
+# callsign for it
+
+mycall=dj1yfk
+
+# (M) dbuser: Database username of your MySQL DB access
+
+dbuser=fabian
+
+# (M) dbname: name of the Database. 
+
+dbname=YFKlog
+
+# (M) dbpass: Database password. U should make this file only readable to
+# yourself (chmod 600 .yfklog) unless you want everyone to be able to read 
+# your password.
+
+dbpass=
+
+# (M) dbserver: Database server: Depending on the configuration of your server,
+# only 'localhost' (via a socket) or only '127.0.0.1' (tcp) might work.
+
+dbserver=localhost
+
+# (M) dbport: database server port
+
+dbport=3306
+
+# (O) dband: The default band. At the moment YFKlog stores the band in m,
+# since I only work from 2190m (136 kHz) - 2m (144 MHz). If there is popular
+# demand for it, I could change it to kHz or MHz, so also VHF-EHF can properly
+# log their QSOs. Default is my "home band" 80 (m).
+
+dband=80
+
+# (O) dmode: The default mode. You can enter any string here up to 4 letters.
+# If you really are so desperate to operate PSK31, use PSK3 or change the
+# pogram :-). Of course the default mode is CW :-)
+
+dmode=CW
+
+# (O) dmode: The default power. Only 4 digits for power, some OMs might want to
+# regard the number as kW instead of W, some as mW :-)
+
+dpwr=100
+
+# (O) dqsls: Default value for QSL Sent. If not specifield it's "Q" for
+# "Queue", meaning that the QSO will be put into the QSL writing-Queue.
+
+dqsls=Q
+
+# (O) sqslr: Default value for QSL received. Usually the QSL has not arrived
+# when the QSO happens, so it is N by default
+
+dqslr=N
+
+# (O) dqslsi: Default value for QSL Sent for IMPORTED QSOs, if there is no such
+# info in the ADIF. This might be useful because for contest QSOs there is
+# usually no such info in the adif, and for those who do not send QSLs for
+# every contest QSO this is an easy way to make sure that they don't end up in
+# the QSL queue when dqsls=Q.   Default: N
+
+dqslsi=N
+
+# (O) lat and lon: Latitude and longitude of the own station in decimal format.
+# Needed to calculate the distance and beam heading.
+
+lat=52
+lon=-8
+
+# (O) onlinedata: Specifies the columns of the logbook which will be added to
+# the online logbook. Possible columns: NR, CALL, DATE, T_ON, T_OFF, BAND, MODE
+# QTH, NAME, QSLS, QSLR, RSTS, RSTR, REM, PWR, DXCC, PFX, CONT, QSLINFO.
+# Separate fields with commas
+
+onlinedata=`CALL`, DATE, BAND, MODE, RSTS, RSTR, T_ON, QSLS, QSLR, PWR, QSLINFO, STATE
+
+# (O) ftp-information: If you want to use the upload function for a online
+# searchable log, some ftp-settings have to be specified. The names are
+# self-explaining.
+
+ftpserver=127.0.0.1
+ftpport=21
+ftpuser=dj1yfk
+ftppass=test
+ftpdir=/logs 
+
+# (O) Liddish callsign addidions which have to be removed, so the DXCC and 
+# Prefix can be properly determined. If you log stations with their proper 
+# calls (/QRP is not a part of the call!), don't bother anyway.
+
+lidadditions=^QRP$|^LGT$|^\d{2,99}$
+
+# (O) Additions to the callsign which do not change the DXCC or Prefix; default:
+# /P, /M, /MM, /AM. Add your own following the same schema if needed.
+
+csadditions=(^P$)|(^M{1,2}$)|(^AM$)|(^A$)
+
+# (O) Bands for award/statistic calculations. Default: all bands from 160 to
+# 2m. Format: Bands, separated by whitespaces.
+
+awardbands=160 80 40 30 20 17 15 12 10 3 2
+
+# (O) Screenlayout: YFKlog supports (at the moment) two different layouts of
+# the main logging screen. You can toggle between them by setting screenlayout
+# to either 0 or 1.   
+
+screenlayout=1
+
+# (O) Checklogs: By default, when logging a new callsign, only the previous
+# contacts in the current log are checked. It's now possible also to specify
+# additional logs that will be checked for QSOs. If a QSO exists, it will be
+# shown in the same line where club-membership information is usually shown, in
+# a very short form:  e.g:  In logs: 9A/DJ1YFK/p PA/DJ1YFK/p
+#
+# Format: checklogs=LOG1 LOG2 LOG3...
+#
+# Example: checklog=DJ1YFK DM7A DG9YFK PA/DJ1YFK/P
+#
+# NB: The current active log can be included in the list; it'll be ignored.
+
+checklogs= 
+
+# (O) hamlib rig model
+
+rigmodel=221
+
+# (O) hamlib command parameters to 'rigctl' (like the serial port etc.)
+
+hamlibparam=
+
+

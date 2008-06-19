@@ -1,0 +1,24 @@
+% Zweckform 70x37m
+% QSOS=6
+% WIDTH=70
+% HEIGHT=36
+% TOPMARGIN=6.5
+% LEFTMARGIN=2
+% ROWS=8
+% COLS=3
+\put(3,33){\makebox(0,0)[lt]{To Radio:}}
+\put(63,33){\makebox(0,0)[rt]{\large\bf HISCALL}}
+\put(3,28){\makebox(0,0)[l]{\footnotesize MYCALL is glad to confirm 2 way QSOs:}}
+\put(2,14){
+\footnotesize
+\begin{tabular}{@{}p{18mm}@{}p{11mm}@{}p{10mm}@{}p{11mm}@{}p{11mm}@{}}
+\bf Date&\bf Time&\bf Band&\bf Mode&\bf RST\\
+\hline
+DATE1&TIME1&BAND1&MODE1&RST1\\
+DATE2&TIME2&BAND2&MODE2&RST2\\
+DATE3&TIME3&BAND3&MODE3&RST3\\
+DATE4&TIME4&BAND4&MODE4&RST4\\
+DATE5&TIME5&BAND5&MODE5&RST5\\
+DATE6&TIME6&BAND6&MODE6&RST6
+\end{tabular}}
+% \put(3,2){\makebox(0,0)[lt]{\footnotesize CUAGN in 2006 as DM7A (ex DL0TUD)}}

@@ -1,0 +1,21 @@
+% Zweckform 48.5x25.4mm
+% QSOS=2
+% WIDTH=48.5
+% HEIGHT=25.4
+% TOPMARGIN=20.1
+% LEFTMARGIN=8
+% ROWS=10
+% COLS=4
+\put(3,23.4){\makebox(0,0)[lt]{To Radio:}}
+\put(46,23.4){\makebox(0,0)[rt]{\large\bf HISCALL}}
+\put(3,18.4){\makebox(0,0)[lt]{Via:}}
+\put(46,18.4){\makebox(0,0)[rt]{\large\bf MANAGER}}
+\put(3,12.4){\makebox(0,0)[l]{\footnotesize MYCALL is glad to cfm:}}
+\put(2,5){
+\scriptsize
+\begin{tabular}{@{}p{14mm}@{}p{8mm}@{}p{7mm}@{}p{7mm}@{}p{7mm}@{}}
+\bf Date&\bf Time&\bf Band&\bf 2way&\bf RST\\
+\hline
+DATE1&TIME1&BAND1&MODE1&RST1\\
+DATE2&TIME2&BAND2&MODE2&RST2
+\end{tabular}}

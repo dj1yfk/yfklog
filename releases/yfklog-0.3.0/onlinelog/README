@@ -1,0 +1,3 @@
+Just a quick example how to use the $callsign.log to make a searchable online
+log. Of course it's also possible to directly use the MySQL database for the
+online log, etc...

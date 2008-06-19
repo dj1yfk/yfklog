@@ -1,0 +1,273 @@
+Note: This document is now obsolete. A current (and much more detailled
+version) of the manual can be found at:
+
+http://fkurz.net/ham/yfklog/doc/
+
+
+YFKlog 0.2.4 Manual  
+-------------------
+
+This is a short description how to use YFKlog. It's certainly not complete, if
+in doubt, have a look at the sources, which contain lots of comments.
+
+Please also read the comments in the configuration file .yfklog carefully,
+which explain a lot of details.
+
+Feel free to contact me if you have *any* questions not covered by this
+document!  Current contact information (eMail, ICQ) on http://fkurz.net/.
+
+F-Keys
+------------
+At any point, F12 exits and F1 goes back to the main menu. In the different
+modes, the F-Keys F2..10 usually have some function, which is indicated in the
+lowest line of the screen.
+ALT+x or CTL+x combinations are not used.
+
+Main Menu
+------------
+YFKlog starts in the Main Menu. In this menu you can access all the features of
+YFKlog:
+
+1. Logging mode
+---------------
+In this mode you can enter QSOs. The screen is split into 4 main windows:
+Input window, Information Window, Log-Window and Previous-QSO-Window.
+You can change between them with F-keys.
+
+1.1 Input window (F8)
+---------------------
+On the top there is the input window, where you enter the QSO information.
+There are 14 fields to enter data. After entering a callsign, the date, time,
+power, band, mode settings are automatically filled with the defaults. If
+available also Name and QTH is filled from the database. You can now enter all
+information of a QSO.
+To save screen space, some very rarely used fields of the logbook database
+table cannot directly be entered here, namely: QSL-Manger, ITU and CQ-Zone,
+IOTA number and the US State. These can be entered into the Remarks field in
+the following manner:
+
+Remarks:  via:DJ1YFK CQZ:14 ITUZ:28 IOTA:EU-123 STATE:AZ
+
+There can be anything between it, like
+
+Remarks: QRP 5W via:DJ1YFK longwire antenna IOTA:EU-123
+
+it is only important that there is a space ' ' before and after every of the
+special items. After saving the QSO, these values are automatically filled into
+the proper database-fields.
+
+F2 saves the current QSO. This only works if there is sufficient data (call,
+date, time on, band, mode) and this data is also checked for validity. If the
+QSO is valid, it is saved, the log-window updates and all fields are cleared.
+If the QSO data is not valid, nothing happens.
+
+F3 wipes out the current QSO.
+
+F5 retrieves Band/Mode from the connected Rig via hamlib (see below)
+
+F9/10 changes to the windows as described below.
+
+TAB/RETURN goes to the next entry field
+
+Cursor-UP goes to the previous field.
+
+1.2 Information Window
+----------------------
+After entering a callsign, this window displays the informations from the
+country-file (DXCC name, Zones, ...) and the calculated distance and bearing.
+Also club memberships of the worked station are displayed for award purposes.
+These club-memberships are saved in the CLUBS table in the database.
+When a new DXCC or DXCC bandpoint have been worked, there is a note in this
+window too.
+
+1.3 Log Window (F9)
+------------------- 
+This window displays the last 8/16 QSOs (depending on screenlayout, see below);
+You can change into this window with F9 and select a previous QSO in order to edit it.
+
+1.4 Previous-QSO-Window (F10)
+-----------------------------
+This window shows all the previous QSOs with the station you are currently
+working. The callsign is stripped down to the homecall, so if you are working
+TF/DJ1YFK/p, it displays all QSOs with DJ1YFK, including PA/DJ1YFK/p etc.
+You can change into this window with F10 and select any QSO and edit it in the
+main window.
+
+
+2. Search and Edit Mode
+-----------------------
+
+In this mode you see an input form similar to the logging mode, but this time
+with all possible database fields. You can now enter any information here, and
+the database will be queried for QSOs matching this. For example if you enter
+DJ1YFK as callsign and SSB as mode, and press F5 to search, no QSO will show
+up, because DJ1YFK does not work SSB :-)
+OK, better example: If you enter DJ1YFK and CW, you will get a list of QSOs
+below the entry-form, all with *DJ1YFK* and in CW. Now you can select any of
+these QSOs with the cursor keys and press ENTER if you want to edit the QSO.
+If you do this, all the fields in the form are filled and you can edit the QSO.
+if you are done, press F2 to save, or F3 to cancel. F1 goes back to the main
+menu as usual.
+
+3. QSL write mode
+-----------------
+
+In this mode you get a list of all QSLs where the QSL-Sent status is "Q", which
+means that the QSO is in the QSL-queue. The list contains all information you
+need for writing the QSL: QSO#, Call, Name, Manger, Date, Time, Power, band,
+Mode and QSL-status.
+You can toggle the QSL-status of a QSO by pressing SPACE and proceed with the
+next QSL.
+F2 saves the changes, F3 cancels all changes.
+
+
+4. QSL Print mode
+-----------------
+
+Produces a PDF file with labels for all queued QSLs. You can select the label
+definition and the start label on the sheet (makes it possible to start on the
+x th label on a page, if in the previous printing there were some labels left
+on a sheet).
+TODO Write a little documentation on the label-files. They are basically LaTeX
+code for the picture-environment, plus some meta information.
+
+
+5. QSL receive mode
+-------------------
+Similar to the QSL write mode. You enter 3 or more letters of a callsign, and
+get a list with all QSOs matching this callsign. Then you can quickly toggle
+the QSL-received status of these QSOs by hitting SPACE and the QSL-send status
+(in case you are replying to incoming QSLs only) with "s".
+F2 saves, F3 cancels all changes.
+
+
+6. ADIF Import
+--------------
+Imports an ADIF File from the current directory. A list of all .adi files in
+the current directory appears. The user can select one to be imported.
+If errors are occuring during the import, or unknown data-fields in the
+ADIF-file are not imported, warnings/errors are generated. These are written to
+a error report, so the user can find out what went wrong.
+Note that the file requires to have proper unix linebreaks to be imported. This
+can be done with tools like dos2unix if neccessary.
+
+In the configuration file .yfklog you can specify which QSL-Sent-status is
+default for imported QSOs, if no information is given in the ADIF file. This
+can be useful if you want to put all QSOs from a contest into the QSL-Queue.
+   
+
+7. ADIF export
+--------------
+Exports the current log into a ADIF file.
+
+8. Update Onlinelog
+-------------------
+Exports the whole log (TBD: specify a range) into a ~-spearated file. The
+fields which have to be exported can be specified in the config file,
+".yfklog". 
+At the user's option, the file is uploaded via FTP to a server which is also
+specified in the config file.
+
+9. Logbook Config
+-----------------
+Shows a selectable list of logbooks in the database. The user can select any of
+these logs or create a new logbook, when chosing the option "create new
+logbook". The database name is the same as the callsign used; YFKlog by default
+tries to access the database named like "MYCALL" in your .yfklog config file.
+
+10. Awards/Statistics
+---------------------
+Displays the results for several awards (DXCC, WPX (PFX), WAZ (CQZ), IOTA, WAS
+(STATE)) or a QSO/Bands/Continent/Mode overview. A date range can be specified
+optionally.  Additionally to the normal summary, which looks like this
+
+                    Band    Wkd   Cfmd    QSL    LOTW 
+                    2        16     9      8      4  
+                    10       155    104    79     69 
+                    12       120    74     67     29 
+                    15       184    123    85     91 
+                    17       138    86     74     32 
+                    20       209    148    116    113
+                    30       197    116    81     73 
+                    40       193    133    100    108
+                    80       139    83     61     67 
+                    160      81     60     37     48 
+                    2190     4      3      3      1  
+                    All      262    202    173    160
+
+
+a detailled list is written into a HTML-formatted file. The
+filename will be displayed on the screen.
+
+11. Edit Name/QTH DB
+--------------------
+
+YFKlog maintains a database of names/QTHs for callsigns. If you enter a QSO
+with a known call, the name- and QTH-fields are automatically filled.
+Under this menu-point you can edit the database.
+
+
+12. Hamlib support
+------------------
+
+As of version 0.2.2, a minimalistic support for hamlib was added. It relies 
+on the 'rigctl' program which comes with hamlib. The path to rigctl must be 
+included in the PATH variable of your shell. 
+
+Pressing F5 in the logging mode invokes 'rigctl' and queries the frequency
+and mode from the connected transceiver. If no transceiver is connected or
+rigctl cannot be found, nothing happens.
+
+Alternatively, the frequency can automatically be queried at every new QSO,
+when setting 'autoqueryrig=1' in the config file.
+
+You have to specify model number of your rig in the config file '.yfklog'
+with the syntax:
+
+rigmodel=221   # example for Elecraft K2
+
+Further command line parameters (like the serial port) to rigctl can be
+specified in .yfklog by:
+
+hamlibparam= ...
+
+You can find a list of possible rig models on either the hamlib project
+website (http://hamlib.org/) or by invoking rigctl with the argument -l:
+
+rigctl -l
+
+To check if it's working, you can test rigctl on the command line:
+
+$ rigctl -m 221 f 
+14020350
+
+The command 'f' reads the frequency, the output is in Hz. In this case
+the transceiver was set to 14020.35 kHz.
+
+
+13. LOTW support
+----------------
+
+Beginning with version 0.2.3, there is basic LOTW support:
+
+13.1 LOTW Import
+----------------
+Reads a lotwreport.adi file, which contains information about confirmed QSOs
+in LOTW, and updates the database accordingly. LOTW and paper-QSL confirmations
+are handled sepatately. For award purposes, either counts as confirmed.
+
+13.2 LOTW Export
+----------------
+When logging a contact, YFKlog sets the 'QSLRL' (QSL-received-LOTW) database
+field to 'N' (= No). All QSOs marked as 'N' can be exported from the main menu
+(Export to LOTW) to an ADIF file. This file can be signed with tqsl and
+uploaded to LOTW. After the export, YFKlog sets these QSOs to 'R' which stands
+for 'Requested'. As soon as a LOTW report is imported which matches this QSO,
+it's updated to 'Y'.
+
+Setting exported QSOs to 'R' ensures that every QSO is only eported once for
+LOTW; you can quickly see which contacts have been uploaded or confirmed etc.
+
+
+
+

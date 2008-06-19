@@ -1,0 +1,47 @@
+2005-May-18:   Initial release
+
+2005-Dec-28:   Version 0.2.0
+
+- BUGFIX:  ADIF export: the band fieldlength was one too short. eg. <band:2>20m 
+- BUGFIX:  ADIF import: Fieldlength 0 didn't work. 
+- BUGFIX:  ADIF import: <eoh>/<eor> was errornously case sensitive. 
+- BUGFIX:  ADIF import: integer MHz frequencies didn't work, always required
+                        deciman separator (e.g. "14.000").
+- BUGFIX:  CALL/A became Prefix A0 and no DXCC.
+- BUGFIX:  Different calls with the same QSL-Manager were printed on one card!
+           e.g.: 8Q7ZZ via G3SWH and 5R8GZ via G3SWH ended up on one card with
+           8Q7ZZ in the "To:" field. Fixed this temporarily, for the cost of
+           not sorting after the manager's call. Might be changed in future
+           versions... (tnx info DL3DTH) 
+- BUGFIX:  Name/QTH database update for ADIF import added whole calls
+           (including /P etc) to the database instead of the basic call
+           (DJ1YFK, AD5UR..) only. Also it tried to add nonexisting fields
+           (name/qth) when only one of them was known.
+- BUGFIX:  cty.dat includes WAE countries (IG9, IT9, 4U1V, GM/s, IG9, IT9,
+           JW/b, TA1) which are *not* DXCCs. Those are now hardcoded into
+           yfklog (dxcc sub) to be changed to the proper DXCC. Since they are
+           not likely to change in the future, I decided to take this easy
+           approach.
+           Those DXCCs started with a "*" (*TA1 etc) and are easily filtered
+           out.
+           A similar problem occurs with DXCCs that have more than 4 letters,
+           for example VP8/h. The field for DXCC is only 4 chars long, and
+           somehow I forgot to remove the "/". This is now also fixed.
+           Unfortunately in an exisiting database from yfklog-0.1.0, the WAEs
+           are already counted as new DXCCs, and some DXCCs might be lost
+           because of the "/". There is a script "yfk-fixdxcc.pl"
+           distributed with yfklog-0.2.0 which fixes these problems. 
+- BUGFIX:  Direction of the other station was wrong ("mirrored"). 
+
+- NEW FEATURE:  Statistics: DXCC, PFX, CQZ, IOTA, STATE, QSOs/Band
+                (more statistics can easily be added. Don't hesitate to ask me
+                for any additions!). See manual for details.
+- NEW FEATURE:  In the input form, CURSOR UP goes to the previous field. No
+                more need to cycle through all fields to get to the previous
+                one. 
+- NEW FEATURE:  After entering a call in "Logging Mode", "New Bandpoint" or
+                "New DXCC" is displayed if appropriate.
+- NEW FEATURE:  In the "QSL-Receive" mode, pressing "s" toggles the "QSL-Sent"
+                flag of the QSO, which is useful when you are only replying
+                to incoming QSLs.  
+- NEW FEATURE:  Simple editor for Name/QTH-Database.

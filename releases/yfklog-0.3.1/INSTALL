@@ -1,0 +1,34 @@
+YFKlog 0.3.1  INSTALLATION GUIDE
+--------------------------------
+
+You can chose between using SQLite and MySQL as the database backend for
+YFKlog. SQLite is very flexible and easy to set up, and probably the better
+choice in most cases. Use MySQL only if you really know why.
+
+SQLite
+------
+Set 'dbserver=sqlite' in the config file, '.yfklog', and change other settings
+(mycall etc.) as desired. That's it!  
+
+
+MySQL
+-----
+Please follow these steps carefully.
+
+1 Create a Database (this example uses 'YFKlog' as dbname) and 
+  give the user the needed permissions for it (replace "username" with your
+  login-name and chose a password for 'passwd').
+
+  $ mysqladmin -u root -p create YFKlog
+  $ mysql -u root -p
+ 
+  mysql> GRANT ALL ON YFKlog.* TO username@localhost IDENTIFIED BY 'passwd';
+  mysql> quit
+
+2 Edit the configuration file .yfklog! This is very important, all database
+  connections etc. are set up here.
+ 
+3 That's it, start YFKlog:
+
+  $ ./yfk.pl
+

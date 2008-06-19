@@ -1,0 +1,61 @@
+YFKlog Version 0.3.1 - A general purpose Ham Radio Logbook  
+------------------------------------------------------------------------------
+
+1. Project Description 
+----------------------
+YFKlog is a general purpose logbook to keep track of amateur
+radio contacts. This is Version 0.3.0, released on 06. August 2007.
+The key characteristics are:
+
+- Console based, bloat-free text interface. 
+- database backend: MySQL or SQLite3
+- Unlimited number of logs manageable
+- ADIF Import/Export
+- Automatic creation of online logsearch
+- High Quality QSL label printing with LaTeX
+- basic award functions plus statistics (DXCC, WAZ, WPX etc).
+- uses K1EA's cty.dat
+- basic hamlib support to get frequency/mode from rig
+- basic LOTW import/export support.
+
+2. Project Website, Documentation
+----------------------------------
+The latest version can be found at: http://fkurz.net/ham/yfklog.html
+
+A manual describing most functions of YFKlog is located at:
+http://fkurz.net/ham/yfklog/doc/
+
+3. System requirements
+----------------------
+YFKlog was developed on Mandrake Linux 9.2, Debian Sarge
+and FreeBSD 5.3 with Perl v5.8.5.
+
+It requires the Perl modules:
+(- strict)
+- DBI             - Database
+- Curses          - console screen handling
+- Net::FTP        - upload of searchable onlinelog
+- POSIX           - acos() function for distance and direction
+
+The database can either be SQLite3 or MySQL. SQLite is probably the better
+and easier choice for most users. See 'INSTALL' and the manual for hints to set
+up YFKlog.
+
+For generating QSL-labels, pdflatex with the 'geometry' package is 
+needed. 
+
+YFKlog was designed to run in a console with 80x24 characters. 
+
+5. Installation
+---------------
+
+See INSTALL and RELEASENOTES
+
+6. Update from older version
+----------------------------
+See RELEASENOTES.
+
+
+
+If you have any suggestions, feature requests etc, don't hesitate a
+moment and send me a mail (mail@fkurz.net) or contact me via ICQ (169955833). 

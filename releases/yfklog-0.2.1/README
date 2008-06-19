@@ -1,0 +1,79 @@
+YFKlog 0.2.1 - A general purpose Ham Radio Logbook  
+------------------------------------------------------------------------------
+
+1. Project Description 
+----------------------
+YFKlog is a general purpose logbook to keep track of amateur
+radio contacts. This is version 0.2.1, released on 16. April 2006.
+The key characteristics are:
+
+- Console based, bloat-free text interface. 
+- MySQL database backend 
+- Unlimited number of logs manageable
+- ADIF Import/Export
+- Automatic creation of online logsearch
+- High Quality QSL label printing with LaTeX
+- basic award statistics (DXCC, WAZ, WPX etc).
+- uses K1EA's cty.dat
+
+2. Project Website
+------------------
+The latest version can be found at
+http://fkurz.net/ham/yfklog.html
+
+3. System requirements
+----------------------
+YFKlog was developed on Mandrake Linux 9.2, Debian Sarge
+and FreeBSD 5.3 with Perl v5.8.5.
+
+It requires the Perl modules:
+(- strict)
+- DBI             - Database
+- Curses          - console screen handling
+- Net::FTP        - upload of searchable onlinelog
+- POSIX           - acos() function for distance and direction
+
+A connection to a MySQL Database, not neccessarily on the same
+machine as YFKlog is needed.
+
+For generating QSL-labels, pdflatex with the 'geometry' package is 
+needed. 
+
+YFKlog was designed to run in a console with 80x24 characters. 
+
+4. Files and Directories
+------------------------
+yfk.pl        - Main program
+yfksubs.pl    - Subroutines
+*.lab         - QSL-label description files
+db_log.sql    - Code to generate a logbook table
+db_club.sql   - Code to generate table for club membership data
+db_call.sql   - Code to generate table for Names/QTHs
+.yfklog       - Configuration file
+search.php    - PHP Online-Search (very simple :-)
+
+
+5. Installation
+---------------
+
+See INSTALL and RELEASENOTES
+
+6. Update from older version
+----------------------------
+See RELEASENOTES.
+
+7. Future plans
+---------------
+
+I am always grateful to receive any kind of feedback, bug reports etc. Version
+0.2.1 didn't add many new features, but a lot of bugs were fixed and the
+documention was improved a bit. 
+
+For version 0.3.0 I am planning to add support of 'hamlib' for rigcontrol
+(mainly to get freq/mode from the RIG) and in the future I will also support
+XDIF (http://xdif.org/).
+Also I am planning to improve the speed by reducing the number of database
+queries and caching instead..
+
+Again: If you have any suggestions, feature requests etc, don't hesitate a
+moment and send me a mail or contact me via ICQ. 

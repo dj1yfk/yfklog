@@ -1,0 +1,41 @@
+YFKlog 0.3.2  INSTALLATION GUIDE
+--------------------------------
+
+YFKlog 0.3.2 comes with a Makefile.
+
+    make install [DESTDIR=/usr]
+
+will install it into DESTDIR (default /usr/[bin|share/yfklog/]).
+
+That's all, you can then start 'yfk'. On the first run, you'll be taken to a
+configuration menu, where you can set up YFKlog according to your needs.
+
+By default, YFKlog uses a SQLite database, and you don't need to set up
+anything manually.
+
+
+For MySQL-Users only
+--------------------
+
+If you want to use MySQL instead of SQLite (I recommend not to use MySQL unless
+you *really* know why you want to!) follow these steps:
+
+1 Create a Database (this example uses 'YFKlog' as dbname) and 
+  give the user the needed permissions for it (replace "username" with your
+  login-name and chose a password for 'passwd').
+
+  $ mysqladmin -u root -p create YFKlog
+  $ mysql -u root -p
+ 
+  mysql> GRANT ALL ON YFKlog.* TO username@localhost IDENTIFIED BY 'passwd';
+  mysql> quit
+
+2 Start YFKlog. 
+
+  $ yfk
+
+  On the first run, you'll be taken to a configuration menu, where you have
+  to set the database server, port, db-name, username and password.
+  Enter these values and you're ready to go.
+
+

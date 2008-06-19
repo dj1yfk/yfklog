@@ -1,0 +1,1741 @@
+HSC - Members by Prefixes
+-------------------------
+
+Updated April 2nd, 2005 up to HSC 1851
+edited by DL1TL, 10/2000
+
+Remarks:          *    New call not known at present
+                rsp    responsible operator (Club station)
+
+
+Call         HSC      Name                 2nd Call          ex Calls               Remarks
+-------------------------------------------------------------------------------------------------------
+AA1DD       1321      Jure                 S54CW, S50T
+AA8GQ        172      Helmut               DL9DQ
+AC5K        1614      Wes
+AJ3AA       1377      Djurica              YU7DR, YT6T
+
+A45XR        729      Chris                SP5EXA
+
+BX2AC       1703      Tony                                   BV2TA
+
+CP4BT       1694      P. Claus
+
+CT1BOH      1428      José
+CT1BQH      1539      Carlos
+CT1EFL      1758      Paul
+CT1FJK       388      Markku               OH2BZ
+
+CT3AS        451      Bernhard, Ben        DJ8FW, VK6FOC
+
+DA0HSC      1688      HSC: Clubstation                                              rsp DK5JI Hans
+
+DF1DV       1771      Marcus
+DF1GH        935      Hans
+DF1KF       1006      Wolf(gang)
+DF1LR        852      Wolfgang
+DF1LX       1392      Peter
+DF1NY       1013      Bernd
+DF1PI        896      Jürgen
+DF1PU       1592      Helmut
+
+DF2IC        917      Greg
+DF2KC        878      Hans-Udo
+DF2KK        831      Joe, Josef                             SP6HEK
+DF2KU       1455      Thomas
+DF2MF        918      Hubert
+DF2PI        885      Bert
+DF2RQ        843      Michael
+DF2SJ       1169      Bert
+DF2WW       1131      Andrea yl
+DF2YK       1227      Peter
+DF2ZX        822      Marko                9A2DX             9A2ZX
+
+DF3CB        931      Bernd, Ben
+DF3DU        900      Uwe
+DF3EC        906      Achim
+DF3EK        898      Karl
+DF3ID        980      Udo
+DF3IR       1717      Edmund
+DF3KT        870      Peter
+DF3MI        981      Kurt
+DF3OH        877      Andreas
+DF3SM       1003      Ulrich, Ulli
+DF3VM       1557      Michael, Mike
+
+DF4BV       1721      Heinz
+DF4DO       1009      Mark
+DF4EK       1010      Jo(achim)
+DF4KV        834      Uli
+DF4MP       1020      Wolf
+DF4PA       1361      Mark(us)
+DF4PD        932      Will(fried)
+DF4PM       1323      Heinz
+DF4SA       1468      Con
+DF4TS       1622      Claudio                                DL4SCH
+DF4XG       1004      Wolf
+DF4XX       1676      Kurt                                   DF3HU DL7CC
+
+DF5AC       1782      Norbert
+DF5DD       1115      Werner                                                        HSC Award Manager
+DF5DR       1479      Karl
+DF5DW       1257      Uli
+DF5EN        912      Dieter
+DF5GD        835      Günther
+DF5JT        887      Peter
+DF5KR       1148      Egon                 OE7PET
+DF5KU       1460      Günter
+DF5LW       1124      Wolfram
+DF5OQ       1565      Michael
+DF5PZ        904      Heinz
+DF5QG        809      Christian
+DF5RA       1438      Henry
+DF5TS       1250      Manfred
+DF5TV       1019      Manfred
+DF5UL        961      Fred
+DF5WA       1675      Berthold
+DF5ZP        991      Uli
+DF5ZV       1765      Petra yl
+
+DF6IN       1685      Peter                                  DL1GPK
+DF6LL        924      Walter
+DF6MS       1343      Oliver
+DF6NJ       1783      Victor
+DF6NS        984      Franz
+DF6UD       1684      Egon
+DF6WM       1364      Martin
+DF6YT        868      Uwe
+
+DF7CU       1117      Hans
+DF7FE        827      Pit
+DF7IS       1682      Klaus
+DF7MQ       1126      Volker
+DF7PX       1037      Peter
+DF7SY       1747      Frank
+DF7TH       1420      Joe                                    Y21TH
+DF7VY       1092      Lutz
+
+DF8AA       1290      Wolf(gang)                             Y24OL
+DF8LD       1242      Hans-Albert
+DF8PV       1035      Larry
+
+DF9BV       1580      Martin
+DF9CS       1074      Gerd
+DF9DM       1657      Michael
+DF9IV       1453      Gerd
+DF9LJ       1192      Jörg
+DF9TF        968      Richard
+DF9WF       1497      Ralf
+DF9ZV        914      Georg
+
+DH2FW       1750      Frank                                  DF2VWR
+DH2UL       1761      Knut
+DH3MG       1762      Martin
+DH5MDC      1532      Hans (-Peter)        EA6ACM
+DH6KAN      1476      Horst
+DH6MM       1334      Hanski (Hannu)                         OH2BFV
+DH8DX       1760      Daniel
+DH9DP       1757      Dennis
+
+DJ1BC        942      Dieter
+DJ1DW        218      Gus
+DJ1FE        933      Luz
+DJ1FN        350      Ludwig
+DJ1KE        211      Hans
+DJ1KV        536      Hans
+DJ1LG       1480      Gottfried
+DJ1OJ        368      Heijo
+DJ1SJ        975      Fred
+DJ1US        738      Steve                                  5X1S
+DJ1VB        635      Reinhard, Hardy
+DJ1VC        206      Hans
+DJ1WG       1110      Eberhard
+DJ1WQ        202      Hans                 HK3YH
+DJ1XT        609      William
+DJ1YFK      1754      Fabian
+
+DJ2AW        221      Klaus
+DJ2BV       1226      Aribert
+DJ2EB       1329      Eberhard                               Y23WA, DL3KWA
+DJ2HH        205      Dieter
+DJ2HW        236      Klaus
+DJ2IB        342      Andreas
+DJ2JG        201      Fred
+DJ2PJ        258      Hadi
+DJ2RD        946      Dieter                                 DJ2RH
+DJ2RG       1213      Klaus                                  Y21RG, DL6MGB
+DJ2SJ       1454      Fritz
+DJ2VO        237      Jürgen
+DJ2VT       1693      Hans-Georg
+DJ2WF        421      Herbert
+DJ2XP        671      Günther
+
+DJ3GN        268      Horst
+DJ3NW        276      Ralf
+DJ3OE        436      Herbert
+DJ3QQ        274      Thomas
+DJ3QT        335      Hans
+DJ3RA       1398      Axel                                   Y24PA
+DJ3RM        561      Jürgen                                 Y23RM
+DJ3SH        624      Helmut                                 ON8DF
+DJ3TU       1789      Norbert
+DJ3VY        364      Mike
+DJ3WJ        292      Rich
+DJ3WM        986      Hermann
+DJ3YU        301      Kurt                 PA3GQV
+
+DJ4CZ        359      Fred
+DJ4EC        651      Hank
+DJ4EY       1039      Jürgen, Jo
+DJ4GJ       1638      Bernd
+DJ4GX       1803      Peter
+DJ4IY       1021      Cas
+DJ4KD        277      Boyke
+DJ4KM        424      Helmut
+DJ4KW        273      Gerd                 V31YN
+DJ4NM       1538      Thomas                                 DL4NCM
+DJ4QB       1045      Heinz
+DJ4SB        329      Gerd
+DJ4SO        345      Klaus
+DJ4ST        413      Pi(e)t
+DJ4TV       1164      Vale
+DJ4TZ        304      Franz
+DJ4UF        644      Eckart
+DJ4XA        584      Max
+DJ4XG        289      Bruno
+DJ4XQ        389      Georg
+DJ4XS       1048      Klaus
+
+DJ5AA        558      Jo, Al                                 Y27KL
+DJ5AZ        296      Fred
+DJ5BG       1819      Benny
+DJ5BR        614      Ben, Bernd
+DJ5DA       1322      Walter
+DJ5DI        607      Fred
+DJ5DT        338      Thomas, Tom
+DJ5DZ        324      Friedhelm
+DJ5EO        383      Harald
+DJ5GG       1743      Günther
+DJ5IL        842      Karl
+DJ5IO        320      Max
+DJ5JH        372      Wolff
+DJ5MW       1579      Manfred                                DL2MEH
+DJ5OM        919      Rolf
+DJ5PA        400      Frank
+DJ5PV        332      Ted
+DJ5QF        337      Pit
+DJ5QG        381      Gerd
+DJ5QK        962      Otto                 OE7OAW
+DJ5QW       1303      Oliver                                 DL6YBX
+DJ5QY        444      Ulf
+DJ5RV       1160      Hermann
+DJ5WG       1036      Per                                    Y45VG
+DJ5XQ        955      Bernd
+DJ5ZN        314      Klaus
+
+DJ6BT        550      Kurt
+DJ6FC        447      Waldemar
+DJ6IH        420      Alfred
+DJ6MN        442      Klaus
+DJ6PC        893      Alfred
+DJ6PR        403      Roland
+DJ6RX        374      Klaus
+DJ6SI        336      Baldur
+DJ6TS        397      Erwin
+DJ6VI        435      Dieter
+DJ6XI        373      Roland, Ray
+DJ6YT        457      Manfred
+DJ6ZB       1073      Joe
+DJ6ZC        967      Dieter
+DJ6ZF        875      Henry
+DJ6ZM        889      Tof(fy)
+
+DJ7AO       1630      Stefan                                 DL5HBS
+DJ7AU        943      Gerhard
+DJ7BR        486      Wilfried
+DJ7DH       1696      Klaus
+DJ7IK        334      Andreas
+DJ7JE        617      Klaus
+DJ7MI        394      Hans
+DJ7MJ        572      Lothar
+DJ7PW        396      Wolfgang
+DJ7YE        430      Bernd
+DJ7YT        452      Hans-Jürgen
+DJ7ZO        602      Horst
+
+DJ8CR        432      Willi
+DJ8DJ        922      Peter
+DJ8EK        640      Wolfgang
+DJ8FW        451      Bernhard, Ben        CT3AS, VK6FOC
+DJ8HF        485      Fritz
+DJ8MT       1686      Udo
+DJ8QQ        855      Horst
+DJ8RK        534      Heinz
+DJ8SW        429      Werner
+DJ8WD        647      Hart
+
+DJ9CB        504      Gun, Günter
+DJ9EG        551      Walter
+DJ9FB        495      Wolfgang
+DJ9HA        446      Günther
+DJ9HD        949      Werner               EA8WH
+DJ9NI        528      Alfred
+DJ9NMH      1766      Stefan
+DJ9NX        467      Uli                  LA0CX
+DJ9ON        652      Dieter
+DJ9SB        487      Rena(ta) yl
+DJ9TQ        530      Klaus
+DJ9WL       1268      Peter
+
+DJ0MCH       278      Aurel, Relly                           DJ0AH
+DJ0ND       1211      Stefan               HA5TI
+DJ0NP       1144      Bernard
+DJ0OS       1103      Cliff
+
+DK1AA        645      Jürgen
+DK1BN        621      Walter
+DK1CU        557      Hans
+DK1DN       1664      Rolf
+DK1DU       1786      Bernd
+DK1GF        858      Georg
+DK1HN        598      Reinhard
+DK1HO       1026      Hans
+DK1II        886      Franz
+DK1KH        655      Klaus
+DK1NO        907      Han(ne)s
+DK1OP        586      Harald
+DK1OU        784      Fritz
+DK1WI       1764      Erhard
+DK1WU        632      Hans
+DK1XJ        740      Willy
+
+DK2AI       1381      Jörg                                   Y22UO
+DK2EF       1649      Karin yl
+DK2GZ       1008      Harry
+DK2IO        668      Wolfgang
+DK2PH        646      Hans
+DK2RW       1661      Jürgen                                 DL2JLT
+DK2SB        998      Willi
+DK2SR       1174      Kurt
+DK2UG        648      Mani, Manfred
+DK2VA        661      Josef-Ewald
+DK2VQ        643      Andy                 HB9CVQ
+DK2ZO        856      Wolf(gang)
+
+DK3AX        680      Gerhard
+DK3DM       1672      Heiko, Bud
+DK3GI        703      Roland
+DK3IR        664      Heinz
+DK3KD        743      Wolfgang
+DK3LD        669      Dietmar
+DK3LT        783      Jürgen                                 DK7XS
+DK3PQ        969      Heinz
+DK3RN        679      Willi
+DK3UZ       1823      Eddi
+DK3WW       1705      Uwe
+
+DK4AN        771      W(olfg)ang
+DK4BP        371      Arno                                                          (/mm)
+DK4DF        755      Richard
+DK4LX        816      Holger
+DK4RM       1050      Xaver
+DK4VL        766      Wolfgang
+DK4XL       1345      Martin                                                        rsp DL0WAA
+DK4YF        686      Rolf
+
+DK5CI        819      Gerald
+DK5HH        734      Mike
+DK5JA        824      Tony
+DK5JI        911      Hans                                                          President HSC
+DK5KE        727      Ludwig
+DK5LI       1749      Hein(er)
+DK5PJ        706      Klaus
+DK5PR       1570      Leo, (Hans)
+DK5RB       1478      Frank                                  Y25PA
+DK5TS        890      Ursula yl
+DK5VC        866      Ray
+
+DK6BW       1791      Sebastian
+DK6HN        884      Ekke
+DK6IS        883      Thomas
+DK6OK       1385      Det(lef)
+
+DK7AN        525      Ernst                                  Y21JH, DL3HRA
+DK7AU       1809      Ulli
+DK7BA        996      Hans
+DK7DO        901      Klaus
+DK7EO       1372      Mike                                   DL2EBX
+DK7FC       1805      Stefan
+DK7IT       1149      Fred
+DK7JZ        930      Eberhard
+DK7LM        788      Uschi yl
+DK7MC        833      Fritz
+DK7PE       1141      Rudi
+DK7QB       1086      Herbert
+DK7VE       1011      Norbert
+DK7VW       1709      Werner, Joe
+DK7XB        894      (Man)Fred
+DK7XV        793      Uwe
+
+DK8AH        948      Ger(har)d
+DK8AI        897      Peter
+DK8CM       1163      Bert
+DK8EI        954      Klaus
+DK8EZ        797      Rolf
+DK8FD       1272      Alex
+DK8IT        916      Gerry, Gerald
+DK8LD        811      Hans
+DK8LG        869      Frank                                  Y26LG
+DK8LL       1167      Bernd
+DK8LV       1727      Stephan
+DK8LW        903      Manni
+DK8NP        876      Norbert
+
+DK9AL        879      Dietmar
+DK9DR        905      Wolfgang
+DK9KR       1051      Ulf
+DK9LG       1193      Gerd
+DK9OY        832      Det
+DK9PS       1820      Ralf
+DK9TL        970      Uli
+DK9XR       1458      Raymond
+DK9ZH       1000      Silvo
+
+DK0HSC      1551      HSC: Clubstation                                              rsp DL3ZI Manfred
+
+DL1AAR      1335      Jens
+DL1AD        328      Hein
+DL1AH       1844      Kai
+DL1ALF      1842      Kurt
+DL1AOE      1328      Friedebert                             Y26ZH
+DL1BAV       974      Günther
+DL1BHG      1449      Udo
+DL1BO        11       Theo
+DL1BU        39       Günter
+DL1BUG      1704      Red, Reinhard
+DL1CC       1646      Wolf                                   DL6UDX
+DL1CF        915      Heinz
+DL1CL       1741      Hans
+DL1CW       1714      Arno
+DL1CX        40       Helmut
+DL1DA        36       Conny
+DL1DCY      1753      Mike
+DL1DTL       360      Klaus                                  Y21TL
+DL1DUB      1426      Tom                                    Y53PF
+DL1DWT       587      Bodo                                   DM4ZL
+DL1DXL       627      Lothar                                 Y21SL
+DL1EFD      1518      Carsten
+DL1EV        66       Bruno
+DL1FDL      1690      Marco
+DL1GBZ      1070      Martin               IK2RMZ
+DL1GGT      1536      Thomas
+DL1GQE      1523      Erich
+DL1GSB      1522      Siegfried
+DL1HBT      1220      Thomas
+DL1HCM      1517      Michael
+DL1IAO      1610      Stefan
+DL1JE        963      Klaus
+DL1JFM      1816      Karl
+DL1KV         5       Otfried              PA0KVN
+DL1LAE      1520      Fritz
+DL1MAY      1430      Hannelore yl
+DL1MEB      1641      Karl
+DL1NGH      1845      Günther
+DL1NM       1798      Helmut
+DL1NP       1639      Ben
+DL1OD       1707      Chris(tian)
+DL1RTD       739      Werner                                 Y23TD
+DL1SRM      1720      Michael
+DL1SWN      1305      Peter                                  Y22NB
+DL1SYB      1419      Karl-Heinz                             Y24BB
+DL1TL        18       Alf(ons)                                                      rsp DL0HSC
+DL1TQ        82       Achim
+DL1UG       1609      Jürgen
+DL1VDL       776      Hardy                                  Y27DL
+DL1VU        415      Karl
+DL1YAY      1723      Mario
+DL1YD        441      Jara                 OK8YD             OK1YD, DJ0YD
+DL1YGH      1808      Matt
+DL1ZN        224      Uwe
+DL1ZQ        379      Hans
+
+DL2ARN      1530      Wolf(gang)                             Y23YJ
+DL2AWA       595      Peter                                  Y21WI
+DL2BAB      1129      Matthias
+DL2BCL      1544      Sabine yl
+DL2BM        714      Hans
+DL2CC       1348      Frank                                  DL1SBR
+DL2DAB       988      Karl
+DL2DCM      1778      Helmut
+DL2ECP      1599      Ivo, Ivica                             9A3UR
+DL2ECW      1358      Frank
+DL2FAK       921      Tom
+DL2FDI      1713      Manfred
+DL2GJ        581      Franz-Ludwig
+DL2GV        665      Gus
+DL2HBX      1205      Uli
+DL2HCV      1711      Guntram
+DL2HQA      1811      Horst
+DL2HRF      1513      Tom                                    Y81ZH
+DL2HRM       732      Erhard                                 Y25MH
+DL2HTF      1495      Frank                                  Y32EK
+DL2HWA       749      Dietmar                                Y25XH
+DL2HWI       700      Dietmar                                Y21DH
+DL2JLA       402      Egon                                   Y22UN
+DL2JRM      1804      René
+DL2JTE      1718      Laci, Laszlo
+DL2KBD      1157      Bernd
+DL2KBH      1101      Dieter
+DL2KBM      1210      Sascha
+DL2KM        592      (Man)Fred
+DL2KS        654      Dieter
+DL2LBF      1837      Günter
+DL2LBP      1527      Peer-Axel
+DL2LE       1221      Dieter
+DL2MDZ      1618      Rainer
+DL2MFJ      1650      Jeff, Gottfried
+DL2NBY      1505      Tom, Thomas
+DL2PA       1788      Gert
+DL2RAY      1209      Knut
+DL2RMC      1411      Thomas                                 Y32TD
+DL2ROM      1098      Hans                                   Y24JD
+DL2SD        705      Ric, Roland                            Y22OM
+DL2SDD      1800      Josef
+DL2SDS      1742      Walter
+DL2SWN      1826      Klaus
+DL2UG        575      Bert
+DL2UR       1833      Franz
+DL2VEL      1607      Lutz                                   Y22SL
+DL2VLA       588      Andy                                   Y41VL
+DL2WI        690      Jürgen
+DL2YDS      1733      Stefan
+DL2YJ        892      Rainer
+DL2YTM      1810      Tobi(as)
+DL2ZAE      1089      Jürgen, Ju
+DL2ZAV      1313      Udo
+
+DL3AMA       517      Sigi                                   Y23ZI
+DL3AMB      1082      Fred                                   Y23IM
+DL3AN        62       Willi
+DL3ARH      1787      Andy
+DL3AZ       1759      Andreas
+DL3BK        42       Hans
+DL3BZZ      1730      Lutz                                                          HSC Contest Manager
+DL3CU         7       Hbt, Hubert
+DL3DXX      1469      Dietmar                                Y33VL
+DL3FF        724      Rudolf                                 DK5OS
+DL3HA        46       Walter
+DL3HAH      1195      Kai
+DL3HQN      1260      Ingo                                   Y23OH
+DL3HXX       818      Lothar                                 Y21YH
+DL3IAC      1695      Alois
+DL3IM        154      Heinz
+DL3JGN       704      Jürgen                                 Y23JN
+DL3JJ       1739      Ralf                                   DL3JSW
+DL3JR        580      Hermann
+DL3KAG      1118      Thor(sten)
+DL3KDH      1596      Andy, Andreas
+DL3KVC       555      Eckard                                 Y21OA
+DL3KWF       489      Hardy                                  Y21FA
+DL3LC       1490      Fritz                                  DL8OAT
+DL3MBE      1342      Hans
+DL3MCO      1295      Oli
+DL3NAA      1023      Peter
+DL3NAZ      1254      Peter                                  CP8XA
+DL3NM       1716      Hannes                                 DL3NEO
+DL3NN        104      Fritz
+DL3OCM      1738      Rolf
+DL3RAH      1262      Wolf(gang)
+DL3RC        711      Conny
+DL3RKS      1751      Sören
+DL3RQ        871      Peter
+DL3SA       1524      Jörg, Jockel
+DL3SAV      1320      Helmut
+DL3SZ        141      Adi
+DL3TD        675      Lothar                                 Y24UK
+DL3VZL       526      Sig(fried)                             DM2ZCL
+DL3XO       1280      Detlev
+DL3YM       1136      Andy                                   DL3YBM
+DL3ZI        229      Fred                                                          resp DK0HSC
+
+DL4AAA      1397      Torsten
+DL4AAE      1277      Uwe
+DL4AKW      1827      Steffen
+DL4ANK      1367      Tommy                                  Y44NK
+DL4BBI      1201      Peter
+DL4BE       1108      Jürgen
+DL4CC       1836      Emir
+DL4CF       1259      Joe, Jörg                              Y62QH
+DL4DAB      1076      Werner
+DL4FCH      1792      Peter
+DL4FCK      1655      Ger(har)d
+DL4FDM      1106      Fri(tz)              HB9CSA
+DL4FO       1841      Chris
+DL4FT        418      Detlev, Dad                            Y21TD
+DL4HAD      1153      Torsten
+DL4HAO      1142      Dietmar
+DL4KG       1018      Gerald
+DL4KVA      1350      Fred                                   Y21VA
+DL4MBE       861      Jakob
+DL4MM       1369      Mathias                                Y33UL
+DL4NAC      1292      Martin
+DL4SAV      1463      Raimund
+DL4SZB      1446      Peter                                  Y24HB
+DL4TJ       1769      Werner
+DL4XT       1679      Tetjus
+DL4YAG      1059      Fred
+
+DL5AWJ       628      Gerhard                                Y24WJ
+DL5BAT      1156      Heinz
+DL5BAV      1054      Peter
+DL5CF       1785      Dirk, Dick
+DL5CL       1046      Ron                                    Y21UH
+DL5CW       1240      Andreas                                Y24VF
+DL5DTT       673      Hans                                   Y55XL
+DL5DXS      1668      Steffen
+DL5EBE      1356      Dominik                                DP1ICE
+DL5EBX      1459      Bernd
+DL5FBL      1316      Rainer
+DL5FF       1170      Peter
+DL5GBG      1137      Hans
+DL5HCK      1393      Klaus                                                         HSC Web Manager
+DL5JQ        939      Erhard
+DL5KAT      1043      Buck
+DL5KAW      1256      Wim
+DL5KBP      1434      Dirk
+DL5KUA      1355      Lutz                                   Y25UA
+DL5LZ       1053      Uwe
+DL5MB        899      Arno
+DL5MBO      1125      Rainer
+DL5MC        594      Helmut                                 Y21HI
+DL5MX        808      Michael                                Y22KK
+DL5NDH      1625      Gerhard
+DL5OAI      1724      Willi
+DL5TT        934      Josef
+DL5VS       1588      Dittmar
+DL5XJ       1697      Nick                 LY1DC
+DL5XL       1572      Felix                                  DL8OBC
+DL5XX       1121      Stefan                                 DL4BBO
+DL5YAE      1359      Rupert
+DL5YL       1030      Tina yl                                Y21BE
+DL5YM        710      Fred                                   Y21NE
+DL5YRM      1606      Jörg                                   Y39RM
+DL5YYM      1626      Günter                                 Y23YM
+DL5ZAI      1493      Kurt
+DL5ZAS      1151      Klemens
+
+DL6AAF      1214      Uwe
+DL6BBE      1283      Michael
+DL6CWF      1058      Michael                                Y24KG
+DL6DMJ       742      Jan                  SP6DMJ
+DL6DQI       615      Tom                                    Y26IL
+DL6EM        264      Armin
+DL6FBL      1056      Bernd, Ben
+DL6FF        309      Hans
+DL6FI        103      Erich
+DL6HCO      1560      (Hans-) Martin
+DL6JXL      1659      Hagen
+DL6KAJ      1276      Udo
+DL6KBH      1795      Jürgen
+DL6KVA      1647      Axel                                   Y42DA
+DL6LBI      1784      Ingo
+DL6LY        81       Alo
+DL6MAA      1152      Peter
+DL6MLA      1772      Karl
+DL6NAJ       952      Theo
+DL6NCY      1624      Stefan
+DL6RAI      1133      Ben
+DL6SAZ      1132      Jens                 OZ2JV
+DL6TQ        174      Hans
+DL6UNF      1710      Frank
+DL6WR        57       Günter                                 DL6XM
+DL6XF        58       Kurt
+DL6XW        159      Waldemar
+DL6YCG      1489      Ben, Bernd
+DL6ZBA      1511      Matt(hias)
+
+DL7AI        920      Peter
+DL7AKC      1371      Jens                                                          Secretary HSC
+DL7AMJ      1567      Dieter
+DL7AV        475      Tom
+DL7CV         3       Eugen
+DL7CW         6       Karl
+DL7DO        280      Ralf
+DL7EQ       1775      Ulrich
+DL7GK        184      Bernd
+DL7GR        203      Wolfgang
+DL7IC       1429      Otto
+DL7IY        308      Detlef
+DL7IZ        616      Wolfram                                DM2BOG
+DL7JV       1830      Jan
+DL7KL       1731      Reiner
+DL7LPH      1847      Peter
+DL7NJ       1797      Tom
+DL7RK       1140      Peter
+DL7SEB      1770      Sebastian
+DL7UCW      1418      Ben                                    Y34SE
+DL7UEO       409      Peter                                  Y22EO
+DL7UGN      1828      Mike
+DL7USA       719      Lutz                                   Y48VO
+DL7USW      1494      Mark                                   Y54XO
+DL7UYO       405      Rudolf                                 Y22YO
+DL7VJO      1445      Heribert                               Y23JO
+DL7XU       1436      Manfred
+
+DL8AWK       839      Dieter                                 Y22WK
+DL8BBO      1078      Armin
+DL8BDC      1678      Gerd
+DL8CMM       763      Gun                                    Y22FG
+DL8COG      1813      Bud
+DL8CWA      1297      Jürgen                                 Y71VG
+DL8DCY      1691      Olaf                 PA3GTV
+DL8FD        618      Hans
+DL8GU       1349      Wolfgang
+DL8HAR      1238      Rainer
+DL8HRW      1734      René
+DL8IH        522      Willi
+DL8KAC      1773      Vlad
+DL8KAW      1062      Gerhard
+DL8KAZ      1102      Dieter
+DL8LAQ      1796      Norbert
+DL8LBK      1737      Karsten
+DL8MTG       611      Klaus                                  Y24TG
+DL8OAC      1199      Holger
+DL8OAM      1616      Andreas
+DL8OAR      1403      Klaus
+DL8OC        562      Hans
+DL8OE        997      Alfons
+DL8OO       1351      Lutz
+DL8PG        512      Gerd
+DL8PY        577      Günter
+DL8QT       1075      Walter
+DL8RAZ      1222      Otto
+DL8SAO      1715      Emil (Dietrich)
+DL8SBX      1848      Uli
+DL8SCO      1595      Manfred
+DL8UXF      1390      Heinz                                  Y25XF
+DL8WAA      1391      Frank                                  Y41NM
+DL8WF        781      Wolfgang                               Y24UH
+DL8XR       1346      Jochen
+DL8YCN      1301      Johann
+DL8YDS      1504      Ekkehard
+DL8YR        553      Peter
+
+DL9AWI      1564      Erik                                   Y31WI
+DL9BAI       990      Ralf
+DL9CE        340      Manfred
+DL9CW        758      Dietrich                               Y26BL
+DL9DA        153      Heinz
+DL9FBB      1362      Les
+DL9FC       1326      Peter
+DL9FU        267      Franz
+DL9GOA      1689      Uwe
+DL9GST       994      Ulf-Michael                            Y45UA
+DL9HAZ      1024      Lutz
+DL9IE       1752      Heinz
+DL9LD        173      Luck
+DL9LI        307      Horst
+DL9MDW      1410      Chris
+DL9NAB       947      Johann
+DL9PR        152      Herm(ann)
+DL9RDL      1514      Dagmar yl
+DL9SJ       1552      Peter
+DL9SUB      1822      Hans
+DL9TJ        185      Gerry, Gerhard
+DL9UAA       782      Günter                                 Y22YF
+DL9UJF       674      Wolfgang                               Y22JF
+DL9UTF      1296      Frank                                  Y31TF
+DL9VU       1191      Hans                 LX2LH
+DL9YBU      1181      Wilhelm
+DL9YP        532      Bert
+
+DL0HSC      1001      Clubstation HSC                                               rsp DL1TL
+DL0WAA      1515      Clubstation                                                   rsp DK4XL
+
+DM2AUJ       817      Wolfgang                               Y21UJ, DL1AUJ
+DM2AUO       503      Max                                    Y21UO
+DM2BRF       720      Didy                                   Y22RF
+DM2DMI       807      Peter                                  Y24MI, DL4ARN
+DM2DZM       768      Peter                                  Y24ZM
+
+DM3KDN       347      Roland                                 Y21VD, DL1RRD
+DM3UH       1239      Manfred                                Y27YH
+DM3XPN       391      Bernd                                  Y25RN
+
+DM5JBN      1368      Eddy                                   Y22BT
+
+DP1POL      1572      Felix                DL5XL
+
+EA1APA      1746      Francisco
+EA2AEK      1145      Merche yl
+EA4KA       1341      Eugenio                                EA4DAS
+EA4MC       1507      Juan (Manuel)                          EA4DZD
+EA5ARC       466      John                 G3OLU
+EA6ACM      1532      Hans                 DH5MDC
+EA7VK       1799      Juan
+EA7WA       1332      Angel                                  EA7CEZ
+EA8WH        949      Werner               DJ9HD
+
+ER1CW       1587      Vic(tor)                               UO5ON
+
+ES1DZ        496      Endel                                  UR2DZ
+
+EU1AA        249      Valentin                               UC2AA
+EU1AR        462      George                                 UC2AR
+EU3EU       1612      Jerry                                  UC2LEG
+EV6A         533      Anatol                                 UC2WP
+
+F2CW        1105      Jacky                ZL3CW             F6GXB
+
+F3CW        1200      Alain                                  F6AJN
+F3JK        1365      Jean
+F3NB         32       Andy
+F3TK        1566      Jean
+
+F5CW        1421      Dany                                   F6CZB
+F5LAW       1470      Yann                                   F1LAW
+F5LBD       1793      Michel
+F5LDY        958      Jean                                   DA1KL
+F5LJY       1383      Jean-Jacques                           FD1LJY
+F5LNO       1706      Rosy yl
+F5MGZ       1486      Mehmet               J28FX
+F5MKX       1109      Michelle yl                            F5VV
+F5NGA       1394      Francois                               F6GFC
+F5NLX       1540      Jean-Marie                             FD1NLX
+F5OEL       1569      Jean-Pierre                            FD1OEL
+F5PXP       1663      Jean-Louis
+F5SHE       1483      Jean-Jac(ques)                         F1JJB
+F5TDJ       1722      Armand
+F5TFS       1662      Boris
+F5TO        1173      Bernard
+F5VJF        483      Erkki                                  OH2BF, OH2BBF
+F5VV        1159      Joel
+F5ZP        1179      Gérard
+
+F6AAS       1484      Serge
+F6ALV       1384      Jacques
+F6ARN       1448      Charles
+F6AXX       1216      Norbert
+F6BCU       1407      Bernard
+F6BSP       1184      Michel
+F6BVB       1491      Jacques
+F6BWO        814      Jean-F, Jeff
+F6CEL       1466      Ghislain
+F6DDR       1203      Phil(ippe)
+F6DJB       1304      Claude
+F6DJV       1166      Maurice
+F6DUR       1016      Gas(pard)
+F6DZS       1330      Serge
+F6EBA        957      Mike                                   J28ZEG
+F6EEZ       1034      Henri
+F6ENN       1007      Michel
+F6ENO       1452      Alain
+F6EPQ       1183      Dany
+F6FBG       1012      René
+F6FCO       1081      Jean
+F6FEQ       1405      René, Rainer
+F6FHW       1378      Lucien
+F6FII       1281      Jean
+F6FLF       1282      Francis
+F6FSQ       1447      Jean-Philippe
+F6GES        993      Gérard
+F6GIN       1185      André
+F6GNC       1194      Maria yl
+F6GXP       1207      Jean
+F6HDI       1096      Ezio
+F6HHU       1165      Edgar
+F6HMU       1353      Raymond
+F6HVA       1306      Christian
+F6IFY       1139      Phil(ippe)
+F6IHH       1269      Laurent                                FE6IHH
+F6IIE       1442      Maurice
+F6IJA       1228      Serge
+F6INZ       1380      Jack
+F6IRF       1196      Pat
+F6IVT       1333      Christophe                             FD6IVT
+
+F8DBN       1846      Jeremy
+F8LP        1093      Maurice
+
+F9HR         98       Robert
+F9IQ        1462      (Jean-) Claude
+F9LT         89       Eric
+F9NF        1375      Michel
+F9TZ         86       Robert
+
+GI4GCN      1066      Raymond
+
+GM3JKS      1337      Frank                                  G3JKS
+GM3POI       549      Clive                                  G3POI
+GM4EVS      1545      David, Dave
+
+GW0FJT      1581      Jon(athan)           G0FJT
+GW0MFN      1632      Jaap                 PB0AJA
+
+G3AB        1555      Andy                                   G4ZVJ
+G3BDQ        87       John
+G3ESY        177      Peter                HB9CDY
+G3FBN        77       John
+G3IDG        170      Allan
+G3IEW        175      Stan
+G3JJZ        297      Dave
+G3KMQ        228      Gerry
+G3LTV       1087      Bill
+G3LWI       1311      John
+G3MFE        492      Dunc(an)                               9G1WA
+G3OHG        578      Eddie
+G3OLU        466      John                 EA5ARC
+G3OSY        625      Bob
+G3PJW        564      Reg
+G3RCO        459      Charles
+G3RIX        481      Martin
+G3VJP       1807      John
+G3VMW       1399      Steve
+G3WP         541      Jack
+G3XVY        805      Philip
+
+G4BJM       1521      Fraser
+G4HZV       1550      Bob
+G4ILW        964      James
+G4JTC        927      John                 ZB2EO
+G4KGG       1423      Peter
+G4KXG       1840      Ken
+G4MVA       1360      Glynn                ZC4CZ
+G4OJW       1437      Ali
+G4SAW       1308      Mick
+G4UOL       1435      Steven
+G4UZN       1275      Tony
+G4ZIB       1725      Tony
+
+G0AOL       1574      Gillian yl
+G0AYN       1441      Ian
+G0CKP       1548      Steve
+G0DMN       1558      Steve
+G0EBW       1708      David
+G0FJT       1581      Jon(athan)           GW0FJT
+G0HGA       1496      Angie yl
+G0RTN       1850      Gerry
+G0SPJ       1631      Fethi                TA2A
+G0TUE       1812      Ray
+
+HA1AG       1512      Zoli                 PA1AG
+HA1CW       1744      Gyuri
+HA1VE        576      Joska
+HA1XH       1235      Ildiko yl
+HA1XU       1255      Janos
+HA1YA        728      Gabi
+
+HA2RX       1427      Lorinc
+
+HA3FO       1510      Vali yl
+HA3HK       1593      Zoli
+HA3HO       1338      Bela
+HA3LI       1414      Ali                                    HA1ZP
+HA3NU        790      Lacy
+HA3OU       1465      Joco
+HA3OV       1236      Anti
+HA3PG        737      Sandor
+HA3RD       1309      Tibor
+
+HA4FF       1299      Zoli                                   HA3PD
+HA4YF        748      Bela
+
+HA5BPC      1634      Imre
+HA5BUB       460      Laci                                   HA5DI
+HA5BWW      1726      Ed
+HA5CW        803      Joska                                  HA7MR
+HA5DMM       476      Ferenc                                 HA5DM
+HA5FW        547      Endre
+HA5JI        709      Gyuri
+HA5TI       1211      Pista                DJ0ND
+
+HA6NA        692      Sanyi, Sandor
+HA6NY        722      Gyula
+HA6OI       1286      Zoli
+
+HA7LM       1161      Imre
+HA7PB        660      Joci                 N3SZQ
+HA7PF       1155      Gyuri
+HA7PJ        523      Emil
+HA7PW       1176      Laszlo
+HA7UL       1237      Ferenc, Feri
+HA7WXJ      1266      Peti                                   HA1XJ
+
+HA8DT       1187      Jozef
+HA8DZ        829      Dezso
+HA8LAR      1485      Robert
+HA8MT       1243      Fero                                   HA0EQ
+HA8PG       1501      Pat, Gyula
+HA8TP       1699      Jen
+HA8UT        756      Pista                OK8AMN
+
+HA9RX       1215      Lali, Lajos          VE3NE             VA3RU
+HA9SU       1645      Bela
+
+HB9ABO       437      Urs
+HB9ADH       971      Alfons
+HB9AFH       795      Hugo
+HB9AXL      1839      Paul
+HB9AZB      1040      René
+HB9BCZ      1180      Robert
+HB9CDU       977      Daniel
+HB9CDY       177      Peter                G3ESY
+HB9CSA      1106      Fritz                DL4FDM
+HB9CVQ       643      Andy                 DK2VQ
+HB9CZF      1389      Dominik
+HB9DAX      1838      Fred
+HB9ET        48       Kurt
+HB9JL        26       Aldo
+HB9KX        30       Kurt
+HB9MC        76       Hans
+HB9QH        357      Hans
+HB9RE       1732      Fritz
+HB9SJ        689      Bruno
+HB9XX       1500      Adolf
+
+HK1BAU      1158      Hans
+HK1BYM      1376      Antenogenes
+HK1DBO      1415      Alfonso
+HK3YH        202      Hans                 DJ1WQ
+
+HS/OZ1HET   1154      Finn                 OZ1HET
+
+IK1ATK      1487      Salvatore
+IK1EZC      1712      Michele
+IK1QBT      1767      Tony
+
+IK2BAE      1373      Ezio
+IK2RMZ      1070      Martin               DL1GBZ
+IK2YLV      1763      Peppino
+
+IK4DCT      1408      Davide
+IK4EWX      1386      Ian, Gian
+IK4HLO      1537      Fabrizio
+IK4IDW      1692      Stefano
+
+IK5ZQB      1776      Lauro
+
+IK6BAK      1542      Eliseo
+
+IK8VRP      1698      Andrea
+
+IK0HBN      1777      Sante
+IK0XCB      1817      Clay, Claudio
+IK0YGJ      1843      Carlo
+IK0YVV      1756      Marco
+
+IN3NJB      1135      Bob
+
+IT9ORA      1702      Gianni
+IT9TAI       216      Domenico
+IT9TQH      1562      Maurizio
+IT9ULN      1755      Angelo
+IT9VDQ      1451      Giuseppe
+IT9ZGY       656      Pietro
+
+IZ4AGI      1806      Maurizio
+
+I1BAY        510      Attilio
+I1HJP       1038      Paolo
+I1QII       1177      Diego
+I1QOD       1568      Alberto              JT1FCY
+I1SCI        590      Renato
+I1XHV       1128      Enzo
+I1YRL       1543      Luc(iano)
+
+I2AV        1503      Alberto
+I2AZ        1829      Guiseppe, Joe
+I2BWW        880      Silv(ano)
+I2CZQ       1395      Pietro, Peter
+I2FGT        733      Jul, Giulio
+I2QIL       1541      Antonio
+I2RLX       1424      Fernanda yl
+I2SBW        416      Giovanni
+I2UIY       1629      Paolo
+I2ZGA        688      Giancarlo                              I1ZGA
+
+I3BLF        767      Jack
+I3JSS       1780      Adriano
+I3VIB        538      Giovanni
+
+I5YDI       1456      Luigi
+I5YT         678      Mauro
+
+I6BQI        723      Angelo
+I6MAT        747      Giorgio
+
+I7ALE        798      Sandro
+I7BNX        769      Rino
+I7/9A3A     1261      Ivo                  9A3A              T93A, 5B4ADA
+
+I0GO         411      Giuseppe                               I1GO
+I0GOJ       1736      Antonio
+I0RNK       1735      Angelo
+I0XXR        119      Chas, Giancarlo
+
+JH2QFI      1190      Masa
+
+JT1FCY      1568      Alberto              I1QOD
+
+J28FX       1486      Mehmet               F5MGZ
+
+J6LY         573      Robert, Bob                            VE3EWY
+
+KA2ETG      1825      Scott
+
+KG2KJ        859      Remigiusz                              SP5ILP
+KK8I        1205      Uli                  DL2HBX
+K1JD        1831      John
+K1LWI        716      F., Wendell
+K1UM         612      Ken(neth)                              K1ZYW
+K2MGR       1602      Kurt
+K2SB         983      Stephen
+K3JJG        422      Edward
+K3NK        1202      James                                  WB2FFY
+K4BAI       1671      John
+K4JYQ        330      Beatrice yl
+K5DQ        1745      Peggy yl
+K6JHF        423      Henryk               SM0JHF, SO5JHF    AA3DA
+K9GCI        387      Jerry
+K9QVB       1617      John
+
+LA1IE       1186      Otto
+
+LA2HN        796      Björn
+LA2YE        312      Arvid
+
+LA3IBA      1352      Hugo
+LA3LE       1022      Eyvind
+
+LA4CAA      1094      Knut
+LA4DCA      1025      Henning
+LA4JL        636      Per
+LA4XX        995      Hal
+
+LA5DW       1291      Björn
+LA5EBA      1401      Lars
+LA5HE        194      Rag(nar)                               OZ8RO
+
+LA6CF        269      Jörgen
+LA6YEA      1324      Oystein
+
+LA7JS       1382      Kjeld
+LA7MFA       966      Leo, Lech            SP5LGT
+
+LA8DW       1379      Karl
+LA8PF        556      Per
+
+LA9HFA       965      Piotr                SM7YEA
+
+LA0CX        467      Uli                  DJ9NX
+
+LU3EX       1444      Alf(redo)
+
+LX1CF       1336      Leo
+LX1WW       1289      Claude
+LX2LH       1191      Hans                 DL9VU
+
+LY1DC       1697      Nick                 DL5XJ
+LY1DW       1670      Raimondas
+LY2BLQ      1506      Vytas                                  UP2BLQ
+LY2FE       1143      Vit                  LY5G              LY2BFE
+LY2MM       1583      Albinas                                LY2PAQ
+LY3BA       1529      Gedas                                  UP3BA
+LY3OQ       1601      Adis                                   LY2BOQ
+LY5G        1143      Vit                  LY2FE             LY2BFE
+
+LZ1AM        508      Stefan
+LZ1AZ       1028      Tosho
+LZ1FI       1598      Peo
+LZ1JW        650      Ivan
+LZ1JZ       1651      Tony, Anton
+LZ1XL       1818      Minko
+LZ2JE       1063      Vesko
+LZ2LT       1197      Steve
+LZ2RS       1088      Rumi
+LZ2TU       1525      Dobri
+LZ3RM       1628      Emil
+
+M0AGA       1824      Kevin
+M0GMT       1802      Danny
+M0SIS       1642      Petr                 OK1RP
+
+NA5W        1591      Dalton R.F.
+NQ2O        1069      Wastl, Walter                          KA2MRP
+NR7O         760      Tony                                   WA7JRL
+N2IT         864      Lou(is)
+N2KU         841      Zbigniew                               KB2ES
+N2KW         972      Allen
+N3SZQ        660      Joci                 HA7PB
+N4PL         825      Waldemar                               SP5GBT, VE3PEX
+N4WJ        1044      Frank
+
+N6RGS       1608      Gordon
+N9SW         321      Gene
+N0XW         844      Helmut               OE1TKW
+
+OE1JJB      1122      Hanno
+OE1JNB      1246      Jan
+OE1TKW       844      Helmut               N0XW
+OE1WOW      1146      Wolf(gang)
+OE1YDC      1218      Ver(onik)a yl
+
+OE2LEL       622      Heinrich
+OE2RTM      1461      Robert
+
+OE3ZK        519      Gert                                   OE1ZK
+
+OE4CSK      1637      Georg(e)
+
+OE5CG        891      Josef
+OE5GD        252      Dieter
+OE5HIL      1314      Manfred
+OE5MSM      1027      Mike
+OE5NNN      1636      Max
+OE5OEL       663      Edi                                    DJ0ZM = HSC 910
+OE5PV        244      Vic(tor)
+OE5PWL       591      Walter
+OE5WLL       770      Willy
+
+OE6DUG      1586      Edgar
+OE6FYG      1665      Herbert
+OE6IMD      1526      Mihai
+
+OE7OAW       962      Otto                 DJ5QK
+OE7PET      1148      Egon                 DF5KR
+OE7RKH      1067      Bob, Robert
+
+OH1LA       1223      Pekka                OH2HEX
+
+OH2BDA      1400      Seppo                OH2FOC
+OH2BDP       571      Hans                 OH2EA
+OH2BH        445      Martti                                 VR2BH etc.
+OH2BJ       1265      Mika                                   OH2BHZ
+OH2BMD      1285      Ari
+OH2BN        465      John
+OH2BSQ       941      Heikki
+OH2BZ        388      Markku               CT1FJK
+OH2EA        571      Hans                 OH2BDP
+OH2FOC      1400      Seppo                OH2BDA
+OH2HEX      1223      Pekka                OH1LA
+OH2KT        351      Günter                                 DL7IM
+OH2NAG      1621      Pekka
+OH2NN        491      Sep(po)              OH6VR
+OH2QV        529      Anssi
+OH2YV        147      John                 OH3MAF
+
+OH3BU       1182      Jari
+OH3GD       1482      Kari
+OH3MAF       147      John                 OH2YV
+
+OH4BC       1327      Jari                                   OH6MLX
+OH4LYX      1654      Jyrki
+OH4NRC       552      Eric, Erkki                            OH8RC
+OH4YR       1319      Mika
+
+OH6DC        938      Jari
+OH6LBW      1658      Janne
+OH6NTO      1472      Nik
+OH6NVC      1516      Mika
+OH6RA        270      Martti
+OH6VR        491      Sep(po)              OH2NN
+
+OH7JR        979      Jim, Jami
+
+OK1AA        233      Ludek                                  OK1AAA
+OK1AU       1677      Stanislav                              OK1AUJ
+OK1AVG       960      Jan
+OK1BB        461      Jarda
+OK1CF        753      Karel                                  OK1JCW
+OK1CZ       1477      Petr
+OK1DOK       757      Milan
+OK1DX       1412      Pavel                                  OK1DXS
+OK1FIM       926      Vlasta
+OK1FR        828      Frank                                  OK1IFB
+OK1GT        382      Jiri
+OK1IF       1374      Milan                                  OK1JJF
+OK1JD        468      Josef
+OK1KT        412      Vrata                                  OK1AFN
+OK1NR        407      Jan
+OK1PG        427      Zdenek
+OK1RP       1642      Petr                 M0SIS             OK1PRR
+OK1RR        731      Martin
+OK1TJ        865      Jaro                                   OK1ARD
+OK1UCW      1467      Jana yl                                OL5BPH
+OK1ZL        401      Zdenek
+
+OK2BBJ       453      Josef
+OK2BCH       563      Jindrich
+OK2BMA      1055      Pavel
+OK2BMZ       761      Zdena yl
+OK2BUW      1068      Jiri
+OK2HZ        516      Jaro(mir)
+OK2QX        414      Jirka
+OK2UZ        718      Henry, Jindrich
+
+OK8AEP      1355      Lutz                 DL5KUA            Y25UA
+OK8AMN       756      Pista                HA8UT
+OK8YD        441      Jara                 DL1YD             OK1YD, DJ0YD
+
+OM2NW       1815      Palo
+OM3BT        484      Boris                                  OK3BT
+OM3CG        570      Jan                                    OK3CEG
+OM3EA        190      Harry                                  OK3EA
+OM3MM        160      Jan                                    OK3MM
+OM3PA        682      Peter                                  OK3CGI
+OM3QQ        440      Josef                                  OK3QQ
+
+OM7YX        666      Bob, Robert                            OK3YX
+
+ON4AXV      1652      Jan
+ON4AZ        101      Alain
+ON4IM       1138      Frans
+ON4QF        95       Jean
+ON4RU        600      Mar                                    YO3CD
+ON4WD        951      Jules
+
+ON5GK        860      Rod
+ON5KD        745      Tillo
+ON5ME        909      Oscar                                                         President S/EHSC
+ON5UK       1508      Luk
+
+ON6CW       1633      René
+ON6HE       1225      Ed
+ON6NW       1279      Walter
+ON6RR       1091      Gustaaf
+
+ON7AB       1080      André
+ON7GO       1032      Phil(ip)
+ON7VU        940      Luc
+
+ON8RD        507      Gérard
+
+OY2H         610      Hans
+OY3QN       1198      Ole                                    OZ3QN
+
+OZ1CAR      1090      Jens
+OZ1EQC       959      Per
+OZ1HET      1154      Finn                 HS0/OZ1HET
+OZ1III      1271      Jasper
+OZ1JHM      1457      Hjalmar
+OZ1KHZ      1298      David
+OZ1TL        501      Torben
+
+OZ2JV       1132      Jens                 DL6SAZ
+
+OZ4FF        243      Karsten
+OZ4UN        531      Paul                                   DJ0IV
+
+OZ5AAH      1660      Preben, Ben
+
+OZ7YL        620      Svata yl
+
+OZ8SW       1561      Steen
+
+OZ9DX        183      Bent
+
+PA1AG       1512      Zoli                 HA1AG
+
+PA2CW       1354      Paul                                   PA3DCO, PB5CW
+
+PA3A         862      Arie                                   PA3AAM
+PA3ADJ      1119      Stefan
+PA3ADM       881      Gert Jan
+PA3AFF      1585      Piet
+PA3AOY       944      Jan
+PA3ARR      1234      Coen
+PA3AWW      1648      Henk
+PA3BAS      1404      Carel
+PA3BSV      1233      Rob
+PA3BVJ      1175      H.T.
+PA3BWK      1150      Wilko
+PA3BYW      1212      Durk
+PA3CBU      1270      Peter
+PA3CFI      1578      Jan
+PA3CKO      1347      Flip
+PA3CWG      1317      Ronald
+PA3DEB      1474      Kees
+PA3DNZ      1571      Herman
+PA3EDN      1402      Egon
+PA3FVK      1669      Joop
+PA3GNO      1252      Johannes                               SM6LQG
+PA3GQV       301      Kurt                 DJ3YU
+PA3GTV      1691      Olaf                 DL8DCY
+
+PA4A        1247      Andy                                   SP4FCG, PA3EYZ
+PA4CW       1619      Rienk                                  PA3AYF
+
+PA5TT       1061      Teun                                   PA3BTH
+PA5V         569      Bob                                    PA0SOL, PA5AX
+PA5XM       1178      Kees                                   PA3CCF
+
+PA7UL        874      Paul                                   PA3AGO
+
+PA0ABM       987      Wino
+PA0BRM       554      Bram                 SM0FLY
+PA0DIN       999      Din                                                           Secretary VHSC
+PA0DW       1130      Lex
+PA0GSN      1431      Leo
+PA0IF        146      Jim
+PA0INA       956      Frans
+PA0KVN        5       Otfried              DL1KV
+PA0LOU       238      Lou(is)                                                       Committee VHSC
+PA0LXL       279      Leo
+PA0MRG      1582      Jan                                    PA3ATA
+PA0NNY       128      Johnny
+PA0RUY      1071      Hans
+PA0VG        127      Peter
+PA0VDV      1168      Joeke
+PA0VLA      1406      Jo
+PA0VSS      1047      Jan
+
+PB7CW       1774      Theo
+
+PC2J        1632      Jaap                 GW0MFN            PB0AJA
+PG4I        1100      Joop                                   PA3ABA, PA4TU
+
+PR7PO        982      Alex
+
+PY1BUL      1370      Dulce(mar) yl
+PY1BVY       976      Ron
+PY1EWN       989      Ronaldo
+PY1JF       1230      Rey
+PY2OW       1065      Sandro                                 PY2BTR
+PY5AVR      1396      Joao
+
+RA1AOM      1528      Valery
+RA1QQ       1620      Nick
+RA6AR        857      Tom                  WN1R              UA6APP
+RA6YY       1640      Alex
+RK3WW       1331      Andy                                   UA3EAC
+RK6AF       1575      Konstantin                             UZ6AF
+RU3AO       1577      Nick                                   UW3AO
+RU3DM       1464      Valery                                 UW3DM
+RU3HD       1666      Vlady                                  UV3HD
+RU4WT       1623      Alex                                   UK8ACQ
+RU9LA       1801      Andy
+RV4LC        659      Valentin                               UA2BZ
+RW3GU       1681      Larry, Walera
+RW6AC       1413      Jack                                   UA6ALV
+RX3QX       1604      Ivan                                   UV3QX
+
+SM3AKW       259      Karl Georg
+SM3AVW       376      Jon                                    SM0AVW
+SM3EVR       872      Tord
+SM3OJR      1357      Jonathan                               SM2OJR
+
+SM4BZH       341      Seppo                                  SM0BZH
+SM4CMG       417      Bob
+SM4OTI      1302      Stefan
+
+SM5AHK       192      Curt
+SM5AWJ       187      Karl
+SM5BLA       93       Sigge
+SM5CMP       815      Owen
+SM5DGA       806      Jan
+SM5EY        124      Bruno
+SM5MX        406      Rolf                                   5Z4MX
+SM5UH        138      Ake
+
+SM6BLF       133      Alf                                    SM7BLF
+SM6BXN       70       Ragnar
+SM6CNX       472      Dan
+SM6CST       399      Urb
+SM6EAN       736      Mats
+SM6EWB       626      Goran                                  SM3EWB
+SM6LRR      1099      Mats
+
+SM7ACR       123      Nils, Eric
+SM7BCE       261      Erik
+SM7BHF       178      Sigurd
+SM7BVO       90       Rolf
+SM7CMV       619      Ken
+SM7TKL      1779      Hans
+SM7YEA       965      Piotr                LA9HFA
+
+SM0AIG       68       Ingemar                                SL3AF
+SM0BKZ       454      Stig                                   SM7BKZ
+SM0EEJ       231      Rado
+SM0FLY       554      Izaee                PA0BRM
+SM0JHF       423      Henryk               SO5JHF, K6JHF
+SM0KCR      1549      Robert
+SM0RGG       725      Rajmund                                SP1DZ
+
+SO5JHF       423      Henryk               SM0JHF, K6JHF
+
+SP1DPA       838      Wal(demar)
+SP1GAU       812      Danuta yl
+SP1LX        691      Jan
+
+SP2AVE      1728      Zbigniew
+SP2B         773      Jan                                    SP2BMX
+SP2DVH       717      Jerzy
+SP2DX        10       Wes                                    SP1JF
+SP2FAX       801      Kazimierz
+SP2FWC       846      Jan                                    JW0A
+SP2GBL       799      Marian
+SP2GSI      1683      Grzegorz
+SP2GVN       791      Grzegorz
+SP2HGG       777      Ed(mund)
+SP2PI        380      Geo
+
+SP3AIJ       631      Tad(eusz)
+SP3ASN       863      Henryk
+SP3CW       1821      Artur
+SP3FLR       786      Jan
+SP3HD        303      Jan
+SP3IPB       847      Tad(eusz)
+SP3JHT       836      Jozef
+SP3LOZ      1041      Art(emiusz)
+SP3LPR      1481      Artur
+SP3PL        179      Julian
+
+SP5EWY       772      Rys(zard)
+SP5EXA       729      Chris                A45XR
+SP5GRM       785      Zbigniew
+SP5LGQ       925      Ryszard
+SP5LGT       966      Lech                 LA7MFA
+SP5SDA       499      Zenon                                  SP5AGU
+
+SP6AAT       469      Jan
+SP6BLV       597      Andy
+SP6BZ        235      Wieslaw
+SP6DMJ       742      Jan                  DL6DMJ
+SP6OJE      1387      Robert
+SP6SO       1556      Jerzy
+
+SP7IFM       821      Tomasz
+SP7IWA       845      Wanda yl
+
+SP8ARY       566      Roman
+SP8HR        463      Zbigniew
+SP8HZZ       849      Wojciech
+SP8JUR       908      Bogdan
+SP8NAD      1312      Jacek
+
+SP9ADU       543      Andy
+SP9AQY       741      Zdzislaw
+SP9BOR       848      Marek
+SP9DBA       882      Dick
+SP9DTI       764      Ryszard
+SP9EFP       708      Jan
+SP9EML       775      Mieczyslaw
+SP9GRT       851      Tad                                    SP2GRT
+
+SV1MF       1851      Markos
+SV2AJX      1615      Pashalis
+
+S50A         630      Tine                                   YT3AA
+S50T        1321      Jure                 AA1DD, S54CW
+S51AY       1267      Arpi                                   YU3AY
+S51CL        502      Alojz                                  YU3NCP
+S51CM        698      Bozidar                                YU3CM
+S51EP        762      Franc                                  YU3EP
+S51EU        226      Sveto                                  YU3EU
+S51IB        288      Dusko                                  YU3IB, S51V
+S51M        1294      Bruno                                  YU3XD
+S51RD        546      Jurij                                  YU3RD
+
+S51WO       1002      Sam                                    YU3WO
+S51WP        518      Venceslav                              YU3WP
+S52AM       1249      Srecko                                 YT3AM
+S53V         629      Janez                                  YU3CV
+S54CW       1321      Jure                                   AA1DD, S50T
+S57AD        752      Mirko                                  YU3IW
+S57C        1229      Branco                                 YU3GO
+S57NW       1729      Jelka yl
+S57X         735      Yure                                   YU3DU
+S58A         702      Boris                                  YU3EW
+S58MU       1674      Milan
+S58Q        1042      Dranko                                 YU3VQ, S51VQ
+S59AA        189      Franc                                  YU3BC
+
+TA1A        1417      Unal
+TA2A        1631      Fethi                G0SPJ
+TA2BU       1594      Hus, Hüseyin
+TA2DA       1597      Sabri
+
+TK5NN       1388      Patrick                                F6EYS, F2DX
+
+T93A        1261      Ivo                  9A3A, 5B4ADA
+T93I         751      Bakija                                 YU4IA
+T94GB       1740      Drago
+T94YT       1748      Max, Maksim
+T95A        1116      Darko                                  YU4DR
+T97A        1217      Emin                                   YU4SA
+T97F        1498      Fuad                                   YU4VO
+T97N        1134      Baco                                   4N4EA
+T99T         672      Mustafa                                YU4KW
+T99W        1315      Emil                                   YU4CC, 4N4CC
+
+UA1CGS      1499      Serge
+UA3AGW      1492      Dima
+UA3EDP      1502      Andy
+UA3EIW      1443      Vlad
+UA3FT        494      Ivan
+UA3LDU      1605      Vitaly
+UA3MDX       419      Nik, Nicholas                          UA3KHA
+UA3QAM      1534      Alex
+UA3QG       1425      Alex                                   UA3RH
+UA3QGN      1310      Vyacheslav
+UA3QLC      1440      Victor
+UA3WFM      1546      Mila yl
+UA4LM       1097      Val(entin)
+UA6EDW      1603      Igor
+UA6LI        426      Oleg
+UA9YC       1656      Vladimir
+
+*UB4LDD     1613      Dimitry
+
+UN5C         509      Vic                                    UL7CT
+UN7BN       1644      Vlad                                   UL7BN
+UN7CH        464      Yuri                                   UL7CH
+
+UR3IJC      1687      Andy
+UR3LC       1471      Sergej                                 UB5LBG, UX1LR
+UR7FM       1111      Genn                                   UB5FFJ
+US7ZM       1627      Yuri                                   RB5ZM
+UT3FZ       1263      Serge                                  UB5FFZ
+UT4FJ       1611      Alex                                   UB4JFJ, UU0JN
+UT5FA       1519      Oleg                                   RB5FA, UR5FA
+UT5NC        895      Jurek                                  UB5NCV
+UT9FJ       1533      Sam                                    UB5FJA
+UT0FT       1251      Vlad                 UW2F              RB5FT
+UU2JZ       1719      Ken
+UV6ARS      1653      Alex                                   RN6AH
+UW2F        1251      Vlad                 UT0FT             RB5FT
+UY5OQ        867      Lery
+UY7CW       1264      Dim                                    RB5CB
+UZ8RR       1553      Vladimir             US1RR             UB1RR
+
+VA3AAX      1325      Ljube                                  4N4AV
+
+
+VE2AWW       684      Iulian                                 YO9AGM
+VE2GOO       787      Tony                                   9Q5QR
+
+VE3CRG      1432      Brian
+VE3MS        540      Rog(er)                                VE3FXR
+VE3NE       1215      Lali, Lajos          HA9RX             VA3RU
+VE3PND?     1204      Art                                    SP1ETC
+
+VE6XG        604      Bill                                   VE6ARG
+
+VE7FNP      1559      Carolyn yl
+
+VK2BJL      1084      Harry
+VK2FEX       826      Janusz                                 SP9FEX
+VK2IA        888      Bernd                                  DL1VJ
+VK4SS        653      Alan
+VK6DXI       830      Mirek                SP5IXI, VK2DXI
+VK6FOC       451      Bernhard, Ben        DJ8FW, CT3AS
+
+V31YN        273      Gerd                 DJ4KW
+
+WN1R         857      Tom                  RA6AR
+W1AX         384      Roger
+W1HMD        521      Larry
+W1PL         13       Laci
+W1WLW        377      Calvin
+W3MC        1849      Mike
+W3OGY        923      Ray(mond)
+W5ZR        1834      Bert
+W6FG        1344      Ross                                   WX6D, NW6R
+W6ZID        214      Adolph                                 SV0WL
+W7CNL        385      John
+W8PRM        167      Stan(ley)                              DL4PU
+W8US         544      Peter
+
+W0MM        1600      Laurent                                F5JTL
+
+YB2FEA      1307      Kundjana
+YB4FNN      1422      Abet
+
+YO2BP        514      Zoli                                   YO3BP
+YO3APJ       593      Ady, Adrian                            YO9APJ
+YO3FLR      1790      Cristi
+YO3FU        548      Gheorghe
+YO3JW        639      Stefan
+YO4PX       1409      Fery
+YO6EX       1832      Sico
+YO9HP        902      Alex(andru)
+
+YT6T        1377      Djurica              YU7DR, AJ3AA
+YT6Y        1701      Dragan                                 YU6YY
+YT7AW       1794      Goran
+
+YU1AD        92       Mirko
+YU1CC        779      Bano                                   YU3QI, YZ1MB, YU1BL
+YU1EA        853      Dule
+YU1EW       1340      Zoran
+YU1HC       1584      Desko
+YU1KT       1231      Ranko
+YU1NW        683      Milan                                  YU1OFJ
+YU1OII      1077      Dragan
+YU1VT       1189      Nesco
+YU1VV        973      Drago
+YU1YU        774      Milutin
+
+*YU4CW      1473      Rifet
+YU4GD       1278      Rajko                                  4N4GD
+YU4SO       1114      Bob
+*YU4VSZ     1014      Zeljko
+
+YU7AJ        744      Vladimir                               YU7NTN
+YU7AW        837      Vladim
+YU7BW       1475      Robert
+YU7DR       1377      Djurica              YT6T, AJ3AA
+YU7EU       1005      Pred
+YU7FN       1029      Rade
+YU7LL       1488      Srdjan
+YU7WJ       1589      Gabor                                  4N7MOD
+
+YU8YL       1339      Julija yl                              YU8HZJ
+
+YZ1AA        746      Rod(ja)                                YU1FD
+
+
+ZB2EO        927      John                 G4JTC
+
+ZC4CZ       1360      Glynn                G4MVA
+
+ZL1UJ       1049      Ken
+ZL2AFZ       239      George
+ZL3CW       1105      Jacky                F2CW
+
+ZS6BI       1147      Robin
+ZS6BUR      1248      Jim, James
+
+Z32TO       1700      Oliver
+Z32ZM       1274      Mome                                   4N5ZM
+Z35M        1673      Vlado                                  Z32KV
+
+4K9W        1531      Vlad                                   UD6DKW
+
+4N1GM       1835      Goran
+
+4X1FC        985      Daniel                                 4Z4OL
+4Z4DX       1680      Dov
+4Z4KX       1781      Mark
+
+5B4ADA      1261      Ivo                  9A3A, T93A,
+5B4AGN       780      Bob                                    G3ZEM
+
+9A2AA        479      Tomislav                               YU2AA
+9A2AZ        497      Vilim                                  YU2RAZ
+9A2DX        822      Marko                DF2ZX             9A2ZX
+9A2PG        633      Mladen                                 YU2PG
+9A2UE       1172      Branko
+9A2V         699      Vlado                                  YU2OH
+9A2WJ        657      Daki                                   YU2WJ
+
+9A3A        1261      Ivo                  T93A, 5B4ADA
+9A3SM       1643      Mato
+9A3UF       1667      Goran
+
+9A4M        1635      Mate                                   YT2PA, 9A3PA
+9A4RU       1113      Tom                                    YU7QDY
+9A5KR        361      Bero                                   YU2KR
+9A7W        1171      Ogi                                    9A2QS
+9A8A        1079      Mark                                   YU2VC
+9A8W        1123      Davor                                  YU2TS, 9A2TS

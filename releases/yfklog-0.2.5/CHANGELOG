@@ -1,0 +1,165 @@
+2007-Aug-06:   Version 0.2.5
+-------------------------------------------------------------------------------
+- Addede two database fields, GRID (to store a gridsquare in either 4- or
+  6-letter format) and OPERATOR (to save who made a QSO). For the latter, a new
+  variable (operator=DJ1YFK) can optionally be set in the config file.
+  While logging, enter gridsquares in the remarks field: GRID:JO61UA
+  Operator information is entered in the same manner: OPERATOR:DJ1YFK and will
+  be used for all following QSOs.
+
+- Added VUCC/GRID to the award scorings.
+
+- Querying the frequency and mode via hamlib can now be done
+  automatically for every new QSO, by setting autoqueryrig=1 in the config
+  file.
+
+- Finally wrote some more detailled documentation. Under permanent
+  construction: http://fkurz.net/ham/yfklog/doc/
+
+2007-Aug-02:   Version 0.2.4
+-------------------------------------------------------------------------------
+- NEW FEATURE: Export of a marker-file to be used with 'xplanet'. Shows all
+  current DXCC entities in different colors: Red = not worked, Yellow = Worked
+  but not confirmed, Green = Confirmed.
+  Example: http://dl0tud.tu-dresden.de/~dj1yfk/xplanet.png
+
+- Minor improvements and bugfixes
+
+2007-Jul-20:   Version 0.2.3
+-------------------------------------------------------------------------------
+- NEW FEATURE: LOTW Import and Export. See 'MANUAL' for details. LOTW QSLs are
+  considered for award purposes, with both a summary of paper-only and
+  LOTW-only confirmations and a combined score.
+
+- NEW FEATURE: At startup, automatically check for the existance of the
+  neccessary database. If they do not exist, create them. If they are from a
+  previous version of YFKlog, update them to the latest. This makes the
+  installation a lot easier and more comfortable.
+
+- IMPROVEMENT: Functions to determine DXCC from a callsign mostly rewritten and
+  significantly faster (x 20) now.
+
+- IMPROVEMENT: New field added for label printing: QSLR. Says 'TNX' if QSL was
+  received, 'PSE' when QSL for this QSO is missing.
+
+- IMPROVEMENT: Added 'hamlibparam' to the config file for additional
+  hamlib/rigctl parameters
+
+- IMPROVEMENT: When working a station, show if the DXCC is worked/confirmed
+  already on all bands defined by 'awardbands' in the config file.
+  Output like: "10C 12W 15C 17W 20C 30W 40C 80W"
+
+- IMPROVEMENT: When working a station, it's now also possible to check for this
+  callsign in any other logbooks, as set by the 'checklogs' variable in the
+  config file.
+
+- IMPROVEMENT: Possibility to specify a date range for ADIF-export.
+
+- BUG FIX: QSL printing doesn't start at label -1 anymore...
+
+- BUG FIX: Problems with / in $mycall resolved for label printing.
+
+
+2007-Apr-28:   Version 0.2.2
+-------------------------------------------------------------------------------
+
+- NEW FEATURE: Hamlib support. See 'MANUAL' for details.
+
+- IMPROVEMENT: Changed REGEX for callsign recognition, now calls like RV0AL/0/P
+  are not causing problems anymore.
+
+- IMPROVEMENT: Cleaned up SQL syntax. No more problems with MySQL5.
+
+- IMPROVEMENT: ADIF-Import works with files that have DOS-linebreaks now, also
+  uppercase file extensions (ADI) are now recognized.
+
+- IMPROVEMENT: 47 GHz and up are now given in millimeters (instead of 0.x cm)
+  on the QSL labels
+
+- IMPROVEMENT: Added a new 'QSO / Mode' statistics function.
+
+- IMPROVEMENT: Another QSL label definition for 70x36 (dm7a.lab) as used for
+  thousands of contest cards at DM7A...
+
+- BUGFIX: For some awards/statistics, the date range was ignored. Fixed.
+
+- BUGFIX: When creating a new log, and the callsign contained a '/', the
+  $mycall variable was faulty and caused YFKlog to crash. Fixed.
+
+- BUGFIX: HTML-Output for DXCC, WPX awards etc had a minor bug for 2m only.
+
+
+2006-Apr-16:   Version 0.2.1
+-------------------------------------------------------------------------------
+- NEW FEATURE:	Band data now also allows the higher UHF bands like 70cm etc
+  (enter as 0.7, 0.23...). This required a change in the database structure.
+	************************************************************************
+	*** IMPORTANT: READ AND FOLLOW INSTRUCTIONS FROM FILE 'RELEASENOTES' ***
+	************************************************************************
+- NEW FEATURE:  Different screen layouts available for the main screen. See
+                variable "screenlayout" in .yfklog.
+
+- ADIF-Import: Field 'gridsquare' added to remarks field, if it exists. (tnx
+               ES6CO)
+
+- BUGFIX:  ADIF-Import: Fields containing a ' produced errors. Fixed.
+- BUGFIX:  Callsigns like DJ1YFK/123 were not properly recognized.
+- BUGFIX:  Invalid callsigns (like QQ0XX) don't produce ugly warning messages
+           anymore.
+- BUGFIX:  When editing a previous QSO, with another QTH/Name than saved in the
+           database, the QTH/Name was overwritten in the edit-window. Fixed.
+
+- IMPROVEMENT:  Changed several REGEXP SQL statements to LIKE, which
+                increases the speed. 
+- IMPROVEMENT:  ADIF import speed increased by the factor of 3..10.
+- IMPROVEMENT:  Bands for awards can be specified in the config file .yfklog
+                using "awardbands=....". (see sample config file)
+- IMPROVEMENT:  Several cosmetic changes to the award and statistic fuctions.
+
+2005-Dec-28:   Version 0.2.0
+-------------------------------------------------------------------------------
+- BUGFIX:  ADIF export: the band fieldlength was one too short. eg. <band:2>20m 
+- BUGFIX:  ADIF import: Fieldlength 0 didn't work. 
+- BUGFIX:  ADIF import: <eoh>/<eor> was errornously case sensitive. 
+- BUGFIX:  ADIF import: integer MHz frequencies didn't work, always required
+                        decimal separator (e.g. "14.000").
+- BUGFIX:  CALL/A became Prefix A0 and no DXCC.
+- BUGFIX:  Different calls with the same QSL-Manager were printed on one card!
+           e.g.: 8Q7ZZ via G3SWH and 5R8GZ via G3SWH ended up on one card with
+           8Q7ZZ in the "To:" field. Fixed this temporarily, for the cost of
+           not sorting after the manager's call. Might be changed in future
+           versions... (tnx info DL3DTH) 
+- BUGFIX:  Name/QTH database update for ADIF import added whole calls
+           (including /P etc) to the database instead of the basic call
+           (DJ1YFK, AD5UR..) only. Also it tried to add nonexisting fields
+           (name/qth) when only one of them was known.
+- BUGFIX:  cty.dat includes WAE countries (IG9, IT9, 4U1V, GM/s, IG9, IT9,
+           JW/b, TA1) which are *not* DXCCs. Those are now hardcoded into
+           yfklog (dxcc sub) to be changed to the proper DXCC. Since they are
+           not likely to change in the future, I decided to take this easy
+           approach.
+           Those DXCCs started with a "*" (*TA1 etc) and are easily filtered
+           out.
+           A similar problem occurs with DXCCs that have more than 4 letters,
+           for example VP8/h. The field for DXCC is only 4 chars long, and
+           somehow I forgot to remove the "/". This is now also fixed.
+           Unfortunately in an exisiting database from yfklog-0.1.0, the WAEs
+           are already counted as new DXCCs, and some DXCCs might be lost
+           because of the "/". There is a script "yfk-fixdxcc.pl"
+           distributed with yfklog-0.2.0 which fixes these problems. 
+- BUGFIX:  Direction of the other station was wrong ("mirrored"). 
+
+- NEW FEATURE:  Statistics: DXCC, PFX, CQZ, IOTA, STATE, QSOs/Band
+                (more statistics can easily be added. Don't hesitate to ask me
+                for any additions!). See manual for details.
+- NEW FEATURE:  In the input form, CURSOR UP goes to the previous field. No
+                more need to cycle through all fields to get to the previous
+                one. 
+- NEW FEATURE:  After entering a call in "Logging Mode", "New Bandpoint" or
+                "New DXCC" is displayed if appropriate.
+- NEW FEATURE:  In the "QSL-Receive" mode, pressing "s" toggles the "QSL-Sent"
+                flag of the QSO, which is useful when you are only replying
+                to incoming QSLs.  
+- NEW FEATURE:  Simple editor for Name/QTH-Database.
+
+2005-May-18:   Initial release
