@@ -250,7 +250,12 @@ sub connectrig {
 
 
 # Now we read cty.dat from K1EA, or exit when it's not found.
-open CTY, "$prefix/share/yfklog/cty.dat" or die "cty.dat not found.".
+my $ctydat = "$prefix/share/yfklog/cty.dat";
+if (-R "./cty.dat") {
+	$ctydat = "./cty.dat";
+}
+
+open CTY, "$ctydat" or die "$ctydat not found.".
 			"Please download it from http://country-files.com/\n";
 
 my %prefixes;			# hash of arrays  main prefix -> (all, prefixes,..)
