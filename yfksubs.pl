@@ -4167,7 +4167,7 @@ foreach my $band (@bands) {
 
 	while ($sth->fetch()) {						# go through all QSOs
 		if ($custom) {
-			if ($dx =~ /$custom:(.+?)\s/) {		# $dx == remarks field here
+			if ($dx =~ /$custom:(.+?)(\s|$)/) {		# $dx == remarks field here
 				$dx = $1;
 			}
 			else {
