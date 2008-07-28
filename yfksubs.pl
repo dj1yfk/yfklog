@@ -2596,10 +2596,6 @@ sub preparelabels {
 
 	my $x = $queue->execute();							# Execute Query
 
-#	if ($x eq "0E0") {						# Oops, no QSOs to print!
-#		return();							# return nothing
-#	}
-	
 	my ($call, $name, $date, $time, $band, $mode, $rst, $pwr, $mgr, $qslr);
 	$queue->bind_columns(\$call,\$name,\$date,\$time,\$band,\$mode,
 												\$rst,\$pwr,\$mgr, \$qslr);
@@ -2624,19 +2620,7 @@ sub preparelabels {
 		if ($qslr eq 'Y') { $qslr = 'TNX'; }
 		else { $qslr = 'PSE';}
 
-		# $scall is the "sort call". Usually it's the same as the call, but if
-		# there is a QSLINFO, it will replaced by it. $scall is the key for the
-		# hash.
-        # XXX XXX This was changed again, because like this, QSOs for different
-		# stations but the same manager got mixed on one card. For now, the
-		# sortcall is always the call. Maybe something to fix later, but since
-		# the number of cards with QSL-manager is usually low, it should be OK
-		# not to sort after them... Well, maybe for version 0.3.0 XXX XXX XXX  
-		my $scall=$call;					# set sortcall to call.
-
-#		if ($mgr) {							# There is a manager
-#			$scall = $mgr;					# sort after manager call
-#		}
+		my $scall=$call;				# Altlasten...
 
 		# Check if key $scall already exists in the %calls hash, if not add it
 		# if it exists, check if label is full, if so make new one, otherwise
@@ -2722,9 +2706,7 @@ sub labeltex {
 	my $width;				# width of the QSL label in mm
 	my $height;				# height of the QSL label in mm
 	my $topmargin;			# top margin of the label sheet
-#	my $bottommargin;		# bottom margin of the label sheet
 	my $leftmargin;			# left margin of the label sheet
-#	my $rightmargin;		# right margin of the label sheet
 	my $rows;				# number of label rows
 	my $cols;				# number of label columns
 	
