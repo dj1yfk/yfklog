@@ -2090,6 +2090,9 @@ sub askbox {
 	if ($valid eq 'filename') {
 		$valid = '[_A-Za-z.0-9\/]';
 	}
+	elsif ($valid eq 'text') {
+		$valid = '[_A-Za-z.0-9\/ ]';
+	}
 
 	# Now we start reading from the keyboard, character by character
 	# This is mostly identical to &readw;
@@ -2105,7 +2108,8 @@ sub askbox {
 		# We first check if it is a legal character of the specified $match,
 		# if so, it will be added to the string (at the proper position!) 
 		if ($ch =~ /^$valid$/) {					# check if it's "legal"
-			unless(($valid eq '\w') || ($valid eq '[_A-Za-z.0-9\/]')) {
+			unless(($valid eq '\w') || ($valid eq '[_A-Za-z.0-9\/]')
+			|| ($valid eq '[_A-Za-z.0-9\/ ]')) {
 				$ch =~ tr/[a-z]/[A-Z]/;				# make letters uppercase
 			}
 

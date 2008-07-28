@@ -68,6 +68,7 @@ my $dbname='';
 my $dbserver='';
 my $directory='/tmp';
 my $qsldetails=1;		# show details of QSO in Write mode?
+my $drem="";			# default remarks
 
 sub readconfig {
 
@@ -89,6 +90,7 @@ while (defined (my $line = <CONFIG>)) {			# Read line into $line
 	if ($line =~ /^directory=(.+)/)   { $directory  = $1; }				
 	if ($line =~ /^colors=(.+)/)   { $colors = $1; }				
 	if ($line =~ /^qsldetails=(.+)/)   { $qsldetails = $1; }				
+	if ($line =~ /^drem=(.+)/)   { $drem= $1; }				
 }
 close CONFIG;
 
@@ -361,6 +363,9 @@ if ($af == 1) {							# READ CALLSIGN FIELD
 		if ($qso[11] eq "") { 				# RST rcvd to 59(9)
 				if ($dmode =~ /CW|RTTY|PSK/) {$qso[11] = "599";}
 				else {$qso[11] = "59";}
+		}
+		if ($qso[12] eq '') {
+			$qso[12] = $drem;
 		}
 		if ($qso[13] eq "") {$qso[13] = $dpwr; }	
 		for(my $c=0;$c < 14;$c++) { 					# Refresh all windows
@@ -1843,7 +1848,8 @@ while ($status == 15) {
 	sprintf("browser=%-15s      - Web browser to use for QRZ.com lookups", $yfksubs::browser),
 	sprintf("colors=%-15s       - Enable colors? [1/0] (requires restart)", $colors),
 	sprintf("usehamdb=%-15s     - Use Ham::Callsign::DB to fill data", $yfksubs::usehamdb),
-	sprintf("qsldetails=%-15s   - Show QSO details in QSL write mode?", $qsldetails)
+	sprintf("qsldetails=%-15s   - Show QSO details in QSL write mode?", $qsldetails),
+	sprintf("qrem=%-15s         - Default QSO remarks value", $drem)
 	);
 
 	my $choice = &selectlist(\$wmain, 2, 1, 18, 78, \@setup);
@@ -2146,6 +2152,16 @@ while ($status == 15) {
 			&changeconfig($original, "qsldetails=$ret");
 		}
 	}
+	elsif ($choice == 31) {
+		$original = "drem=$qsldetails";
+		my $ret = &askbox(10,20,4,30, 'text', "Default remarks text?",
+				$drem);
+		if ($ret eq 'm') { last }
+		elsif ($ret ne '') {
+			&changeconfig($original, "drem=$ret");
+		}
+	}
+
 	&readconfig;
 	&readsubconfig;
 }
