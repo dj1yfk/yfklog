@@ -5484,8 +5484,18 @@ sub qslstatistics {
 
 	$lotwsent += $lotwreceived;
 
-	$rate = int(1000 * $received / $sent);
-	$lotwrate = int (1000* $lotwreceived / $lotwsent);
+	if ($sent) {
+		$rate = int(1000 * $received / $sent);
+	}
+	else {
+		$rate = 0;
+	}
+	if ($lotwsent) {
+		$lotwrate = int (1000* $lotwreceived / $lotwsent);
+	}
+	else {
+		$lotwrate = 0;
+	}
 
 	addstr($win, 7, 25,         "          QSL         LOTW");
 	addstr($win, 8, 25,         "--------------------------");
