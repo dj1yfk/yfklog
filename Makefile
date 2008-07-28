@@ -54,11 +54,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = yfk
 NAME_SYM = yfk
-VERSION = undef
+VERSION = 0.3.6
 VERSION_MACRO = VERSION
-VERSION_SYM = undef
+VERSION_SYM = 0_3_6
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = undef
+XS_VERSION = 0.3.6
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -250,7 +250,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = yfk
-DISTVNAME = yfk-undef
+DISTVNAME = yfk-0.3.6
 
 
 # --- MakeMaker macro section:
@@ -485,7 +485,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) Generating META.yml
 	$(NOECHO) $(ECHO) '--- #YAML:1.0' > META_new.yml
 	$(NOECHO) $(ECHO) 'name:                yfk' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version:             undef' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version:             0.3.6' >> META_new.yml
 	$(NOECHO) $(ECHO) 'abstract:            ~' >> META_new.yml
 	$(NOECHO) $(ECHO) 'license:             ~' >> META_new.yml
 	$(NOECHO) $(ECHO) 'generated_by:        ExtUtils::MakeMaker version 6.36' >> META_new.yml
@@ -785,7 +785,7 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd:
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="undef,0,0,0">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0,3,6,0">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <TITLE>$(DISTNAME)</TITLE>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT></ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR></AUTHOR>' >> $(DISTNAME).ppd

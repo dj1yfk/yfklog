@@ -2180,6 +2180,7 @@ sub toggleqsl {
 	curs_set(0); 			# no cursor please
 	my $win = ${$_[0]};		# reference to $wmain window
 	my $call = $_[1];		# callsign to display
+	my $details = $_[2];	# show details of QSO?
 	my $write="0";			# nonzero, when we are in writing mode
 	my $count;				# number of available lines from DB
 	my $goon=1;				# we want to go on...
@@ -2194,9 +2195,19 @@ sub toggleqsl {
 							#  (NR => old value)
 	my %changes2;			# same for QSL-S status in QSL-receive mode
 
+	my ($yh, $xw);
+
+
 # First check if we are in QSL receive or write mode. When write mode, set
 # $write to 1
-if ($call eq "W") { $write = "1" }
+if ($call eq "W") { 
+	$write = "1";
+	($yh, $xw) = (22 - ($details * 5), 80);	# x,y width of the window
+}
+else {	# receive
+	($yh, $xw) = (22, 80);
+	$details = 0;
+}
 
 if ($write) {						# QSL Write mode
 	# Check if there are any QSLs in the queue...
@@ -2209,7 +2220,7 @@ if ($write) {						# QSL Write mode
 	# we pop out a message and quit. 
 
 	if ($count == 0) { 
-			addstr($win, 0,0, " " x (80 * 22));			# clear window
+			addstr($win, 0,0, " " x ($xw * $yh));			# clear window
 			addstr($win, 9, 33, "No QSL queued!");
 			refresh($win);
 			getch();									# wait for user 
@@ -2230,9 +2241,9 @@ else {								# QSL receive mode
 	# we pop out a message and quit. 
 
 	if ($count == 0) { 
-			addstr($win, 0,0, " " x (80 * 22));			# clear window
+			addstr($win, 0,0, " " x ($xw * $yh));			# clear window
 			my $msg = "No QSO found matching $call!";
-			addstr($win, 9, (80-length($msg))/2 , $msg);
+			addstr($win, 9, ($xw-length($msg))/2 , $msg);
 			refresh($win);
 			getch();									# wait for user 
 			return 3; 
@@ -2249,19 +2260,25 @@ do {									# we start looping here
 	# In the QSL receive mode it will be sorted by date, in QSL write mode by
 	# callsign, then date.
 
-	my $lq;					# Database handle.. strange name, eh?
+	my $lq;	
 	
 	if ($write) {
-		$lq = $dbh->prepare("SELECT `NR`, `CALL`, `NAME`, `QSLINFO`, `DATE`,
-				`T_ON`, `BAND`, `MODE`, `QSLS`, `QSLR`, `PWR` FROM log_$mycall
+		$lq = $dbh->prepare("SELECT
+			   	`NR`, `CALL`, `NAME`, `QSLINFO`, `DATE`,
+				`T_ON`, `BAND`, `MODE`, `QSLS`, `QSLR`, `PWR`, `QTH`, `RSTS`,
+				`RSTR`, `REM`, `DXCC`, `IOTA`, `STATE`, `QSLRL`, `OPERATOR`, `GRID` 
+				FROM log_$mycall
 				WHERE `QSLS`='Q' OR `QSLS`='X' ORDER BY `CALL`, `DATE`, `T_ON`
-				LIMIT $offset, 22");	
+				LIMIT $offset, $yh");	
 	}
 	else {
-		$lq = $dbh->prepare("SELECT `NR`, `CALL`, `NAME`, `QSLINFO`, `DATE`,
-				`T_ON`, `BAND`, `MODE`, `QSLS`, `QSLR`, `PWR` FROM log_$mycall
+		$lq = $dbh->prepare("SELECT
+			   	`NR`, `CALL`, `NAME`, `QSLINFO`, `DATE`,
+				`T_ON`, `BAND`, `MODE`, `QSLS`, `QSLR`, `PWR`, `QTH`, `RSTS`,
+				`RSTR`, `REM`, `DXCC`, `IOTA`, `STATE`, `QSLRL`, `OPERATOR`, `GRID` 
+				FROM log_$mycall
 				WHERE `CALL` LIKE 
-				'\%$call\%' ORDER BY `DATE`, `T_ON` LIMIT $offset, 22");	
+				'\%$call\%' ORDER BY `DATE`, `T_ON` LIMIT $offset, $yh");	
 	
 	}
 	
@@ -2269,20 +2286,21 @@ do {									# we start looping here
 
 	# Temporary variables for every retrieved QSO ...
 	my ($nr, $fcall, $name, $qsli, $date, $time, $band, $mode, $qsls, $qslr,
-			$pwr);
+			$pwr, $qth, $rsts, $rstr, $rem, $dxcc, $iota, $state, $qslrl, $op,
+			$grid);
 
 	$lq->bind_columns(\$nr,\$fcall,\$name,\$qsli,\$date,\$time,\$band,
-						\$mode,\$qsls,\$qslr,\$pwr);
+						\$mode,\$qsls,\$qslr,\$pwr,\$qth, \$rsts, \$rstr,
+						\$rem, \$dxcc, \$iota, \$state, \$qslrl, \$op, \$grid);
 	
 	my $y = 0;							# y-position in $win
 	while ($lq->fetch()) {				# more QSOs available
 		$time = substr($time, 0,5);		# cut seconds from time
 		if ($qsls eq "X") { $qsls = "Y" }		# see below
-		my $line=sprintf("%-6s %-12s %-11s%-9s%-8s %-5s %4s %4s %-4s %1s %1s        ",
+		my $line=sprintf("%-6s %-12s %-11s%-9s%-8s %-5s %4s %4s %-4s %1s %1s     ",
 			$nr, $fcall, $name, $qsli, $date, $time, $pwr, $band, $mode, $qsls, $qslr);
 		if ($qsls eq "Y") { $qsls = "X" }
 		if ($y == $aline) {					# highlight line?
-			attron($win, COLOR_PAIR(1));	# highlight
 			$chnr = $nr;					# save number of aline
 			# save QSL status, depending on read/write mode. When in receive
 			# mode, also save qsl-sent status to toggle it when replying to
@@ -2292,18 +2310,29 @@ do {									# we start looping here
 				$qslstat = $qslr;
 				$qslstat2 = $qsls;
 			}
+			addstr($win, $yh+1, 0, 
+				sprintf("Additional QSO details: %6s - %-15s", $nr, $fcall));
+			addstr($win, $yh+2, 0, 
+				sprintf("RSTs: %-5s  RSTr: %-5s  QTH: %-18s DXCC: %4s IOTA: %-7s"
+						, $rsts, $rstr, $qth, $dxcc, $iota));
+			addstr($win, $yh+3, 0, 
+				sprintf("Power: %-4sW OP: %8s GRID: %-17s LOTW: %s",
+						$pwr, $op, $grid, $qslrl));
+			addstr($win, $yh+4, 0, sprintf("LOTW: %-60s", $rem));
+			attron($win, COLOR_PAIR(3));	# highlight
 		}
 		addstr($win, $y, 0, $line);
 		attron($win, COLOR_PAIR(4));
-		($y < 22) ? $y++ : last;			# prints first 22 rows
+		($y < $yh) ? $y++ : last;			# prints first $yh (22) rows
 	}	# all QSOs printed
 	
-	for (;$y < 22;$y++) {					# for the remaining rows
+	for (;$y < $yh;$y++) {					# for the remaining rows
 		addstr($win, $y, 0, " "x80);		# fill with whitespace
 	}
+
 	refresh($win);
 
-	$ch = &getch2();							# we read from keyboard
+	$ch = &getch2();
 
 	# Now start to analyse the input...
 	
@@ -2364,9 +2393,9 @@ do {									# we start looping here
 	elsif (($ch eq KEY_DOWN) && (($aline + $offset + 1) < $count)) {
 			# We are allowed to go down, but we have to check if we need to
 			# scroll or not. Scrolling is needed when $aline is 21.
-			if ($aline == 21) {
+			if ($aline == ($yh-1)) {
 				$aline = 0;				# next page, we start at beginning
-				$offset += 21;			# increase the offset accordingly
+				$offset += ($yh-1);			# increase the offset accordingly
 			}
 			else {						# no scrolling needed
 				$aline++;				# increase aline -> one row down
@@ -2378,8 +2407,8 @@ do {									# we start looping here
 			# We are allowed to go up, but we have to check if we need to
 			# scroll or not. Scrolling is needed when $aline is 0.
 			if ($aline == 0) {
-				$aline = 21;			# next page, we start at beginning
-				$offset -= 21;			# increase the offset accordingly
+				$aline = ($yh-1);			# next page, we start at beginning
+				$offset -= ($yh-1);			# increase the offset accordingly
 			}
 			else {						# no scrolling needed
 				$aline--;				# increase aline -> one row down
@@ -2388,15 +2417,15 @@ do {									# we start looping here
 
 	# PG DOWN is easier: We can scroll DOWN when there are more available
 	# lines than currently displayed: $offset+22.
-	elsif (($ch eq KEY_NPAGE) && ($offset+22 < $count)) {
-		$offset += 21;					# adjust offset
+	elsif (($ch eq KEY_NPAGE) && ($offset+$yh < $count)) {
+		$offset += ($yh-1);					# adjust offset
 		$aline = 0;						# Start again at the first line	
 	}
 	
 	# Same with UP. We can scroll up when $offset > 0
 	elsif (($ch eq KEY_PPAGE) && ($offset > 0)) {
-		$offset -= 21;					# adjust offset
-		$aline = 21;					# Start again at the last line	
+		$offset -= ($yh-1);					# adjust offset
+		$aline = ($yh-1);					# Start again at the last line	
 	}
 
 	# F1 => Back to the main menu. Return 2 for Status.

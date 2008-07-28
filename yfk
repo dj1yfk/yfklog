@@ -67,7 +67,7 @@ my $colors=1;
 my $dbname='';
 my $dbserver='';
 my $directory='/tmp';
-
+my $qsldetails=1;		# show details of QSO in Write mode?
 
 sub readconfig {
 
@@ -88,6 +88,7 @@ while (defined (my $line = <CONFIG>)) {			# Read line into $line
 	if ($line =~ /^dbserver=(.+)/)   { $dbserver = $1; }				
 	if ($line =~ /^directory=(.+)/)   { $directory  = $1; }				
 	if ($line =~ /^colors=(.+)/)   { $colors = $1; }				
+	if ($line =~ /^qsldetails=(.+)/)   { $qsldetails = $1; }				
 }
 close CONFIG;
 
@@ -810,7 +811,7 @@ while ($status == 3) {
 		addstr($whelp, 0,0, "F1: Menu  F2: Save  F3: Cancel  SPACE: Toggle QSL-R S: Toggle QSL-S "." " x 70);
 		refresh($whelp);
 
-		$status = &toggleqsl(\$wmain, $qslcall);
+		$status = &toggleqsl(\$wmain, $qslcall, 0);
 	
 		refresh($wmain);
 	}
@@ -893,7 +894,7 @@ while ($status == 5) {
 	# you toggle them. It returns the status, which should be 2 for the main
 	# menu.
 
-	$status = &toggleqsl(\$wmain, "W");
+	$status = &toggleqsl(\$wmain, "W", $qsldetails);
 } # end of QSL write mode, $status==5
 
 ##############################################################################
@@ -1841,7 +1842,8 @@ while ($status == 15) {
 	sprintf("prevsort=%-15s     - Show previous QSOs by date 'A'sc or 'D'esc?", $yfksubs::prevsort),
 	sprintf("browser=%-15s      - Web browser to use for QRZ.com lookups", $yfksubs::browser),
 	sprintf("colors=%-15s       - Enable colors? [1/0] (requires restart)", $colors),
-	sprintf("usehamdb=%-15s     - Use Ham::Callsign::DB to fill data", $yfksubs::usehamdb)
+	sprintf("usehamdb=%-15s     - Use Ham::Callsign::DB to fill data", $yfksubs::usehamdb),
+	sprintf("qsldetails=%-15s   - Show QSO details in QSL write mode?", $qsldetails)
 	);
 
 	my $choice = &selectlist(\$wmain, 2, 1, 18, 78, \@setup);
@@ -2135,7 +2137,15 @@ while ($status == 15) {
 			&changeconfig($original, "usehamdb=$ret");
 		}
 	}
-
+	elsif ($choice == 30) {
+		$original = "qsldetails=$qsldetails";
+		my $ret = &askbox(10,20,4,30, '[01]', "Show QSO details? 1=yes, 0=no",
+				$qsldetails);
+		if ($ret eq 'm') { last }
+		elsif ($ret ne '') {
+			&changeconfig($original, "qsldetails=$ret");
+		}
+	}
 	&readconfig;
 	&readsubconfig;
 }
