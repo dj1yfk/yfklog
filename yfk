@@ -1091,43 +1091,63 @@ while (($status == 7) || ($status == 14)) {
 	addstr($wmain,0,0, ' 'x(80*22));
 
 	# Ask for a date range...
-	addstr($wmain, 2,17, 'If you like to specify a date-range, enter the');
-	addstr($wmain, 3,16, 'start date now. Otherwise leave the field empty.');
-	addstr($whelp, 0,0, 'Specify a date range ..'.' 'x50);
+	addstr($wmain, 1,15, 'If you like to specify a date-range, or only export');
+	addstr($wmain, 2,16, 'QSOs after a certain QSO number, enter the start');
+	addstr($wmain, 3,15,'number or date now. Otherwise leave the field empty.');
+	addstr($whelp, 0,0, 'Specify an export range ..'.' 'x50);
 	refresh($wmain);
 	refresh($whelp);
    	
 	curs_set(1);						# cursor visible	
 	$date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
-								"Specify start date (YYYY-MM-DD):", '');
+							"Specify start date (YYYY-MM-DD) or number:", '');
 
-	unless ($date1 eq '') {			# We have a start date, so ask for end date
-		$date2 = &askbox(12, 15, 4, 50, '[0-9-]', 
-								"Specify stop date (YYYY-MM-DD):", '');
+	if ($date1 ne '') {		 # We have a start date, or number
+		my $type=0;
 
-		# Verify that the dates are valid. If not, back to main menu.
-		unless (&checkdate($date1) && &checkdate($date2)) {
-			addstr($wmain, 18,29, 'Sorry, invalid date(s)!');
-			addstr($whelp, 0,0, 'Press any key to go back to the menu.'.' 'x50);
-			refresh($wmain);
-			refresh($whelp);
-			$status = 2;
-			getch();
-			last;
+		if ($date1 =~ /^[0-9]+$/) {			# nr range
+			$date2 = &askbox(12, 15, 4, 50, '[0-9]', 
+								"Specify stop number (empty = end):", '');
+			$type = 'nr';
 		}
-		# if the dates are valid, build a SQL String to put into the
-		# database-query.
 		else {
-			$daterange = "DATE >= '$date1' AND DATE <= '$date2'";
+			$date2 = &askbox(12, 15, 4, 50, '[0-9-]', 
+								"Specify stop date (YYYY-MM-DD):", '');
+			$type = 'date';
 		}
-	}	
+
+		if ($type eq 'date') {
+			# Verify that the dates are valid. If not, back to main menu.
+			unless (&checkdate($date1) && &checkdate($date2)) {
+				addstr($wmain, 18,29, 'Sorry, invalid date(s)!');
+				addstr($whelp,0,0,'Press any key to go back to the menu.'.' 'x50);
+				refresh($wmain);
+				refresh($whelp);
+				$status = 2;
+				getch();
+				last;
+			}
+			# if the dates are valid, build a SQL String to put into the
+			# database-query.
+			else {
+				$daterange = "DATE >= '$date1' AND DATE <= '$date2'";
+			}
+		}
+		else {
+			$daterange = " NR >= '$date1' ";
+			if ($date2) {
+				$daterange .= " AND NR <= '$date2' ";
+			}
+		}
+	}
+		
 
 	# Export the log to $filename
 	$nr = &adifexport($filename, 'adif', $daterange) if ($status == 7); 
 	$nr = &adifexport($filename, 'lotw', $daterange) if ($status == 14); 
 
 	addstr($wmain,0,0, ' ' x (80*22));			# clear main window
-	addstr($wmain,10,24,"$nr QSOs exported to $filename");
+	addstr($wmain,10,10,"$nr QSOs exported to $filename");
 	addstr($wmain,11,22,"LOTW status updated to 'Requested'.") if ($status==14);
 	addstr($wmain,12,17,"Sign $filename with tqsl and upload to LOTW!") if ($status==14);
 	refresh($wmain);
