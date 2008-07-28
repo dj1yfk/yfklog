@@ -4321,13 +4321,17 @@ sub statistics {
 	my $type = $_[0];			# Band, Continent...?
 	my $wmain = ${$_[1]};		# window
     my $daterange = $_[2];		# SQL String with date range
+	my $bands = $_[3];
 
 	my %result;					# '160'(m) -> '666' (QSOs);
 								# or 'EU' -> '3242', 'AF' -> '234'...
 	my $maxqsos=0;				# band/continent with max QSOs
 	my $totalqsos=0;			# number of total QSOs for percentage
 	
-	my $sth = $dbh->prepare("SELECT $type FROM log_$mycall WHERE $daterange");
+	$bands = join(', ', split(/\s+/, $bands));
+
+	my $sth = $dbh->prepare("SELECT $type FROM log_$mycall WHERE $daterange
+					and BAND in ($bands)");
 	$sth->execute();
 	my $type_item;
 	$sth->bind_columns(\$type_item);	
