@@ -5047,10 +5047,12 @@ sub queryrig {
 
 	print $sock "f\n";
 	$freq = <$sock>;
+	chomp($freq);
 	<$sock>;			# rigctld sends an extra line "END"
 	
 	print $sock "m\n";
 	$mode = <$sock>;
+	chomp($mode);
 
 	if ($mode eq 'CWR') {
 		$mode = 'CW';
