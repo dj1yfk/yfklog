@@ -86,7 +86,7 @@ our $checklogs = '';							# add. logs to chk fr prev QSOs
 our $lotwdetails='0';							# LOTW import details?
 our $autoqueryrig='0';							# Query rig at new QSO?
 our $directory='/tmp/';							# where to look for stuff
-our $prefix="/usr/local";								# may be changed by 'make'
+our $prefix="/usr/";								# may be changed by 'make'
 my $db='';										# sqlite or mysql?
 our $fieldorder=									# TAB/Field order.
 'CALL DATE TON TOFF BAND MODE QTH NAME QSLS QSLR RSTS RSTR REM PWR';
@@ -3655,6 +3655,47 @@ sub newlogtable {
 } # newlogtable
 
 ##############################################################################
+# &oldlogtable   Erase an old logbook table in the database with the name
+# "log_\L$_[0]$", for example log_dj1yfk. If the callsign includes a "/", it
+# will be converted into a "_" because "/" is not allowed in a table name.
+##############################################################################
+
+sub oldlogtable {
+	my $call = $_[0];					# callsign of the new database
+
+	my $filename = "$prefix/share/yfklog/db_log.sql";
+	if ($db eq 'sqlite') {
+		$filename = "$prefix/share/yfklog/db_log.sqlite";
+	}
+
+#	open DB, $filename;				# database definition in this file
+#	my @db = <DB>;						# read database def. into @db
+
+	# We assume that the callsign in $_[0] is valid, because the &askbox()
+	# which produced it only accepted valid callsign-letters.
+	# only exception: empty callsign!
+	
+#	if ($call eq '') {
+#		return "**** Invalid callsign! ****";
+#	}
+	
+#	$call =~ tr/\//_/;					# convert "/" to "_"
+#	$call =~ tr/[A-Z]/[a-z]/;			# make call lowercase
+
+	
+	# Now check if there is also a table existing with the same name
+
+#	if (&tableexists("log_$call")) {	# If logbook does not yet exist, create it
+#		my $db = "@db";
+#		$db =~ s/MYCALL/$call/g;# replace the callsign placeholder	
+#		$dbh->delete($db);			# create it!
+#		return "Logbook successfully erased!";
+#	}
+#	else {							# log already existed
+#		return "Logbook with same name already exists!";
+#	}	
+} # oldlogtable
+##############################################################################
 # choseeditqso -  Choses a QSO in the Edit & Search Mode which has to be
 # edited. It gets references to the @qso-array with the search criteria, and
 # the $weditlog window, where it has to print the output.
@@ -5048,7 +5089,6 @@ sub queryrig {
 	print $sock "f\n";
 	$freq = <$sock>;
 	chomp($freq);
-	<$sock>;			# rigctld sends an extra line "END"
 	
 	print $sock "m\n";
 	$mode = <$sock>;

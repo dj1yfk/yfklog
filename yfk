@@ -26,7 +26,7 @@ use DBI;				# Database interface
 use Curses;	
 use Net::FTP;			# upload of online log or backup
 
-my $prefix="/usr/local";		
+my $prefix="/usr/";		
 
 if (-f './yfk' && -f './yfksubs.pl' && -f 'THANKS') {
 	# we're in the source directory, source the local copy
@@ -700,7 +700,7 @@ while ($status == 2) {
     "ADIF Import       - Import QSOs to current logbook",
     "ADIF Export       - Export QSOs in ADIF Format",
 	"Update Onlinelog  - Update the online searchable log",
-    "Select Logbook    - Change active Logbook or create new one",
+    "Select Logbook    - Change active Logbook or create/delete new one",
     "Awards/Statistics - DXCC, WAZ, WPX, IOTA etc. plus statistics",
     "Edit Name/QTH DB  - Edit the database used to save Names and QTHs",
     "Import from LOTW  - Read LOTW report and update the confirmations",
@@ -1435,7 +1435,7 @@ while ($status == 10) {
 	attron($wmain, COLOR_PAIR(4));
 	addstr($whead, 0,0, "YFKlog v$yfkver - Select Log mode - Active Logbook: ".
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
-	addstr($whelp, 0,0, 'Chose one of the logs or create a new one ..'.' 'x50);
+	addstr($whelp, 0,0, 'Chose one of the logs or create/delete a new one ..'.' 'x50);
 	erase($wmain);
 	addstr($wmain,0,0, ' 'x(80*22));			# blue background
 	addstr($wmain, 2,18, 'Select an existing logbook or create a new log!');
@@ -1446,6 +1446,8 @@ while ($status == 10) {
 	@logs = &getlogs();						# get list of logbooks
 	push(@logs, " Create new Logbook ");	# add option to make new one
 	@logs = sort @logs;
+	 push(@logs, " Delete Logbook ");	# add option to make new one
+	 @logs = sort @logs;
 	# After dorting, the " Create new Logbook " entry will be at the first
 	# position because it starts with a whitespace. This is needed because the
 	# case of creating a new logbook has to be treated different.
@@ -1477,6 +1479,22 @@ while ($status == 10) {
 			$mycall =~ s/\//_/g;			# / -> _
 			&changemycall($mycall);			# change $mycall also in yfksubs.pl
 		}
+		refresh($wmain);
+		getch();
+	}
+	elsif ($choice == 1) {					# second item -> delete old log
+		curs_set(1);  						# cursor visible
+		# Ask for the name to delete.
+#		my $old = &askbox(10, 15, 4, 50, '[a-zA-Z0-9/]', 
+#						"Enter a name (callsign) to delete:", '');
+#		curs_set(0);  						# cursr invisible
+#		my $msg = &oldlogtable($old);
+#		addstr($wmain, 15, (40-(length($msg." ($old)")/2)), $msg." ($old)");
+#		if ($msg =~ /successfully/) {		# new call OK
+#			$mycall = "\L$new";				# take it as MYCALL
+#			$mycall =~ s/\//_/g;			# / -> _
+#			&changemycall($mycall);			# change $mycall also in yfksubs.pl
+#		}
 		refresh($wmain);
 		getch();
 	}
