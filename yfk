@@ -1438,7 +1438,7 @@ while ($status == 10) {
 	addstr($whelp, 0,0, 'Chose one of the logs or create/delete a new one ..'.' 'x50);
 	erase($wmain);
 	addstr($wmain,0,0, ' 'x(80*22));			# blue background
-	addstr($wmain, 2,18, 'Select an existing logbook or create a new log!');
+	addstr($wmain, 2,7, 'Select an existing logbook or create a new log or destroy an old one!');
 	refresh($wmain);
 	refresh($whead);
 	refresh($whelp);
@@ -1485,16 +1485,13 @@ while ($status == 10) {
 	elsif ($choice == 1) {					# second item -> delete old log
 		curs_set(1);  						# cursor visible
 		# Ask for the name to delete.
-#		my $old = &askbox(10, 15, 4, 50, '[a-zA-Z0-9/]', 
-#						"Enter a name (callsign) to delete:", '');
-#		curs_set(0);  						# cursr invisible
-#		my $msg = &oldlogtable($old);
-#		addstr($wmain, 15, (40-(length($msg." ($old)")/2)), $msg." ($old)");
-#		if ($msg =~ /successfully/) {		# new call OK
-#			$mycall = "\L$new";				# take it as MYCALL
-#			$mycall =~ s/\//_/g;			# / -> _
-#			&changemycall($mycall);			# change $mycall also in yfksubs.pl
-#		}
+		my $old = &askbox(10, 15, 4, 50, '[a-zA-Z0-9/]', 
+						"Enter a name (callsign) to delete:", '');
+		curs_set(0);  						# cursr invisible
+		my $msg = &oldlogtable($old);
+		addstr($wmain, 15, (40-(length($msg." ($old)")/2)), $msg." ($old)");
+		if ($msg =~ /successfully/) {		# delete succefull
+		}
 		refresh($wmain);
 		getch();
 	}

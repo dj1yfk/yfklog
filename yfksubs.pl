@@ -30,7 +30,7 @@ require Exporter;
 lastqsos callinfo getdate gettime splashscreen choseqso getqso chosepqso
 entrymask fkeyline winfomask selectlist askbox toggleqsl onlinelog
 preparelabels labeltex emptyqslqueue adifexport ftpupload adifimport getlogs
-changemycall newlogtable choseeditqso geteditqso editw updateqso checkdate
+changemycall newlogtable oldlogtable choseeditqso geteditqso editw updateqso checkdate
 awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
 connectdb connectrig jumpfield receive_qso);
@@ -3661,40 +3661,41 @@ sub newlogtable {
 ##############################################################################
 
 sub oldlogtable {
-	my $call = $_[0];					# callsign of the new database
+	my $call = $_[0];					# callsign to delete 
 
 	my $filename = "$prefix/share/yfklog/db_log.sql";
 	if ($db eq 'sqlite') {
 		$filename = "$prefix/share/yfklog/db_log.sqlite";
 	}
 
-#	open DB, $filename;				# database definition in this file
-#	my @db = <DB>;						# read database def. into @db
+	open DB, $filename;				# database definition in this file
+	my @db = <DB>;						# read database def. into @db
 
 	# We assume that the callsign in $_[0] is valid, because the &askbox()
 	# which produced it only accepted valid callsign-letters.
 	# only exception: empty callsign!
 	
-#	if ($call eq '') {
-#		return "**** Invalid callsign! ****";
-#	}
+	if ($call eq '') {
+		return "**** Invalid callsign! ****";
+	}
 	
-#	$call =~ tr/\//_/;					# convert "/" to "_"
-#	$call =~ tr/[A-Z]/[a-z]/;			# make call lowercase
+	$call =~ tr/\//_/;					# convert "/" to "_"
+	$call =~ tr/[A-Z]/[a-z]/;			# make call lowercase
 
 	
 	# Now check if there is also a table existing with the same name
 
-#	if (&tableexists("log_$call")) {	# If logbook does not yet exist, create it
-#		my $db = "@db";
+	if (&tableexists("log_$call")) {	# If logbook does exist, delete it
+		my $db = "@db";
 #		$db =~ s/MYCALL/$call/g;# replace the callsign placeholder	
-#		$dbh->delete($db);			# create it!
-#		return "Logbook successfully erased!";
-#	}
-#	else {							# log already existed
-#		return "Logbook with same name already exists!";
-#	}	
+		$dbh->do("DROP table 'log_$call'");			# erase it!
+		return "Logbook successfully erased!";
+	}
+	else {							# log already existed
+		return "No logbook for this call!";
+	}	
 } # oldlogtable
+
 ##############################################################################
 # choseeditqso -  Choses a QSO in the Edit & Search Mode which has to be
 # edited. It gets references to the @qso-array with the search criteria, and
