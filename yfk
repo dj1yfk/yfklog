@@ -710,7 +710,7 @@ while ($status == 2) {
 		
 	addstr($whead, 0,0, "YFKlog v$yfkver - Main Menu - Active Logbook: ".
 	   "\U$mycall"." - DB: $dbname @ $dbserver"." "x30);
-	addstr($whelp, 0,0, "Use the cursor keys to chose. F12 exits."." " x 70);
+	addstr($whelp, 0,0, "Use the cursor keys to choose. F12 exits."." " x 70);
 	refresh($whead);						
 	refresh($whelp);						
 	addstr($wmain, 0,0, " " x (80*22));			# empty
@@ -1025,7 +1025,7 @@ while ($status == 6) {
 	addstr($wmain, 8,16, "Done! You can now open the file");
 	addstr($wmain, 9,25, "$directory/$filename.pdf");
 	addstr($wmain, 10,16, "in your favourite PDF Viewer and print it.");
-	addstr($wmain, 11,16, "If you're happy with the results, chose OK, then ");
+	addstr($wmain, 11,16, "If you're happy with the results, choose OK, then ");
 	addstr($wmain, 12,16, "the QSL status of the processed QSOs will be");
 	addstr($wmain, 13,16, "set to \"Y\".");
 	refresh($wmain);
@@ -1435,7 +1435,7 @@ while ($status == 10) {
 	attron($wmain, COLOR_PAIR(4));
 	addstr($whead, 0,0, "YFKlog v$yfkver - Select Log mode - Active Logbook: ".
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
-	addstr($whelp, 0,0, 'Chose one of the logs or create/delete a new one ..'.' 'x50);
+	addstr($whelp, 0,0, 'Choose one of the logs or create/delete a new one ..'.' 'x50);
 	erase($wmain);
 	addstr($wmain,0,0, ' 'x(80*22));			# blue background
 	addstr($wmain, 2,7, 'Select an existing logbook or create a new log or destroy an old one!');
@@ -1490,6 +1490,7 @@ while ($status == 10) {
 		curs_set(0);  						# cursr invisible
 		my $msg = &oldlogtable($old);
 		addstr($wmain, 15, (40-(length($msg." ($old)")/2)), $msg." ($old)");
+		addstr($wmain, 16,15,"Choose another logbook before leave the log, tks");
 		if ($msg =~ /successfully/) {		# delete succefull
 		}
 		refresh($wmain);

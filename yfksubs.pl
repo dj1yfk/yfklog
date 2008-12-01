@@ -1530,7 +1530,7 @@ sub splashscreen {
 		my $yfkver = $_[0];
 		return "YFKlog v$yfkver - a general purpose ham radio logbook
 
-Copyright (C) 2005-2007  Fabian Kurz, DJ1YFK
+Copyright (C) 2005-2008  Fabian Kurz, DJ1YFK
 
 This is free software, and you are welcome to redistribute it
 under certain conditions (see COPYING).
@@ -3683,7 +3683,7 @@ sub oldlogtable {
 	$call =~ tr/[A-Z]/[a-z]/;			# make call lowercase
 
 	
-	# Now check if there is also a table existing with the same name
+	# Now check if there is a table with an existing name
 
 	if (&tableexists("log_$call")) {	# If logbook does exist, delete it
 		my $db = "@db";

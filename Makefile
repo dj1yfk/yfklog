@@ -1,7 +1,7 @@
 # This Makefile is for the yfk extension to perl.
 #
 # It was generated automatically by MakeMaker version
-# 6.36 (Revision: 32261) from the contents of
+# 6.42 (Revision: 41145) from the contents of
 # Makefile.PL. Don't edit this file, edit Makefile.PL instead.
 #
 #       ANY CHANGES MADE HERE WILL BE LOST!
@@ -21,31 +21,31 @@
 
 # --- MakeMaker const_config section:
 
-# These definitions are from config.sh (via /usr/lib/perl/5.8/Config.pm)
+# These definitions are from config.sh (via /usr/lib/perl5/5.10.0/i586-linux-thread-multi/Config.pm)
 
 # They may have been overridden via Makefile.PL or on the command line
 AR = ar
 CC = cc
 CCCDLFLAGS = -fPIC
-CCDLFLAGS = -Wl,-E
+CCDLFLAGS = -Wl,-E -Wl,-rpath,/usr/lib/perl5/5.10.0/i586-linux-thread-multi/CORE
 DLEXT = so
 DLSRC = dl_dlopen.xs
 EXE_EXT = 
 FULL_AR = /usr/bin/ar
 LD = cc
-LDDLFLAGS = -shared -L/usr/local/lib
-LDFLAGS =  -L/usr/local/lib
-LIBC = /lib/libc-2.3.6.so
+LDDLFLAGS = -shared -O2 -march=i586 -mtune=i686 -fmessage-length=0 -Wall -D_FORTIFY_SOURCE=2 -fstack-protector -g -Wall -pipe
+LDFLAGS = 
+LIBC = /lib/libc-2.8.so
 LIB_EXT = .a
 OBJ_EXT = .o
 OSNAME = linux
-OSVERS = 2.6.24.4
+OSVERS = 2.6.25
 RANLIB = :
-SITELIBEXP = /usr/local/share/perl/5.8.8
-SITEARCHEXP = /usr/local/lib/perl/5.8.8
+SITELIBEXP = /usr/lib/perl5/site_perl/5.10.0
+SITEARCHEXP = /usr/lib/perl5/site_perl/5.10.0/i586-linux-thread-multi
 SO = so
-VENDORARCHEXP = /usr/lib/perl5
-VENDORLIBEXP = /usr/share/perl5
+VENDORARCHEXP = /usr/lib/perl5/vendor_perl/5.10.0/i586-linux-thread-multi
+VENDORLIBEXP = /usr/lib/perl5/vendor_perl/5.10.0
 
 
 # --- MakeMaker constants section:
@@ -67,58 +67,58 @@ INST_BIN = blib/bin
 INST_LIB = blib/lib
 INST_MAN1DIR = blib/man1
 INST_MAN3DIR = blib/man3
-MAN1EXT = 1p
+MAN1EXT = 1
 MAN3EXT = 3pm
 INSTALLDIRS = site
 DESTDIR = 
 PREFIX = $(SITEPREFIX)
 PERLPREFIX = /usr
-SITEPREFIX = /usr/local
+SITEPREFIX = /usr
 VENDORPREFIX = /usr
-INSTALLPRIVLIB = /usr/share/perl/5.8
+INSTALLPRIVLIB = /usr/lib/perl5/5.10.0
 DESTINSTALLPRIVLIB = $(DESTDIR)$(INSTALLPRIVLIB)
-INSTALLSITELIB = /usr/local/share/perl/5.8.8
+INSTALLSITELIB = /usr/lib/perl5/site_perl/5.10.0
 DESTINSTALLSITELIB = $(DESTDIR)$(INSTALLSITELIB)
-INSTALLVENDORLIB = /usr/share/perl5
+INSTALLVENDORLIB = /usr/lib/perl5/vendor_perl/5.10.0
 DESTINSTALLVENDORLIB = $(DESTDIR)$(INSTALLVENDORLIB)
-INSTALLARCHLIB = /usr/lib/perl/5.8
+INSTALLARCHLIB = /usr/lib/perl5/5.10.0/i586-linux-thread-multi
 DESTINSTALLARCHLIB = $(DESTDIR)$(INSTALLARCHLIB)
-INSTALLSITEARCH = /usr/local/lib/perl/5.8.8
+INSTALLSITEARCH = /usr/lib/perl5/site_perl/5.10.0/i586-linux-thread-multi
 DESTINSTALLSITEARCH = $(DESTDIR)$(INSTALLSITEARCH)
-INSTALLVENDORARCH = /usr/lib/perl5
+INSTALLVENDORARCH = /usr/lib/perl5/vendor_perl/5.10.0/i586-linux-thread-multi
 DESTINSTALLVENDORARCH = $(DESTDIR)$(INSTALLVENDORARCH)
 INSTALLBIN = /usr/bin
 DESTINSTALLBIN = $(DESTDIR)$(INSTALLBIN)
-INSTALLSITEBIN = /usr/local/bin
+INSTALLSITEBIN = /usr/bin
 DESTINSTALLSITEBIN = $(DESTDIR)$(INSTALLSITEBIN)
 INSTALLVENDORBIN = /usr/bin
 DESTINSTALLVENDORBIN = $(DESTDIR)$(INSTALLVENDORBIN)
 INSTALLSCRIPT = /usr/bin
 DESTINSTALLSCRIPT = $(DESTDIR)$(INSTALLSCRIPT)
-INSTALLSITESCRIPT = /usr/local/bin
+INSTALLSITESCRIPT = /usr/bin
 DESTINSTALLSITESCRIPT = $(DESTDIR)$(INSTALLSITESCRIPT)
 INSTALLVENDORSCRIPT = /usr/bin
 DESTINSTALLVENDORSCRIPT = $(DESTDIR)$(INSTALLVENDORSCRIPT)
 INSTALLMAN1DIR = /usr/share/man/man1
 DESTINSTALLMAN1DIR = $(DESTDIR)$(INSTALLMAN1DIR)
-INSTALLSITEMAN1DIR = /usr/local/man/man1
+INSTALLSITEMAN1DIR = /usr/share/man/man1
 DESTINSTALLSITEMAN1DIR = $(DESTDIR)$(INSTALLSITEMAN1DIR)
 INSTALLVENDORMAN1DIR = /usr/share/man/man1
 DESTINSTALLVENDORMAN1DIR = $(DESTDIR)$(INSTALLVENDORMAN1DIR)
 INSTALLMAN3DIR = /usr/share/man/man3
 DESTINSTALLMAN3DIR = $(DESTDIR)$(INSTALLMAN3DIR)
-INSTALLSITEMAN3DIR = /usr/local/man/man3
+INSTALLSITEMAN3DIR = /usr/share/man/man3
 DESTINSTALLSITEMAN3DIR = $(DESTDIR)$(INSTALLSITEMAN3DIR)
 INSTALLVENDORMAN3DIR = /usr/share/man/man3
 DESTINSTALLVENDORMAN3DIR = $(DESTDIR)$(INSTALLVENDORMAN3DIR)
-PERL_LIB = /usr/share/perl/5.8
-PERL_ARCHLIB = /usr/lib/perl/5.8
+PERL_LIB = /usr/lib/perl5/5.10.0
+PERL_ARCHLIB = /usr/lib/perl5/5.10.0/i586-linux-thread-multi
 LIBPERL_A = libperl.a
 FIRST_MAKEFILE = Makefile
 MAKEFILE_OLD = Makefile.old
 MAKE_APERL_FILE = Makefile.aperl
 PERLMAINCC = $(CC)
-PERL_INC = /usr/lib/perl/5.8/CORE
+PERL_INC = /usr/lib/perl5/5.10.0/i586-linux-thread-multi/CORE
 PERL = /usr/bin/perl
 FULLPERL = /usr/bin/perl
 ABSPERL = $(PERL)
@@ -132,9 +132,9 @@ PERL_CORE = 0
 PERM_RW = 644
 PERM_RWX = 755
 
-MAKEMAKER   = /usr/local/share/perl/5.8.8/ExtUtils/MakeMaker.pm
-MM_VERSION  = 6.36
-MM_REVISION = 32261
+MAKEMAKER   = /usr/lib/perl5/5.10.0/ExtUtils/MakeMaker.pm
+MM_VERSION  = 6.42
+MM_REVISION = 41145
 
 # FULLEXT = Pathname for extension directory (eg Foo/Bar/Oracle).
 # BASEEXT = Basename part of FULLEXT. May be just equal FULLEXT. (eg Oracle)
@@ -186,7 +186,7 @@ PM_TO_BLIB = yfksubs.pl \
 
 
 # --- MakeMaker platform_constants section:
-MM_Unix_VERSION = 1.54
+MM_Unix_VERSION = 6.42
 PERL_MALLOC_DEF = -DPERL_EXTMALLOC_DEF -Dmalloc=Perl_malloc -Dfree=Perl_mfree -Drealloc=Perl_realloc -Dcalloc=Perl_calloc
 
 
@@ -230,7 +230,7 @@ FIXIN = $(PERLRUN) "-MExtUtils::MY" -e "MY->fixin(shift)"
 
 
 # --- MakeMaker makemakerdflt section:
-makemakerdflt: all
+makemakerdflt : all
 	$(NOECHO) $(NOOP)
 
 
@@ -488,13 +488,14 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) 'version:             0.3.6' >> META_new.yml
 	$(NOECHO) $(ECHO) 'abstract:            ~' >> META_new.yml
 	$(NOECHO) $(ECHO) 'license:             ~' >> META_new.yml
-	$(NOECHO) $(ECHO) 'generated_by:        ExtUtils::MakeMaker version 6.36' >> META_new.yml
+	$(NOECHO) $(ECHO) 'author:              ~' >> META_new.yml
+	$(NOECHO) $(ECHO) 'generated_by:        ExtUtils::MakeMaker version 6.42' >> META_new.yml
 	$(NOECHO) $(ECHO) 'distribution_type:   module' >> META_new.yml
 	$(NOECHO) $(ECHO) 'requires:     ' >> META_new.yml
 	$(NOECHO) $(ECHO) '    DBI:                           0' >> META_new.yml
 	$(NOECHO) $(ECHO) 'meta-spec:' >> META_new.yml
-	$(NOECHO) $(ECHO) '    url:     http://module-build.sourceforge.net/META-spec-v1.2.html' >> META_new.yml
-	$(NOECHO) $(ECHO) '    version: 1.2' >> META_new.yml
+	$(NOECHO) $(ECHO) '    url:     http://module-build.sourceforge.net/META-spec-v1.3.html' >> META_new.yml
+	$(NOECHO) $(ECHO) '    version: 1.3' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 
 
@@ -714,7 +715,7 @@ uninstall_from_vendordirs ::
 
 # --- MakeMaker force section:
 # Phony target to force checking subdirectories.
-FORCE:
+FORCE :
 	$(NOECHO) $(NOOP)
 
 
@@ -784,7 +785,7 @@ testdb_static :: testdb_dynamic
 
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
-ppd:
+ppd :
 	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0,3,6,0">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <TITLE>$(DISTNAME)</TITLE>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT></ABSTRACT>' >> $(DISTNAME).ppd
@@ -792,7 +793,7 @@ ppd:
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <DEPENDENCY NAME="DBI" VERSION="0,0,0,0" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <OS NAME="$(OSNAME)" />' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="i486-linux-gnu-thread-multi-5.8" />' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="i586-linux-thread-multi-5.1" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <CODEBASE HREF="" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    </IMPLEMENTATION>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '</SOFTPKG>' >> $(DISTNAME).ppd
