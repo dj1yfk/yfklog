@@ -238,7 +238,7 @@ $wi[8] = &makewindow(1,1,2,42,5);			# Input Window: QSLs
 $wi[9] = &makewindow(1,1,2,50,5);			# Input Window: QSLr
 $wi[10] = &makewindow(1,7,2,58,5);			# Input Window: RSTs 
 $wi[11] = &makewindow(1,7,2,72,5);			# Input Window: RSTr 
-$wi[12] = &makewindow(1,56,3,9,5);			# Input Window: Remarks
+$wi[12] = &makewindow(1,40,3,9,5);			# Input Window: Remarks
 $wi[13] = &makewindow(1,4,3,72,5);			# Input Window: Power
 
 $wi[14] = &makewindow(1,4,4,6,5);			# Edit  Window: DXCC
@@ -1490,7 +1490,7 @@ while ($status == 10) {
 		curs_set(0);  						# cursr invisible
 		my $msg = &oldlogtable($old);
 		addstr($wmain, 15, (40-(length($msg." ($old)")/2)), $msg." ($old)");
-		addstr($wmain, 16,15,"Choose another logbook before leave the log, tks");
+		addstr($wmain, 16,15,"Select another logbook before leave the log, tks!");
 		if ($msg =~ /successfully/) {		# delete succefull
 		}
 		refresh($wmain);
