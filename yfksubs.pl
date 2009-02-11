@@ -86,7 +86,7 @@ our $checklogs = '';							# add. logs to chk fr prev QSOs
 our $lotwdetails='0';							# LOTW import details?
 our $autoqueryrig='0';							# Query rig at new QSO?
 our $directory='/tmp/';							# where to look for stuff
-our $prefix="/usr/";								# may be changed by 'make'
+our $prefix="/usr/local";								# may be changed by 'make'
 my $db='';										# sqlite or mysql?
 our $fieldorder=									# TAB/Field order.
 'CALL DATE TON TOFF BAND MODE QTH NAME QSLS QSLR RSTS RSTR REM PWR';
