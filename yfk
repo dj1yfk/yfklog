@@ -26,7 +26,7 @@ use DBI;				# Database interface
 use Curses;	
 use Net::FTP;			# upload of online log or backup
 
-my $prefix="/usr/";		
+my $prefix="/usr/local";		
 
 if (-f './yfk' && -f './yfksubs.pl' && -f 'THANKS') {
 	# we're in the source directory, source the local copy
