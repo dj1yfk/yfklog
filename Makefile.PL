@@ -33,6 +33,6 @@ installstuff:
 	$(INSTALL) *.lab $(YFKDIR)/labels
 
 installfixpaths:
-	$(PERL) -p -i -e "s|/usr/local|$(PREFIX)|" $(DISTDIR)$(PREFIX)/bin/yfk
+	$(PERL) -p -i -e "s|/usr/local|$(PREFIX)|" $(DESTDIR)$(PREFIX)/bin/yfk
 ';
 }
