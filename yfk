@@ -536,7 +536,7 @@ elsif ($af == 12) {
 } # end of $af=12
 elsif ($af == 13) {
 	$aw=&readw($wi,3,12,$qso,\$wlog, 	# Remarks
-			\$editnr, 0, 55);
+			\$editnr, 0, 56);
 	if ($aw == 1) {						# Normal exit. next field!
 		$af = &jumpfield($af, 'n');
 	}
