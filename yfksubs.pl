@@ -4,7 +4,7 @@
 
 # Several subroutines for yfklog, a amateur radio logbook software 
 # 
-# Copyright (C) 2005-2007  Fabian Kurz, DJ1YFK
+# Copyright (C) 2005-2009  Fabian Kurz, DJ1YFK
 #
 # This program is free software; you can redistribute it and/or modify 
 # it under the terms of the GNU General Public License as published by 
@@ -849,7 +849,7 @@ sub readw {
 	my $input = ${$_[3]}[$_[2]];				# stores what the user entered,
 												# init from @qso.
 	my $match = "[a-zA-Z0-9\/]";				# default match expression
-	my $pos = 0;								# cursor position in the window
+	my $pos = 0;								# cursor position in the field
 	my $strpos = $pos;							# cursor position in the string
 	my $wlog = ${$_[4]};						# reference to log-windw
 	my $editnr = ${$_[5]};						# reference to editnr 
@@ -862,8 +862,8 @@ sub readw {
 	# The string length $strlen is used to have entries larger than the width,
 	# $_[2] is inspected to set the length according to SQL field length.
 	my $strlen = $width;
-	if ($_[2] == 0) { $strlen = 15; }     # Call
-	elsif ($_[2] == 5) { $strlen = 6; }   # Mode
+	if ($_[2] == 0) { $strlen = 15; }	  # Call
+	elsif ($_[2] == 5) { $strlen = 6; }	  # Mode
 	elsif ($_[2] == 6) { $strlen = 15; }  # QTH
 	elsif ($_[2] == 7) { $strlen = 15; }  # Name
 	elsif ($_[2] == 10) { $strlen = 10; } # RSTs
@@ -911,12 +911,12 @@ sub readw {
 	# key was pressed, as ||F1 .. ||F10. This way we can switch to the proper
 	# window when we get back into the main loop.
 
-	while (1) {										# loop infinitely
+	while (1) {								   	# loop infinitely
 
-		$pos-- if ($pos == $width);				# keep cursor in window
+		$pos-- if ($pos == $width);				# keep cursor in field
 		$strpos-- if ($strpos == $strlen);		# stop if string filled
 
-		# If the cursor positions in the window and the string are not the same
+		# If the cursor positions in the field and the string are not the same
 		# then give only a partial view of the string.
 		if ($strpos > $pos) {
 			if (length($input) < $width) {
@@ -940,19 +940,20 @@ sub readw {
 			((length($input) < $strlen) || ($strpos < $strlen && $ovr)) 
 		) {
 
-			unless ($_[1] == 3) {					# Unless Name, QTH or Remarks
+			unless ($_[1] == 3) {					# Unless Name, QTH, Remarks
 				$ch =~ tr/[a-z]/[A-Z]/;				# make letters uppercase
 			}
-			
+			# The new character will be added to $input at the right place.
 			$strpos++;
 			$pos++;
 
 			if ($ovr) {
-				$input = substr($input, 0, $strpos-1).$ch.substr($input, $strpos >
-						length($input) ? $strpos-1 : $strpos, );
+				$input = substr($input, 0, $strpos-1).$ch.substr($input,
+						$strpos > length($input) ? $strpos-1 : $strpos, );
 			}
 			else {
-				$input = substr($input, 0, $strpos-1).$ch.substr($input, $strpos-1, );
+				$input = substr($input, 0, $strpos-1).$ch.substr($input,
+						$strpos-1, );
 			}
 		} 
 		
@@ -965,8 +966,8 @@ sub readw {
 		}
 		
 		elsif ($ch eq KEY_RIGHT) {
-			if (($pos < length($input)) && ($pos < $width)) { $pos++; }
-			if ($strpos < length($input)) {	$strpos++; }
+			if (($pos < length($input)) && ($pos < $width)) { $pos++ }
+			if ($strpos < length($input)) {	$strpos++ }
 		}
 
 		elsif (($ch eq KEY_DC) && ($strpos < length($input))) {	# Delete key
@@ -1020,7 +1021,7 @@ sub readw {
 
 		# exit to the MAIN MENU
 		elsif ($ch eq KEY_F(1)) {		
-			my $k = 'n';
+			my $k = 'y';
 
 			if ($askme && ${$_[3]}[0] ne '') {
 				$k = &askconfirmation("Really go back to the menu? [y/N]", 
@@ -1034,7 +1035,7 @@ sub readw {
 		# if $editnr is set (= we edit a QSO), it's set back to 0
 		# ask for confirmation if set in config file
 		elsif ($ch eq KEY_F(3)) {			# F3 pressed -> clear QSO
-			my $k='n';
+			my $k='y';
 
 			if ($askme) {
 				$k = &askconfirmation("Really go clear this QSO? [y/N]", 
@@ -1095,9 +1096,9 @@ sub readw {
 		}
 		# QUIT YFKlog
 		elsif ($ch eq KEY_F(12)) {			# QUIT
-			my $k='n';
+			my $k='y';
 
-			if ($askme) {
+			if ($askme && ${$_[3]}[0] ne '') {
 				$k = &askconfirmation("Really quit YFKlog? [y/N]", 
 					'y|n|\n|\s');
 			}
@@ -2359,7 +2360,7 @@ do {									# we start looping here
 			addstr($win, $yh+3, 0, 
 				sprintf("Power: %-4sW OP: %8s GRID: %-17s LOTW: %s",
 						$pwr, $op, $grid, $qslrl));
-			addstr($win, $yh+4, 0, sprintf("LOTW: %-60s", $rem));
+			addstr($win, $yh+4, 0, sprintf("Rem: %-60s", $rem));
 			attron($win, COLOR_PAIR(3));	# highlight
 		}
 		addstr($win, $y, 0, $line);
@@ -3953,13 +3954,26 @@ sub editw {
 	my $input = ${$_[3]}[$_[2]];				# stores what the user entered,
 												# init from @qso.
 	my $match = "[a-zA-Z0-9\/]";				# default match expression
-	my $pos = 0;								# cursor position in the string
+	my $pos = 0;								# cursor position in the field
+	my $strpos = $pos;							# cursor position in the string
 	
 	my $debug=0;
 
 	my $ovr = $_[4];
-	my $maxlen = $_[5];
+	my $width = $_[5];
 
+	# The string length $strlen is used to have entries larger than the width,
+	# $_[2] is inspected to set the length according to SQL field length.
+	my $strlen = $width;
+	if ($_[2] == 0) { $strlen = 15; }	  # Call
+	elsif ($_[2] == 5) { $strlen = 6; }	  # Mode
+	elsif ($_[2] == 6) { $strlen = 15; }  # QTH
+	elsif ($_[2] == 7) { $strlen = 15; }  # Name
+	elsif ($_[2] == 10) { $strlen = 10; } # RSTs
+	elsif ($_[2] == 11) { $strlen = 10; } # RSTr
+	elsif ($_[2] == 12) { $strlen = 60; } # Remarks
+	elsif ($_[2] == 13) { $strlen = 10; } # PWR
+	
 	move($win,0,0);							# move cursor to first position
 	addstr($win,0,0, $input." "x80);		# pass $input to window,
 	refresh($win);
@@ -3993,9 +4007,20 @@ sub editw {
 
 	while (1) {									# loop infinitely
 	
-		addstr($win,0,0, $input." "x80);		# pass $input to window,
-												# delete all after $input.
-		$pos-- if ($pos == $maxlen);
+		$pos-- if ($pos == $width);				# keep cursor in window
+		$strpos-- if ($strpos == $strlen);		# stop if string filled
+
+		# If the cursor positions in the field and the string are not the same
+		# then give only a partial view of the string.
+		if ($strpos > $pos) {
+			if (length($input) < $width) {
+				$pos = $strpos;					# perfect, it fits again
+			}
+			addstr($win,0,0, substr($input, $strpos-$pos, )." "x80);
+		}
+		else {
+			addstr($win,0,0, $input." "x80);	# pass $input to window,
+		}										# delete all after $input.
 
 		move ($win,0,$pos);						# move cursor to $pos
 		refresh($win);							# show new window
@@ -4005,20 +4030,22 @@ sub editw {
 		# We first check if it is a legal character of the specified $match,
 		# if so, it will be added to the string (at the proper position!) 
 		if (($ch =~ /^$match$/) &&
-			 ((length($input) < $maxlen) || ($pos < $maxlen && $ovr))
+			 ((length($input) < $strlen) || ($strpos < $strlen && $ovr))
 		) {
-			unless ($_[1] == 3) {					# Unless Name, QTH mode
+			unless ($_[1] == 3) {					# Unless Name, QTH, Remarks
 				$ch =~ tr/[a-z]/[A-Z]/;				# make letters uppercase
 			}
 			# The new character will be added to $input at the right place.
+			$strpos++;
 			$pos++;
 		
 			if ($ovr) {
-				$input = substr($input, 0, $pos-1).$ch.substr($input, $pos >
-						length($input) ? $pos-1 : $pos, );
+				$input = substr($input, 0, $strpos-1).$ch.substr($input,
+						$strpos > length($input) ? $strpos-1 : $strpos, );
 			}
 			else {
-				$input = substr($input, 0, $pos-1).$ch.substr($input, $pos-1,);
+				$input = substr($input, 0, $strpos-1).$ch.substr($input,
+						$strpos-1, );
 			}	
 		} 
 		
@@ -4027,14 +4054,16 @@ sub editw {
 		
 		elsif ($ch eq KEY_LEFT) {					# arrow left was pressed	
 			if ($pos > 0) { $pos-- }				# go left if possible
+			if ($strpos > 0) { $strpos-- }
 		}
 		
 		elsif ($ch eq KEY_RIGHT) {					# arrow right was pressed	
-			if ($pos < length($input)) { $pos++ }	# go right if possible
+			if (($pos < length($input)) && ($pos < $width)) { $pos++ }
+			if ($strpos < length($input)) {	$strpos++ }# go right if possible
 		}
 
-		elsif (($ch eq KEY_DC) && ($pos < length($input))) {	# Delete key
-			$input = substr($input, 0, $pos).substr($input, $pos+1, );
+		elsif (($ch eq KEY_DC) && ($strpos < length($input))) {	# Delete key
+			$input = substr($input, 0, $strpos).substr($input, $strpos+1, );
 		}
 		
 		# BACKSPACE. When pressing backspace, the character left of the cursor
@@ -4044,9 +4073,10 @@ sub editw {
 		# Found this solution in qe.pl by Wilbert Knol, ZL2BSJ. 
 
 		elsif ((($ch eq KEY_BACKSPACE) || (ord($ch)==8) || (ord($ch)==0x7F)) 
-				&& ($pos > 0)) {
-				$input = substr($input, 0, $pos-1).substr($input, $pos, );
-				$pos--;
+				&& ($strpos > 0)) {
+				$input = substr($input, 0, $strpos-1).substr($input, $strpos, );
+				$strpos--;
+				if ($pos > 0) { $pos--; }
 		}
 		
 		# Space, Tab and Enter are the keys to go to the next field, except in
@@ -4112,8 +4142,17 @@ sub editw {
 
 		# QUIT YFKlog
 		elsif ($ch eq KEY_F(12)) {			# QUIT
-			endwin;							# Leave curses mode	
-			exit;
+			my $k='y';
+
+			if ($askme && ${$_[3]}[0] ne '') {
+				$k = &askconfirmation("Really quit YFKlog? [y/N]", 
+					'y|n|\n|\s');
+			}
+
+			if ($k =~ /y/i) {
+				endwin;					   	# Leave curses mode	
+				exit;
+			}
 		}
 	}
 }  # &editw;
@@ -5067,11 +5106,11 @@ sub xplanet {
 	while ($line = <CTY>) {
 		chomp($line);
 		next unless ($line =~ /^[A-Z]/);			# no data lines pse
-		$line =~ s/ //g;							# remove /
+		$line =~ s/ //g;							# remove spaces
 		
-		$pfx = (split(/:/, $line))[-2];			# DXCC prefix
-		$lat = (split(/:/, $line))[-5];				# 
-		$lon  = (split(/:/, $line))[-4];			#
+		$pfx = (split(/:/, $line))[-1];			# DXCC prefix
+		$lat = (split(/:/, $line))[-4];				# 
+		$lon  = (split(/:/, $line))[-3];			#
 	
 
 		next if (!defined($pfx) || ($pfx =~ /[*]/));	# remove WAEs
@@ -5619,7 +5658,11 @@ sub getch2 {
 	# ESC-n instead of F-Keys
 	if (ord($ch) == 27) {
 		$ch = getch();
-		if ($ch =~ /^\d$/) {
+		# Double ESC is like F3
+		if (ord($ch) == 27) {
+			$ch = KEY_F(3);
+		}
+		elsif ($ch =~ /^\d$/) {
 			if ($ch eq '0') {
 				$ch = KEY_F(10);
 			}
