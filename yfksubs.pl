@@ -3726,7 +3726,7 @@ sub oldlogtable {
 	if (&tableexists("log_$call")) {	# If logbook does exist, delete it
 		my $db = "@db";
 #		$db =~ s/MYCALL/$call/g;# replace the callsign placeholder	
-		$dbh->do("DROP table 'log_$call'");			# erase it!
+		$dbh->do("DROP table log_$call");			# erase it!
 		return "Logbook successfully erased!";
 	}
 	else {							# log already existed
