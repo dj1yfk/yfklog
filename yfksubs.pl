@@ -2852,8 +2852,8 @@ sub emptyqslqueue {
 ##############################################################################
 # adifexport  - Exports the logbook to an ADIF file. The fields CALL, DATE,
 # T_ON, T_OFF, BAND, MODE, QTH, NAME, QSLS, QSLR, RSTS, RSTR, REM, PWR, PFX,
-# QSLINFO, ITUZ, CQZ, STATE, IOTA and CONT are exported into their appropriate 
-# fields.  
+# QSLINFO, ITUZ, CQZ, STATE, IOTA, CONT and GRID are exported into their
+# appropriate fields.  
 # if $_[1] is 'adif', all QSOs are exported
 # if $_[1] is 'LOTW', all QSOs where QSLRL = 'N' are exported and set to 'R'
 #          for 'Requested'. 
@@ -2878,7 +2878,7 @@ sub adifexport {
 	my $adif = $dbh->prepare("SELECT `CALL`, `DATE`, `T_ON`, `T_OFF`, `BAND`,
 			`MODE`, `QTH`, `NAME`, `QSLS`, `QSLR`, `RSTS`, `RSTR`, `REM`,
 			`PWR`, `PFX`, `CONT`, `QSLINFO`, `CQZ`, `ITUZ`, `IOTA`, `STATE`,
-			`OPERATOR` FROM log_$mycall $sql"); 
+			`OPERATOR`, `GRID` FROM log_$mycall $sql"); 
 	
 	$adif->execute();
 
@@ -2953,6 +2953,9 @@ sub adifexport {
 		}
 		unless ($q[21] eq '') {
 			print ADIF "<operator:".length($q[21]).">$q[21] ";
+		}
+		unless ($q[22] eq '') {
+			print ADIF "<gridsquare:".length($q[22]).">$q[22] ";
 		}
 		print ADIF '<eor>';						# QSO done
 	} # no more lines to fetch..
