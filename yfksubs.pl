@@ -2693,6 +2693,7 @@ sub preparelabels {
 			$$lr =~ s/MYCALL/\U$mycall/;
 			$$lr =~ s/_/\//g;						# _ to /
 			$$lr =~ s/NAME/$name/;
+			$$lr =~ s/TXPOWER/$pwr/;
 		}
 
 		# In every case we have to replace the fields DATE, TIME, BAND, MODE,
