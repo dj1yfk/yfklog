@@ -1073,11 +1073,11 @@ sub readw {
 			return 4;						# return 4 because we want back to
 		}
 
-		# F7 -> go to remote mode for fldigi
+		# F6 -> open browser with qrz.com info on callsign
 		elsif ($ch eq KEY_F(6)) {
 			my $lookup = ${$_[3]}[0];
 			unless ($lookup) { $lookup = $input };
-			system("$browser http://www.qrz.com/$lookup &> /dev/null &");
+			system("$browser http://www.qrz.com/callsign\?callsign=$lookup &> /dev/null &");
 		}
 
 		# F7 -> go to remote mode for fldigi
