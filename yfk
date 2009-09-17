@@ -46,6 +46,7 @@ my $firstrun = 1;		# At first run, start in setup mode, and create DBs.
 my $mycall='';			# will be the callsign of the active log
 my $dband="80";			# default band 80m. 3525kHz precisely :-)
 my $bands = '160 80 40 30 20 17 15 12 10 2';    # bands for award purposes
+my $modes = 'CW SSB';	# modes for award purposes
 my $dmode="CW";			# of course we want CW as default mode
 my $dpwr ="100";		# life is too long for QRO
 my $dqsls="Q";			# default QSL sent: Q = put in queue
@@ -78,19 +79,20 @@ open CONFIG, "$ENV{HOME}/.yfklog/config" or die "Cannot open configuration file.
 
 while (defined (my $line = <CONFIG>)) {			# Read line into $line
 	if ($line =~ /^mycall=(.+)/) { $mycall= "\L$1"; }
-	if ($line =~ /^dband=(.+)/)  { $dband= $1; }				
-	if ($line =~ /^awardbands=(.+)/)  { $bands = $1; }				
-	if ($line =~ /^dmode=(.+)/)  { $dmode= $1; }				
-	if ($line =~ /^dpwr=(.+)/)   { $dpwr= $1; }				
-	if ($line =~ /^dqsls=(.+)/)   { $dqsls = $1; }				
-	if ($line =~ /^dqslr=(.+)/)   { $dqslr = $1; }				
-	if ($line =~ /^screenlayout=(.+)/)   { $screenlayout = $1; }				
-	if ($line =~ /^dbname=(.+)/)   { $dbname= $1; }				
-	if ($line =~ /^dbserver=(.+)/)   { $dbserver = $1; }				
-	if ($line =~ /^directory=(.+)/)   { $directory  = $1; }				
-	if ($line =~ /^colors=(.+)/)   { $colors = $1; }				
-	if ($line =~ /^qsldetails=(.+)/)   { $qsldetails = $1; }				
-	if ($line =~ /^drem=(.+)/)   { $drem= $1; }				
+	if ($line =~ /^dband=(.+)/)  { $dband= $1; }
+	if ($line =~ /^awardbands=(.+)/)  { $bands = $1; }
+	if ($line =~ /^awardmodes=(.+)/)  { $modes = $1; }
+	if ($line =~ /^dmode=(.+)/)  { $dmode= $1; }
+	if ($line =~ /^dpwr=(.+)/)   { $dpwr= $1; }
+	if ($line =~ /^dqsls=(.+)/)   { $dqsls = $1; }
+	if ($line =~ /^dqslr=(.+)/)   { $dqslr = $1; }
+	if ($line =~ /^screenlayout=(.+)/)   { $screenlayout = $1; }
+	if ($line =~ /^dbname=(.+)/)   { $dbname= $1; }
+	if ($line =~ /^dbserver=(.+)/)   { $dbserver = $1; }
+	if ($line =~ /^directory=(.+)/)   { $directory  = $1; }
+	if ($line =~ /^colors=(.+)/)   { $colors = $1; }
+	if ($line =~ /^qsldetails=(.+)/)   { $qsldetails = $1; }
+	if ($line =~ /^drem=(.+)/)   { $drem= $1; }
 }
 close CONFIG;
 
@@ -1590,8 +1592,9 @@ while ($status == 11) {
 		else {
 			$daterange = "DATE >= '$date1' AND DATE <= '$date2'";
 		}
-	} # if choice ne 8
+	} # unless date1 is empty
 
+	# limit bands for query
 	erase($wmain);
 	addstr($wmain,0,0, ' 'x(80*22));
 
@@ -1604,12 +1607,29 @@ while ($status == 11) {
 	curs_set(1);
 	$bands = &askbox(6, 15, 4, 50, '[0-9. ]', "Limit to bands:", $bands);
 	
-	} # if ($choice ne 9)
+	} # unless 9 or 11
 
+	unless ($choice eq '11') {# not for the QSLs
+		# limit modes for query
+		erase($wmain);
+		addstr($wmain,0,0, ' 'x(80*22));
+
+		addstr($wmain, 2,17, 'The following modes will be considered, as set in');
+		addstr($wmain, 3,16, '~/.yfklog/config. You can add or remove modes now.');
+		addstr($whelp, 0,0, 'Specify modes ..'.' 'x50);
+		refresh($wmain);
+		refresh($whelp);
+
+		curs_set(1);
+		$modes = &askbox(6, 15, 4, 50, '[A-Z0-9. ]', "Limit to modes:", $modes);
+	} # unless 11
+	
 	curs_set(0);						# cursor invisible	
 
 	addstr($wmain,0,0, ' 'x(80*22));		# clear window	
-	addstr($wmain, 2, 25, "$menu[$choice] Statistics for \U$mycall");
+	addstr($wmain, 2, 25, "$menu[$choice] Statistics for " .
+		   uc(join('/', split(/_/, $mycall))) .
+		   " in " . join(', ', split(/\s+/, $modes)));
 	addstr($whelp, 0,0, "$menu[$choice] statistics".' 'x50);
 	refresh($whelp);
 
@@ -1624,7 +1644,7 @@ while ($status == 11) {
 		# The result hash has bands as keys and nr of dxcc/iotas etc as 
 		# values.
 		&awards($daterange,$menu[$choice], \%result, \%resultc, \%resultcp,
-				\%resultcl, $bands, $custom);
+				\%resultcl, $bands, $modes, $custom);
 		addstr($wmain, 5, 20, "Band    Wkd   Cfmd    QSL    LOTW");
 		my $y = 5;
 		# Since "All" is not numeric and fucks up the sorting, we change it to
@@ -1654,21 +1674,21 @@ while ($status == 11) {
 	# For QSO / Continent and QSO / Band other queries have to be made...
 	elsif ($choice =~ /[678]/) {
 		if ($choice eq "6") {
-			&statistics("BAND", \$wmain, $daterange, $bands);	# result: BAND -> nr of QSOs
+			&statistics("BAND", \$wmain, $daterange, $bands, $modes);# result: BAND -> nr of QSOs
 			$filename="BAND";
 		}
 		elsif ($choice eq "7") {
-			&statistics("CONT", \$wmain, $daterange, $bands);	# result: CONT->nr of QSOs
+			&statistics("CONT", \$wmain, $daterange, $bands, $modes);# result: CONT->nr of QSOs
 			$filename="CONT";
 		}
 		elsif ($choice eq "8") {
-			&statistics("MODE", \$wmain, $daterange, $bands);	# result: MODE ->nr of QSOs
+			&statistics("MODE", \$wmain, $daterange, $bands, $modes);# result: MODE ->nr of QSOs
 			$filename="MODE";
 		}
 		addstr($wmain, 20,5, "Created detailed HTML-summary at $directory/$mycall-$filename.html");
 	}
 	elsif ($choice eq '9') {		# Generate Marker file for xplanet
-			&xplanet();
+			&xplanet($modes);
 			addstr($wmain, 8,5, "Output file $directory/$mycall-earth written.");
 	}
 	elsif ($choice eq '11') {
@@ -1849,6 +1869,7 @@ while ($status == 15) {
 	sprintf("lat=%-15s          - Latitude, north positive", $yfksubs::lat1),
 	sprintf("lon=%-15s          - Longitude, west positive", $yfksubs::lon1),
 	sprintf("awardbands=%-15s   - Bands for awards", $yfksubs::bands),
+	sprintf("awardmodes=%-15s   - Modes for awards", $yfksubs::modes),
 	sprintf("screenlayout=%-15s - Layout, 1 or 0 (requires restart to take eff.)", $yfksubs::screenlayout),
 	sprintf("checklogs=%-15s    - Other logs to check for QSOs", $yfksubs::checklogs),
 	sprintf("rigmodel=%-15s     - hamlib rig model number (0 = disable hamlib)", $yfksubs::rigmodel),
@@ -1865,7 +1886,7 @@ while ($status == 15) {
 	sprintf("colors=%-15s       - Enable colors? [1/0] (requires restart)", $colors),
 	sprintf("usehamdb=%-15s     - Use Ham::Callsign::DB to fill data", $yfksubs::usehamdb),
 	sprintf("qsldetails=%-15s   - Show QSO details in QSL write mode?", $qsldetails),
-	sprintf("qrem=%-15s         - Default QSO remarks value", $drem)
+	sprintf("drem=%-15s         - Default QSO remarks value", $drem)
 	);
 
 	my $choice = &selectlist(\$wmain, 2, 1, 18, 78, \@setup);
@@ -2022,6 +2043,15 @@ while ($status == 15) {
 		}
 	}
 	elsif ($choice == 15) {
+		$original = "awardmodes=$yfksubs::modes";
+		my $ret = &askbox(10,20,4,50, '[A-Z0-9. ]', "Enter new award modes",
+				$yfksubs::modes);
+		if ($ret eq 'm') { last }
+		elsif ($ret ne '') {
+			&changeconfig($original, "awardmodes=$ret");
+		}
+	}
+	elsif ($choice == 16) {
 		$original = "screenlayout=$yfksubs::screenlayout";
 		my $ret = &askbox(10,20,4,30, '[10]', "Enter screenlayout (0 or 1)",
 				$yfksubs::screenlayout);
@@ -2030,7 +2060,7 @@ while ($status == 15) {
 			&changeconfig($original, "screenlayout=$ret");
 		}
 	}
-	elsif ($choice == 16) {
+	elsif ($choice == 17) {
 		$original = "checklogs=$yfksubs::checklogs";
 		my $ret = &askbox(10,20,4,30, '[A-Za-z0-9\/ ]', 
 				"Enter checklogs (space separated)",
@@ -2040,7 +2070,7 @@ while ($status == 15) {
 			&changeconfig($original, "checklogs=$ret");
 		}
 	}
-	elsif ($choice == 17) {
+	elsif ($choice == 18) {
 		$original = "rigmodel=$yfksubs::rigmodel";
 		my $ret = &askbox(10,20,4,30, '\d', "Enter hamlib rigmodel (0=no rig)",
 				$yfksubs::rigmodel);
@@ -2049,7 +2079,7 @@ while ($status == 15) {
 			&changeconfig($original, "rigmodel=$ret");
 		}
 	}
-	elsif ($choice == 18) {
+	elsif ($choice == 19) {
 		$original = "rigpath=$yfksubs::rigpath";
 		my $ret = &askbox(10,20,4,30, 'filename', "Enter hamlib rigpath",
 				$yfksubs::rigpath);
@@ -2058,7 +2088,7 @@ while ($status == 15) {
 			&changeconfig($original, "rigpath=$ret");
 		}
 	}
-	elsif ($choice == 19) {
+	elsif ($choice == 20) {
 		$original = "autoqueryrig=$yfksubs::autoqueryrig";
 		my $ret = &askbox(10,20,4,30, '[01]', "autoqueryrig? 1=yes, 0=no",
 				$yfksubs::autoqueryrig);
@@ -2067,7 +2097,7 @@ while ($status == 15) {
 			&changeconfig($original, "autoqueryrig=$ret");
 		}
 	}
-	elsif ($choice == 20) {
+	elsif ($choice == 21) {
 		$original = "operator=$yfksubs::operator";
 		my $ret = &askbox(10,20,4,30, '[a-zA-Z0-9]', "Enter new operator call",
 				$yfksubs::operator);
@@ -2076,7 +2106,7 @@ while ($status == 15) {
 			&changeconfig($original, "operator=$ret");
 		}
 	}
-	elsif ($choice == 21) {
+	elsif ($choice == 22) {
 		$original = "lotwdetails=$yfksubs::lotwdetails";
 		my $ret = &askbox(10,20,4,30, '[01]', "lotwdetails? 1=yes, 0=no",
 				$yfksubs::lotwdetails);
@@ -2085,7 +2115,7 @@ while ($status == 15) {
 			&changeconfig($original, "lotwdetails=$ret");
 		}
 	}
-	elsif ($choice == 22) {
+	elsif ($choice == 23) {
 		$original = "directory=$yfksubs::directory";
 		my $ret = &askbox(10,20,4,30, 'filename', "Default directory",
 				$yfksubs::directory);
@@ -2094,7 +2124,7 @@ while ($status == 15) {
 			&changeconfig($original, "directory=$ret");
 		}
 	}
-	elsif ($choice == 23) {
+	elsif ($choice == 24) {
 		$original = "fieldorder=$yfksubs::fieldorder";
 		my $ret = &askbox(10,20,4,30, '[A-Z ]', "Field order?",
 				$yfksubs::fieldorder);
@@ -2103,7 +2133,7 @@ while ($status == 15) {
 			&changeconfig($original, "fieldorder=$ret");
 		}
 	} 
-	elsif ($choice == 24) {
+	elsif ($choice == 25) {
 		$original = "askme=$yfksubs::askme";
 		my $ret = &askbox(10,10,4,60, '[01]', 
 				"Ask for confirmations (see Manual)? (0/1)", $yfksubs::askme);
@@ -2112,7 +2142,7 @@ while ($status == 15) {
 			&changeconfig($original, "askme=$ret");
 		}
 	} 
-	elsif ($choice == 25) {
+	elsif ($choice == 26) {
 		$original = "logsort=$yfksubs::logsort";
 		my $ret = &askbox(10,10,4,60, '[ncNC]', 
 				"Sort log by N=Number or C=Chronological?", $yfksubs::logsort);
@@ -2122,7 +2152,7 @@ while ($status == 15) {
 			&changeconfig($original, "logsort=$ret");
 		}
 	} 
-	elsif ($choice == 26) {
+	elsif ($choice == 27) {
 		$original = "prevsort=$yfksubs::prevsort";
 		my $ret = &askbox(10,10,4,60, '[ADad]', 
 			"Sort prev. QSOs A=Ascending, D=Descending?", $yfksubs::prevsort);
@@ -2132,7 +2162,7 @@ while ($status == 15) {
 			&changeconfig($original, "prevsort=$ret");
 		}
 	} 
-	elsif ($choice == 27) {
+	elsif ($choice == 28) {
 		$original = "browser=$yfksubs::browser";
 		my $ret = &askbox(10,10,4,60, 'filename', 
 			"Web browser for QRZ lookups?", $yfksubs::browser);
@@ -2141,7 +2171,7 @@ while ($status == 15) {
 			&changeconfig($original, "browser=$ret");
 		}
 	} 
-	elsif ($choice == 28) {
+	elsif ($choice == 29) {
 		$original = "colors=$colors";
 		my $ret = &askbox(10,10,4,60, '[10]', 
 			"Use colors? [1/0]", $colors);
@@ -2150,7 +2180,7 @@ while ($status == 15) {
 			&changeconfig($original, "colors=$ret");
 		}
 	} 
-	elsif ($choice == 29) {
+	elsif ($choice == 30) {
 		$original = "usehamdb=$yfksubs::usehamdb";
 		my $ret = &askbox(10,20,4,30, '[01]', "Use Ham::Callsign::DB? 1=yes, 0=no",
 				$yfksubs::usehamdb);
@@ -2159,7 +2189,7 @@ while ($status == 15) {
 			&changeconfig($original, "usehamdb=$ret");
 		}
 	}
-	elsif ($choice == 30) {
+	elsif ($choice == 31) {
 		$original = "qsldetails=$qsldetails";
 		my $ret = &askbox(10,20,4,30, '[01]', "Show QSO details? 1=yes, 0=no",
 				$qsldetails);
@@ -2168,7 +2198,7 @@ while ($status == 15) {
 			&changeconfig($original, "qsldetails=$ret");
 		}
 	}
-	elsif ($choice == 31) {
+	elsif ($choice == 32) {
 		$original = "drem=$qsldetails";
 		my $ret = &askbox(10,20,4,30, 'text', "Default remarks text?",
 				$drem);
