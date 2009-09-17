@@ -76,6 +76,7 @@ our $operator  = "";								# default OP.
 our $lat1      = "52";							# Latitude of own station
 our $lon1      = "-8";							# Longitude of own station
 our $bands = '160 80 40 30 20 17 15 12 10 2';	# bands for award purposes
+our $modes = 'CW SSB';							# modes for award purposes
 our $screenlayout=0;								# screen layout, 0 or 1
 our $rigmodel = 0;								# for hamlib
 our $rigpath = '/dev/ttyS0';						# for hamlib
@@ -166,6 +167,9 @@ while (defined (my $line = <CONFIG>))   {			# Read line into $line
 	}
 	elsif ($line =~ /^awardbands=(.+)/) {			# bands for award purposes
 			$bands= $1;
+	}
+	elsif ($line =~ /^awardmodes=(.+)/) {			# modes for award purposes
+			$modes= $1;
 	}
 	elsif ($line =~ /^screenlayout=(.+)/) {			# screen layout, see doc.
 			$screenlayout= $1;
@@ -4253,7 +4257,8 @@ sub awards {
 	my $daterange = $_[0];						# SQL String with date range
 	my $awardtype = $_[1];
 	my @bands = split(/\s+/, $_[6]);	# Generate list of Bands for awards
-	my $custom = $_[7];	
+	my @modes = split(/\s+/, $_[7]);	# modes to query
+	my $custom = $_[8];	
 	my %result;						# key=band, value=dxccs  WORKED 
 	my %resultcp;					# key=band, value=dxccs CFMED paper QSLs
 	my %resultcl;					# key=band, value=dxccs CFMED LOTW QSLs
@@ -4274,28 +4279,32 @@ sub awards {
 		$resultcl{$_} = 0;
 	}
 
+	my $rband = 'BAND';
+	if ($db ne 'sqlite') {
+		$rband = 'round(BAND,4)';
+	}
+
+	# create mode string for the IN statement
+	my $modes = "'" . join("','", @modes) . "'";
+
 foreach my $band (@bands) {
 	my %dxccc;			#  hash to check if the entity is new and CONFIRMED
 	my %dxcccp;			#  hash to check if the entity is new and paper QSLed
 	my %dxcccl;			#  hash to check if the entity is new and LOTW QSLed
 	my %dxcc;			#  hash to check if the current entity is new.
 
-	my $rband = 'band';
-	if ($db ne 'sqlite') {
-		$rband = 'round(BAND,4)';
-	}
-
 	my ($sth, $dx, $qslr, $qslrl);
 	if ($custom) {
 		$sth = $dbh->prepare("SELECT REM, QSLR, QSLRL  FROM
-				log_$mycall WHERE $rband='$band' AND $daterange AND 
-				REM LIKE \"%$custom:%\"");
+				log_$mycall WHERE $rband='$band' AND MODE IN ($modes)
+				AND $daterange AND REM LIKE \"%$custom:%\"");
 		$sth->execute() or die "Error, couldn't select ($custom)!";
 		$sth->bind_columns(\$dx, \$qslr, \$qslrl);
 	}
 	else {
 		$sth = $dbh->prepare("SELECT $awardtype, QSLR, QSLRL  FROM
-				log_$mycall WHERE $rband='$band' AND $daterange");
+				log_$mycall WHERE $rband='$band' AND $daterange
+				AND MODE IN ($modes)");
 
 		$sth->execute() or die "Error selecting $awardtype from log_$mycall!";
 		$sth->bind_columns(\$dx,\$qslr, \$qslrl);
@@ -4371,8 +4380,12 @@ $resultcl{'All'} = scalar(keys(%abdxcccl));
 open HTML, ">$directory/$mycall-$awardtype.html";
 
 # Generate Header and Table header
-print HTML "<h1>$awardtype Status for \U$mycall</h1>\n";
-print HTML "Produced with YFKlog. \n <table border=1>
+my $string = "$awardtype Status for ". uc(join('/', split(/_/, $mycall))) .
+	" in " . join(', ', @modes);
+print HTML "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">";
+print HTML "<html>\n<head>\n<title>" . $string . "</title>\n</head>\n";
+print HTML "<body>\n<h1>" . $string . "</h1>\n";
+print HTML "Produced with YFKlog.\n<table border=1 summary=\"$awardtype\">
 <tr><th>$awardtype</th>";
 
 # Table heades for each band....
@@ -4383,27 +4396,39 @@ print HTML "</tr>\n";
 
 # For each of the worked DXCCs add W, C or nothing..
 foreach my $key (sort keys %sumdxcc) {
-	my $string = "<tr><td><strong>$key</strong></td>";
+	$string = "<tr><td bgcolor=\"#FFFFFF\"><strong>$key</strong></td>";
+
 	$sumdxccc{$key} .= '';						# to make it defined for sure
 	$sumdxcccp{$key} .= '';						# to make it defined for sure
 	$sumdxcccl{$key} .= '';						# to make it defined for sure
 
+	# qsl status: green - all qsl, yellow - band missing, red - all missing
+	my $status = '';
 	# TODO Maybe use stuff like "CL"?
 	# now create a table cell for each band. either empty (not worked), W or C
 	foreach my $band (@bands) {
 		if ($sumdxcccp{$key} =~ /(^| )$band( |$)/) {		# band w/paper QSL
 			$string .= "<td> C </td>";
+			if ( $status eq '' ) {$status = "green";}
+			elsif ( $status eq "red" ) {$status = "yellow";}
 		}
 		elsif ($sumdxcccl{$key} =~ /(^| )$band( |$)/) {		# band w/LOTW QSL
 			$string .= "<td> L </td>";
+			if ( $status eq '' ) {$status = "green";}
+			elsif ( $status eq "red" ) {$status = "yellow";}
 		}
 		elsif ($sumdxcc{$key} =~/(^| )$band( |$)/) {		# band worked!
 			$string .= "<td> W </td>";
+			if ( $status eq '' ) {$status = "red";}
+			elsif ( $status eq "green" ) {$status = "yellow";}
 		}
 		else {											# not worked
 			$string .= "<td>&nbsp;</td>";
 		}
 	}	
+	if ( $status eq "green" ) {$string =~ s/#FFFFFF/#00FF00/;}
+	elsif ( $status eq "yellow" ) {$string =~ s/#FFFFFF/#FFFF00/;}
+	elsif ( $status eq "red" ) {$string =~ s/#FFFFFF/#FF0000/;}
 
 print HTML $string."\n";
 }
@@ -4434,9 +4459,7 @@ print HTML "<tr><td>LOTW: $resultcl{'All'} </td>";
 foreach my $band (@bands) {
 	print HTML "<td> $resultcl{$band} </td>"
 }
-print HTML "</tr>\n";
-
-print HTML "</table>";
+print HTML "</tr>\n</table>\n</body>\n</html>\n";
 
 close HTML;
 
@@ -4458,17 +4481,20 @@ sub statistics {
 	my $type = $_[0];			# Band, Continent...?
 	my $wmain = ${$_[1]};		# window
     my $daterange = $_[2];		# SQL String with date range
-	my $bands = $_[3];
+	my @bands = split(/\s+/, $_[3]);
+	my @modes = split(/\s+/, $_[4]);
 
 	my %result;					# '160'(m) -> '666' (QSOs);
 								# or 'EU' -> '3242', 'AF' -> '234'...
 	my $maxqsos=0;				# band/continent with max QSOs
 	my $totalqsos=0;			# number of total QSOs for percentage
 	
-	$bands = join(', ', split(/\s+/, $bands));
+	# create strings for the IN statement
+	my $bands = join(',', @bands);
+	my $modes = "'" . join("','", @modes) . "'";
 
 	my $sth = $dbh->prepare("SELECT $type FROM log_$mycall WHERE $daterange
-					and BAND in ($bands)");
+					and BAND in ($bands) and MODE in ($modes)");
 	$sth->execute();
 	my $type_item;
 	$sth->bind_columns(\$type_item);	
@@ -4480,9 +4506,13 @@ sub statistics {
 	open HTML, ">$directory/$mycall-$type.html";
 	
 	# Generate Header and Table header
-	print HTML "<h1>$type Statistics for \U$mycall</h1>\n";
+	my $string = "$type Statistics for ". uc(join('/', split(/_/, $mycall))) .
+		" in " . join(', ', @modes);
+	print HTML "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">";
+	print HTML "<html>\n<head>\n<title>" . $string . "</title>\n</head>\n";
+	print HTML "<body>\n<h1>" . $string . "</h1>\n";
 	print HTML "Produced with YFKlog.\n 
-	<table border=\"0\">\n";
+	<table border=\"0\" summary=\"$type\">\n";
 	
 	# Check nr of total QSOs and band with most QSOs.
 	foreach my $key (keys %result) {
@@ -4506,7 +4536,7 @@ sub statistics {
 				$len = 1;								# if QSO was made
 	   	}
 		print HTML "<img src=\"p.png\" width=".(int(($result{$key}/$maxqsos)
-				*400)+1)." height=20></td>";
+				*400)+1)." height=20 alt=bar></td>";
 		addstr($wmain, $y, 15, " "x$len);				# print bar
 	  	attron($wmain, COLOR_PAIR(4));
 		my $percent = sprintf("%.2f", 100*$result{$key}/$totalqsos);
@@ -4515,7 +4545,7 @@ sub statistics {
 		print HTML "<td>$result{$key} = $percent%</td></tr>\n";
 	}
 		print HTML "<tr><th>Total:</th><td></td><th>$totalqsos = 100%</th>\n";
-		print HTML "</table></body></html>\n";
+		print HTML "</tr>\n</table>\n</body>\n</html>\n";
 		close HTML;
 	return 0;
 }
@@ -5100,6 +5130,7 @@ refresh();
 ###############################################################################
 
 sub xplanet {
+	my $modes = "'" . join("','", split(/\s+/, $_[0])) . "'"; # modes to query
 	my $line;
 	my %dxcc;		# keys: DXCCs, Values: Green=worked, Red=needed
 	my %lat;		# latitides and longitudes for each DXCC
@@ -5126,7 +5157,8 @@ sub xplanet {
 	}
 	close CTY;
 
-	my $sth = $dbh->prepare("SELECT DXCC, QSLR, QSLRL FROM log_$mycall");
+	my $sth = $dbh->prepare("SELECT DXCC, QSLR, QSLRL FROM log_$mycall
+							WHERE MODE in ($modes)");
 	$sth->execute() or die "Execute failed!";
 	
 	my ($dx,$qslr, $qslrl);
@@ -5145,7 +5177,10 @@ sub xplanet {
 
 	open EARTH, ">$directory/$mycall-earth";
 
-	foreach (sort keys %dxcc) {
+	# special sorting to put green on top of yellow and red
+	foreach (sort {if ($dxcc{$a} eq 'Red') {return -1;}
+				   elsif ($dxcc{$b} eq 'Red') {return 1;}
+				   else {return $dxcc{$b} cmp $dxcc{$a}}} keys %dxcc) {
 		print EARTH $lat{$_}." ".(-1*$lon{$_}).' "'.$_.'" color='.$dxcc{$_}."\n";
 	}
 	close EARTH;
