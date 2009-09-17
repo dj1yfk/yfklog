@@ -129,6 +129,11 @@ csadditions=(^P$)|(^M{1,2}$)|(^AM$)|(^A$)
 
 awardbands=160 80 40 30 20 17 15 12 10 6 2
 
+# (O) Modes for award/statistic calculations. Default: CW and SSB
+# Format: Modes, separated by whitespaces.
+
+awardmodes=CW SSB
+
 # (O) Screenlayout: YFKlog supports (at the moment) two different layouts of
 # the main logging screen. You can toggle between them by setting screenlayout
 # to either 0 or 1.   
