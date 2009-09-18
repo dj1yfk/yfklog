@@ -3796,8 +3796,8 @@ sub choseeditqso {
 	my $ret;					# return number
 	my $goon=1;					# becomes 0 when we are done
 	my $count;					# number of entries/QSOs matching
-	my $pos=1;					# position in the QSOs from 1 .. $count
-	
+	my $pos=$_[2];				# position in the QSOs from 1 .. $count
+	if ($pos == 0) {$pos = 1;}	# last edited qso if not equal 0
 	my $win = ${$_[0]};			# Window where output goes. height = 17
     my $sql;					# SQL string with search criteria
 	my $sql2=' AND 1 ';
@@ -3840,6 +3840,13 @@ sub choseeditqso {
 	$count = $eq->fetchrow_array();
 	
 	if ($count == 0) { return 0 };		# no QSO to edit-> $editnr = 0.
+
+	# calculate offset and aline for possible last edited qso
+	if ($pos > 17) {
+		$offset = int(($pos-1) / 17) * 17;
+		$aline = $pos-1 - $offset;
+	}
+	else {$aline = $pos-1;}
 	
 do {
 	my $eq = $dbh->prepare($sql.$sql2." ORDER BY `DATE`, `T_ON` LIMIT $offset, 17;");
@@ -3920,6 +3927,17 @@ do {
 		}
 	}
 
+	elsif ($ch eq KEY_HOME) {	# go to first qso
+		$pos = 1;
+		$aline = 0;
+		$offset = 0;
+	}
+
+	elsif ($ch eq KEY_END) {	# go to last qso
+		$pos = $count;
+		$offset = int(($count-1) / 17) * 17;
+		$aline = $count-1 - $offset;
+	}
 	elsif ($ch eq KEY_F(1)) {				# F1 -> Back to main menu
 		return 'm';
 	}

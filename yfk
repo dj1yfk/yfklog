@@ -1274,7 +1274,6 @@ if ($aw eq 'm') {						# back to menu
 	last;								# break out from while (1) loop
 }
 elsif ($aw == 0) {						# back to QSO list
-	$editnr = 0;
 	$aw = 2;
 }
 
@@ -1293,8 +1292,9 @@ while ($aw == 2) {
 	# We have selected search criteria in the QSO-array. Now display a
 	# scrollable list with only the matching QSOs. The user selects one QSO,
 	# the number of the QSO (as in the NR field in the database) is returned.
+	# To remember the position of the last qso edited, we tell the editnr.
 
-	$editnr = &choseeditqso(\$weditlog, \@sqso);	
+	$editnr = &choseeditqso(\$weditlog, \@sqso, $editnr);
 
 	if ($editnr eq 'm') { 				# back to MAIN MENU
 		$status = 2;
@@ -1306,7 +1306,8 @@ while ($aw == 2) {
 		for (0 .. 25) {					# clear the QSO and if no results also
 			$qso[$_] = '';				# sqso
 		}
-		@sqso = ();	
+		@sqso = ();
+		$editnr = 0;			# forget last edited qso
 		$aw = 1;						# back to list
 	}
 	else {
