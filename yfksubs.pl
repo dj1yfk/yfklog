@@ -2069,23 +2069,56 @@ refresh($win);
 
 $ch = getch();
 
-if (($ch eq KEY_DOWN) && ($aline < $#items)) {	# Arrow down was pressed 
-												# and not at last position
-	# We can savely increase $aline, because we are not yet at the end of the
-	# items array. 
-	$aline++;
-	# now it is possible that we have to scroll. this is the case when  
-	if ($y+$yoffset-$ystart ==  $aline) {
+if ($ch eq KEY_DOWN) {			# Arrow down was pressed 
+	if ($aline < $#items) {		# not at last position
+		# We can savely increase $aline, because we are not yet at the end of the
+		# items array. 
+		$aline++;
+		# now it is possible that we have to scroll. this is the case when  
+		if ($y+$yoffset-$ystart ==  $aline) {
 			$yoffset += $height;
+		}
+	}
+	elsif ($aline == $#items) {	# at last position
+		# We wrap to first line and scroll up.
+		$aline = 0;
+		$yoffset = 0;
 	}
 }
-elsif (($ch eq KEY_UP) && ($aline > 0)) {		# arrow up, and we are not at 0
-	# We can savely decrease the $aline position, but maybe we have to scroll
-	# up
-	$aline--;
-	# We have to scroll up if the active line is smaller than the offset..
-	if ($yoffset > $aline) {
+elsif ($ch eq KEY_UP) {		# arrow up
+	if ($aline > 0) {		# we are not at 0
+		# We can savely decrease the $aline position, but maybe we have to scroll
+		# up
+		$aline--;
+		# We have to scroll up if the active line is smaller than the offset..
+		if ($yoffset > $aline) {
 			$yoffset -= $height;
+		}
+	}
+	elsif ($aline == 0) {		# we are at 0
+		# We wrap to the last line and scroll down
+		$aline = $#items;
+		# To find the offset we divide number of items by height,
+		# so just the remainder of the division is showed.
+		if ($height == @items) {$yoffset = 0;}
+		else {
+			$yoffset = int(@items/$height)*$height;
+		}
+	}
+}
+elsif ($ch eq KEY_HOME) {		# Pos1 key
+	# Go to first line and remove offset
+	# same as wrapping to first line
+	$aline = 0;
+	$yoffset = 0;
+}
+elsif ($ch eq KEY_END) {		# End key
+	# Go to last line and set offset
+	# same as wrapping to last line
+	$aline = $#items;
+	if ($height == @items) {$yoffset = 0;}
+	else {
+		$yoffset = int(@items/$height)*$height;
 	}
 }
 elsif ($ch eq KEY_F(1)) {			# F1 - Back to main menu
@@ -2169,6 +2202,14 @@ sub askbox {
 		
 		elsif ($ch eq KEY_RIGHT) {					# arrow right was pressed	
 			if ($pos < length($str)) { $pos++ }	# go right if possible
+		}
+
+		elsif ($ch eq KEY_HOME) { # Pos1 key was pressed, go to first char
+			$pos = 0;
+		}
+
+		elsif ($ch eq KEY_END) { # End key was pressed, go behind last char
+			$pos = length($str);
 		}
 
 		elsif (($ch eq KEY_DC) && ($pos < length($str))) {	# Delete key
@@ -4402,33 +4443,33 @@ foreach my $key (sort keys %sumdxcc) {
 	$sumdxcccp{$key} .= '';						# to make it defined for sure
 	$sumdxcccl{$key} .= '';						# to make it defined for sure
 
-	# qsl status: green - all qsl, yellow - band missing, red - all missing
-	my $status = '';
+	# qsl state: green - all qsl, yellow - band missing, red - all missing
+	my $qsl_state = '';
 	# TODO Maybe use stuff like "CL"?
 	# now create a table cell for each band. either empty (not worked), W or C
 	foreach my $band (@bands) {
 		if ($sumdxcccp{$key} =~ /(^| )$band( |$)/) {		# band w/paper QSL
 			$string .= "<td> C </td>";
-			if ( $status eq '' ) {$status = "green";}
-			elsif ( $status eq "red" ) {$status = "yellow";}
+			if ( $qsl_state eq '' ) {$qsl_state = "green";}
+			elsif ( $qsl_state eq "red" ) {$qsl_state = "yellow";}
 		}
 		elsif ($sumdxcccl{$key} =~ /(^| )$band( |$)/) {		# band w/LOTW QSL
 			$string .= "<td> L </td>";
-			if ( $status eq '' ) {$status = "green";}
-			elsif ( $status eq "red" ) {$status = "yellow";}
+			if ( $qsl_state eq '' ) {$qsl_state = "green";}
+			elsif ( $qsl_state eq "red" ) {$qsl_state = "yellow";}
 		}
 		elsif ($sumdxcc{$key} =~/(^| )$band( |$)/) {		# band worked!
 			$string .= "<td> W </td>";
-			if ( $status eq '' ) {$status = "red";}
-			elsif ( $status eq "green" ) {$status = "yellow";}
+			if ( $qsl_state eq '' ) {$qsl_state = "red";}
+			elsif ( $qsl_state eq "green" ) {$qsl_state = "yellow";}
 		}
 		else {											# not worked
 			$string .= "<td>&nbsp;</td>";
 		}
 	}	
-	if ( $status eq "green" ) {$string =~ s/#FFFFFF/#00FF00/;}
-	elsif ( $status eq "yellow" ) {$string =~ s/#FFFFFF/#FFFF00/;}
-	elsif ( $status eq "red" ) {$string =~ s/#FFFFFF/#FF0000/;}
+	if ( $qsl_state eq "green" ) {$string =~ s/#FFFFFF/#00FF00/;}
+	elsif ( $qsl_state eq "yellow" ) {$string =~ s/#FFFFFF/#FFFF00/;}
+	elsif ( $qsl_state eq "red" ) {$string =~ s/#FFFFFF/#FF0000/;}
 
 print HTML $string."\n";
 }
