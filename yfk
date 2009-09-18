@@ -1621,7 +1621,7 @@ while ($status == 11) {
 		refresh($whelp);
 
 		curs_set(1);
-		$modes = &askbox(6, 15, 4, 50, '[A-Z0-9. ]', "Limit to modes:", $modes);
+		$modes = &askbox(6, 15, 4, 50, '[A-Za-z0-9 ]', "Limit to modes:", $modes);
 	} # unless 11
 	
 	curs_set(0);						# cursor invisible	
