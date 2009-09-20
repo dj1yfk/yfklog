@@ -1186,6 +1186,7 @@ while ($status == 8) {
 	my $aw=1;			# The ActiveWindow. This can be 1 = $wedit or 2 =
 						# $weditlog
 	my $editnr=0;		# the number of the QSO which is currently edited.
+	my $posnr=1;		# cursor position of last edited qso
 	
 	attron($wmain, COLOR_PAIR(4));
 	addstr($whead, 0,0, "YFKlog v$yfkver - Search & Edit mode - Active Logbook: ".
@@ -1274,6 +1275,7 @@ if ($aw eq 'm') {						# back to menu
 	last;								# break out from while (1) loop
 }
 elsif ($aw == 0) {						# back to QSO list
+	$editnr = 0;
 	$aw = 2;
 }
 
@@ -1292,9 +1294,10 @@ while ($aw == 2) {
 	# We have selected search criteria in the QSO-array. Now display a
 	# scrollable list with only the matching QSOs. The user selects one QSO,
 	# the number of the QSO (as in the NR field in the database) is returned.
-	# To remember the position of the last qso edited, we tell the editnr.
+	# The cursor position is changed inside choseeditqso and remembered in
+	# this loop.
 
-	$editnr = &choseeditqso(\$weditlog, \@sqso, $editnr);
+	$editnr = &choseeditqso(\$weditlog, \@sqso, \$posnr);
 
 	if ($editnr eq 'm') { 				# back to MAIN MENU
 		$status = 2;
@@ -1307,7 +1310,7 @@ while ($aw == 2) {
 			$qso[$_] = '';				# sqso
 		}
 		@sqso = ();
-		$editnr = 0;			# forget last edited qso
+		$posnr = 0;			# forget last cursor position
 		$aw = 1;						# back to list
 	}
 	else {

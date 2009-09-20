@@ -3796,8 +3796,8 @@ sub choseeditqso {
 	my $ret;					# return number
 	my $goon=1;					# becomes 0 when we are done
 	my $count;					# number of entries/QSOs matching
-	my $pos=$_[2];				# position in the QSOs from 1 .. $count
-	if ($pos == 0) {$pos = 1;}	# last edited qso if not equal 0
+	my $pos=$_[2];				# ref position in the QSOs from 1 .. $count
+
 	my $win = ${$_[0]};			# Window where output goes. height = 17
     my $sql;					# SQL string with search criteria
 	my $sql2=' AND 1 ';
@@ -3841,13 +3841,14 @@ sub choseeditqso {
 	
 	if ($count == 0) { return 0 };		# no QSO to edit-> $editnr = 0.
 
-	# calculate offset and aline for possible last edited qso
-	if ($pos > 17) {
-		$offset = int(($pos-1) / 17) * 17;
-		$aline = $pos-1 - $offset;
+	# Calculate offset and aline for last cursor position different from 1.
+
+	if ($$pos > 17) {
+		$offset = int(($$pos-1) / 17) * 17;
+		$aline = $$pos-1 - $offset;
 	}
-	else {$aline = $pos-1;}
-	
+	else {$aline = $$pos-1;}
+
 do {
 	my $eq = $dbh->prepare($sql.$sql2." ORDER BY `DATE`, `T_ON` LIMIT $offset, 17;");
 	$eq->execute();
@@ -3878,63 +3879,63 @@ do {
 	$ch = &getch2(); 							# Get keyboard input
 
 	if ($ch eq KEY_DOWN) {					# arrow key down was pressed
-		# 1. Can we go down => $pos < $count?
+		# 1. Can we go down => $$pos < $count?
 		# 2. do we have to scroll down? => $aline < 15?
-		if ($pos < $count) {				# we can go down!
+		if ($$pos < $count) {				# we can go down!
 			if ($aline < 16) {				# stay on same page
 				$aline++;
-				$pos++;
+				$$pos++;
 			}
 			else {							# scroll down!
 				$offset += 17;				# next 17 QSOs from DB!
 				$aline=0;					# start at first (highest) line
-				$pos++;
+				$$pos++;
 			}
 		}
 	} # key down
 
 	elsif ($ch eq KEY_UP) {					# arrow key down was pressed
-		# 1. Can we go up => $pos > 1?
+		# 1. Can we go up => $$pos > 1?
 		# 2. do we have to scroll up? => $aline = 0?
-		if ($pos > 1) {						# we can go up!
+		if ($$pos > 1) {						# we can go up!
 			if ($aline > 0) {				# stay on same page
 				$aline--;
-				$pos--;
+				$$pos--;
 			}
 			else {							# scroll up!
 				$offset -= 17;				# next 17 QSOs from DB!
 				$aline=16;					# start at lowest line
-				$pos--;
+				$$pos--;
 			}
 		}
 	} # key up
 
 	elsif ($ch eq KEY_NPAGE) {				# scroll a full page down
 		# can we scroll? are there more QSOs than fit on the current page?
-		if (($pos-$aline+17) < $count) {
+		if (($$pos-$aline+17) < $count) {
 			$offset += 17;					# scroll a page = 17 lines
-			$pos += (17- $aline);			# consider $aline!	
+			$$pos += (17- $aline);			# consider $aline!	
 			$aline=0;
 		}
 	}
 
 	elsif ($ch eq KEY_PPAGE) {				# scroll a full page up
 		# can we scroll?
-		if (($pos-$aline) > 17) {
+		if (($$pos-$aline) > 17) {
 			$offset -= 17;					# scroll a page = 17 lines
-			$pos -= ($aline+1);				# consider $aline!	
+			$$pos -= ($aline+1);				# consider $aline!	
 			$aline=16;
 		}
 	}
 
 	elsif ($ch eq KEY_HOME) {	# go to first qso
-		$pos = 1;
+		$$pos = 1;
 		$aline = 0;
 		$offset = 0;
 	}
 
 	elsif ($ch eq KEY_END) {	# go to last qso
-		$pos = $count;
+		$$pos = $count;
 		$offset = int(($count-1) / 17) * 17;
 		$aline = $count-1 - $offset;
 	}
