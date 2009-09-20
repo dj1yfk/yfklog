@@ -974,6 +974,18 @@ sub readw {
 			if ($strpos < length($input)) {	$strpos++ }
 		}
 
+		elsif ($ch eq KEY_HOME) { # Pos1 key
+			$pos = 0;
+			$strpos = 0;
+		}
+
+		elsif ($ch eq KEY_END) { # End key
+			$strpos = length($input);
+			if ($strpos >= $strlen) {$strpos = $strlen-1;}
+			$pos = $strpos;
+			if ($pos >= $width) {$pos = $width-1;}
+		}
+
 		elsif (($ch eq KEY_DC) && ($strpos < length($input))) {	# Delete key
 			$input = substr($input, 0, $strpos).substr($input, $strpos+1, );
 		}
@@ -4128,6 +4140,18 @@ sub editw {
 		elsif ($ch eq KEY_RIGHT) {					# arrow right was pressed	
 			if (($pos < length($input)) && ($pos < $width)) { $pos++ }
 			if ($strpos < length($input)) {	$strpos++ }# go right if possible
+		}
+
+		elsif ($ch eq KEY_HOME) { # Pos1 key
+			$pos = 0;
+			$strpos = 0;
+		}
+
+		elsif ($ch eq KEY_END) { # End key
+			$strpos = length($input);
+			if ($strpos >= $strlen) {$strpos = $strlen-1;}
+			$pos = $strpos;
+			if ($pos >= $width) {$pos = $width-1;}
 		}
 
 		elsif (($ch eq KEY_DC) && ($strpos < length($input))) {	# Delete key
