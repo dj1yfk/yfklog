@@ -2112,10 +2112,8 @@ elsif ($ch eq KEY_UP) {		# arrow up
 		$aline = $#items;
 		# To find the offset we divide number of items by height,
 		# so just the remainder of the division is showed.
-		if ($height == @items) {$yoffset = 0;}
-		else {
-			$yoffset = int(@items/$height)*$height;
-		}
+		# Number of items is decreased by 1, because offset starts at 0.
+		$yoffset = int((@items - 1)/$height)*$height;
 	}
 }
 elsif ($ch eq KEY_HOME) {		# Pos1 key
@@ -2128,10 +2126,7 @@ elsif ($ch eq KEY_END) {		# End key
 	# Go to last line and set offset
 	# same as wrapping to last line
 	$aline = $#items;
-	if ($height == @items) {$yoffset = 0;}
-	else {
-		$yoffset = int(@items/$height)*$height;
-	}
+	$yoffset = int((@items - 1)/$height)*$height;
 }
 elsif ($ch eq KEY_F(1)) {			# F1 - Back to main menu
 	return "m";
