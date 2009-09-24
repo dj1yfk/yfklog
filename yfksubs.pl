@@ -644,6 +644,14 @@ sub saveqso {
 			shift,shift,shift,shift);   # get the @qso array 
 	my $editnr = shift;					# QSO we edit
 
+	if ($editnr) {				# if existing QSO try get qslinfo
+		my $n = $dbh->prepare("SELECT `QSLINFO` FROM log_$mycall
+						WHERE `NR`='$editnr';");
+		$n->execute();
+		my @qslinfo = $n->fetchrow_array(); # local variable for info array
+		$qslinfo = $qslinfo[0];
+	}
+
 	# Cute date/times, just in case.
 	$qso[1] = substr($qso[1],0,8);
 	$qso[2] = substr($qso[2],0,4);
@@ -741,6 +749,9 @@ sub saveqso {
 					$qso[12] = $1." ".$3;
 			}
 
+			# trim remark
+			$qso[12] =~ s/\s*$//;
+
 			# we are now ready to save the QSO, but we have to check if it's a
 			# new QSO or if we are changing an existing QSO.
 			
@@ -750,8 +761,8 @@ sub saveqso {
 						`T_ON`='$qso[2]', `T_OFF`='$qso[3]', `BAND`='$qso[4]',
 						`MODE`='$qso[5]', `QTH`='$qso[6]', `NAME`='$qso[7]',
 						`QSLS`='$qso[8]', `QSLR`='$qso[9]', `RSTS`='$qso[10]',
-						`RSTR`='$qso[11]', `REM`='$qso[12]', `PWR`='$qso[13]'
-						WHERE NR='$editnr';");
+						`RSTR`='$qso[11]', `REM`='$qso[12]', `PWR`='$qso[13]',
+						`QSLINFO`='$qslinfo' WHERE NR='$editnr';");
 			}
 			else {						# new QSO
 				$dbh->do("INSERT INTO log_$mycall 

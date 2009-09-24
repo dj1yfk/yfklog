@@ -1310,7 +1310,7 @@ while ($aw == 2) {
 			$qso[$_] = '';				# sqso
 		}
 		@sqso = ();
-		$posnr = 0;			# forget last cursor position
+		$posnr = 1;			# forget last cursor position
 		$aw = 1;						# back to list
 	}
 	else {
