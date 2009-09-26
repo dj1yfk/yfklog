@@ -697,6 +697,7 @@ sub saveqso {
 			if ($qso[12] =~ /(.*)via:(\w+)(.*)/){ # QSL info in remarks field
 				$qslinfo = $2;				# save QSL-info
 				$qso[12] = $1." ".$3;		# cut qsl-info from remarks field
+				$qslinfo =~ tr/[a-z]/[A-Z]/; # make qsl-info uppercase
 			}
 			
 			# searching for different ITUZ in remarks-field:
