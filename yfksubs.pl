@@ -2812,6 +2812,9 @@ sub labeltex {
 	my $leftmargin;			# left margin of the label sheet
 	my $rows;				# number of label rows
 	my $cols;				# number of label columns
+	my $orientation = "portrait"; # page orientation
+	my $paperheight = 297;	# height of oriented paper
+	my $paperwidth = 210;	# width of oriented paper
 	
 # Read label geometry from the definition file
 	
@@ -2823,8 +2826,14 @@ sub labeltex {
 			elsif ($line =~ /^% LEFTMARGIN=([\d.]+)/) { $leftmargin= $1; } 
 			elsif ($line =~ /^% ROWS=(\d+)/) { $rows= $1; } 
 			elsif ($line =~ /^% COLS=(\d+)/) { $cols= $1; } 
+			elsif ($line =~ /^% ORIENTATION=(\w+)/) { $orientation= $1; } 
 		}
 	close QSL;
+	# adjust height to orientation
+	if ($orientation eq "landscape") {
+		$paperheight = 210;
+		$paperwidth = 297;
+	}
 
 # We start assembling the latex string. First we add the header, which will be
 # the same for all labels. I assume that all labels come on A4 paper. The
@@ -2834,12 +2843,12 @@ sub labeltex {
 	\pagestyle{empty}
 	\usepackage{latexsym}
 	\usepackage{graphicx}
-	\usepackage[margin=0cm, noheadfoot]{geometry}
+	\usepackage[margin=0cm,noheadfoot,'.$orientation.']{geometry}
 	\renewcommand{\familydefault}{\sfdefault}
 	\setlength{\parindent}{0pt}
 	\begin{document}
 	\setlength{\unitlength}{1mm}
-	\begin{picture}(210,297)'."\n";
+	\begin{picture}('."$paperwidth,$paperheight)\n";
 	
 # The QSL cards should be printed in alphabetical order. The keys of the
 # %labels hash are the callsigns plus attached number of label, so they can be
@@ -2876,7 +2885,7 @@ foreach my $key (@keys) {
 	if ($row > $rows) {						# over rows!
 		$row = 1;							# start at first row again
 		$page +=1;							# increase page, write to doc.
-		$latex .= "\\end{picture}\n\\newpage\n\\begin{picture}(210,297)";
+		$latex .= "\\end{picture}\n\\newpage\n\\begin{picture}($paperwidth,$paperheight)";
 	}
 
 	# Now the position of the label on the sheet has to be calculated from the
@@ -2886,7 +2895,7 @@ foreach my $key (@keys) {
 	my $x = $leftmargin;		# The x position is always shifted my leftmarg
 	$x += ($col-1)*$width;		# add the width of the labels
 	
-	my $y = 297 - $topmargin;	# The y position starts shifted by topmargin
+	my $y = $paperheight - $topmargin;	# y position starts shifted by topmargin
 	$y -= ($row)*$height;		# go down by $height * $row
 
 	# first letter in the label code is not needed here, it is the number of
