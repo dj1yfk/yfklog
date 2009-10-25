@@ -3335,6 +3335,9 @@ for my $i ( 0 .. $#qso ) {					# iterate through Array of Hashes
 			if (defined($qso[$i]{'freq'})) {
 					delete $qso[$i]{'freq'};
 			}		
+			if (defined($qso[$i]{'freq_rx'})) {
+					delete $qso[$i]{'freq_rx'};
+			}		
 		}
 		
 		# if there is a frequency tag instead of band, the band has to be
@@ -3369,6 +3372,9 @@ for my $i ( 0 .. $#qso ) {					# iterate through Array of Hashes
 			}
 							
 			delete $qso[$i]{'freq'};			# don't need it anymore
+			if (defined($qso[$i]{'freq_rx'})) {
+					delete $qso[$i]{'freq_rx'};
+			}		
 		}	
 	
 		# RST_RCVD and RST_SENT will be renamed to rstr and rsts
