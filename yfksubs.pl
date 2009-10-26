@@ -5521,7 +5521,7 @@ sub finderror {
 			$err .= "ITU Zone (1-90), ";
 		}
 	
-		unless 	(($qso[17] > 0) && ($qso[17] < 41)) {
+		unless 	(($qso[18] > 0) && ($qso[18] < 41)) {
 			$err .= "CQ Zone (1-40), ";
 		}
 	
