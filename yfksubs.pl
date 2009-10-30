@@ -2693,14 +2693,14 @@ sub preparelabels {
 # Now the log is queried for queued QSLs.. 
 
 	my $queue = $dbh->prepare("SELECT `CALL`, `NAME`, `DATE`, `T_ON`, `BAND`, 
-				`MODE`, `RSTS`, `PWR`, `QSLINFO`, `QSLR` FROM log_$mycall WHERE
-				`QSLS`='Q' ORDER BY `CALL`, `DATE`, `T_ON`");	
+				`MODE`, `RSTS`, `PWR`, `QSLINFO`, `QSLR`, `OPERATOR` FROM
+				log_$mycall WHERE `QSLS`='Q' ORDER BY `CALL`, `DATE`, `T_ON`");
 
 	my $x = $queue->execute();							# Execute Query
 
-	my ($call, $name, $date, $time, $band, $mode, $rst, $pwr, $mgr, $qslr);
+	my ($call, $name, $date, $time, $band, $mode, $rst, $pwr, $mgr, $qslr, $op);
 	$queue->bind_columns(\$call,\$name,\$date,\$time,\$band,\$mode,
-												\$rst,\$pwr,\$mgr, \$qslr);
+											\$rst,\$pwr,\$mgr,\$qslr,\$op);
 	
 	# Now we are fetching row by row of the data which has to be put into the
 	# %labels hash.
@@ -2758,6 +2758,7 @@ sub preparelabels {
 			$$lr =~ s/_/\//g;						# _ to /
 			$$lr =~ s/NAME/$name/;
 			$$lr =~ s/TXPOWER/$pwr/;
+			$$lr =~ s/OPERATOR/$op/;
 		}
 
 		# In every case we have to replace the fields DATE, TIME, BAND, MODE,
