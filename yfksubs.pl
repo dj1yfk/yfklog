@@ -2672,6 +2672,7 @@ sub preparelabels {
 	my %calls;					# call hash, see above
 	my %labels;					# label hash, see above
 	my $labeltype=$_[0];		# filename of the label type
+	my $daterange= $_[1];		# date range for exporting
 	my $qsos;					# number of QSOs per label
 	my $template;				# LaTeX template of a label, read from file
 	
@@ -2694,7 +2695,8 @@ sub preparelabels {
 
 	my $queue = $dbh->prepare("SELECT `CALL`, `NAME`, `DATE`, `T_ON`, `BAND`, 
 				`MODE`, `RSTS`, `PWR`, `QSLINFO`, `QSLR`, `OPERATOR` FROM
-				log_$mycall WHERE `QSLS`='Q' ORDER BY `CALL`, `DATE`, `T_ON`");
+				log_$mycall WHERE `QSLS`='Q' AND $daterange
+				ORDER BY `CALL`, `DATE`, `T_ON`");
 
 	my $x = $queue->execute();							# Execute Query
 
@@ -2937,7 +2939,7 @@ sub emptyqslqueue {
 sub adifexport {
 	my $filename = $_[0];				# Where to save the exported data
 	my $export = $_[1];					# 'lotw' or 'adi'.
-	my $daterange= $_[2];					# 'lotw' or 'adi'.
+	my $daterange= $_[2];				# date range for exporting
 	my $nr=0;							# number of QSOs exported. return value
 	my $sql = 'WHERE ';
 	my @q;								# QSOs from the DB..

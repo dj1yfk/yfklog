@@ -917,15 +917,70 @@ while ($status == 6) {
 	my $tex;					# will store the full LaTeX document
 	my $filename;				# file name where the QSLs will be saved
 	my $startlabel;				# number of label where we start...
+	my ($date1, $date2, $daterange) = ('','','1');
 	
 	attron($wmain, COLOR_PAIR(4));
 	curs_set(0);						# Make the cursor invisble
 	# change text in head and help lines ...
 	addstr($whead, 0,0, "YFKlog v$yfkver - QSL print mode - Active Logbook: ".
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+
+	addstr($wmain,0,0," "x(80*22));			# clear main window
+	
+	# Ask for a date range...
+	addstr($wmain, 1,15, 'If you like to specify a date-range, or only print');
+	addstr($wmain, 2,16, 'QSLs after a certain QSO number, enter the start');
+	addstr($wmain, 3,15,'number or date now. Otherwise leave the field empty.');
+	addstr($whelp, 0,0, 'Specify an export range ..'.' 'x50);
+	refresh($wmain);
+	refresh($whelp);
+   	
+	curs_set(1);						# cursor visible	
+	$date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
+							"Specify start date (YYYY-MM-DD) or number:", '');
+
+	if ($date1 ne '') {		 # We have a start date, or number
+		my $type=0;
+
+		if ($date1 =~ /^[0-9]+$/) {			# nr range
+			$date2 = &askbox(12, 15, 4, 50, '[0-9]', 
+								"Specify stop number (empty = end):", '');
+			$type = 'nr';
+		}
+		else {
+			$date2 = &askbox(12, 15, 4, 50, '[0-9-]', 
+								"Specify stop date (YYYY-MM-DD):", '');
+			$type = 'date';
+		}
+
+		if ($type eq 'date') {
+			# Verify that the dates are valid. If not, back to main menu.
+			unless (&checkdate($date1) && &checkdate($date2)) {
+				addstr($wmain, 18,29, 'Sorry, invalid date(s)!');
+				addstr($whelp,0,0,'Press any key to go back to the menu.'.' 'x50);
+				refresh($wmain);
+				refresh($whelp);
+				$status = 2;
+				getch();
+				last;
+			}
+			# if the dates are valid, build a SQL String to put into the
+			# database-query.
+			else {
+				$daterange = "DATE >= '$date1' AND DATE <= '$date2'";
+			}
+		}
+		else {
+			$daterange = " NR >= '$date1' ";
+			if ($date2) {
+				$daterange .= " AND NR <= '$date2' ";
+			}
+		}
+	}
+
 	addstr($wmain, 0,0, " "x(80*22));
-	addstr($wmain, 3,5, "All QSLs marked as queued will be printed. Please ". 
-			"select a label size.");
+	addstr($wmain, 3,5, "All QSLs marked as queued in date range will be printed.");
+	addstr($wmain, 4,5, "Please select a label size.");
 	refresh($whelp);
 	refresh($wmain);
 	refresh($whead);
@@ -983,11 +1038,11 @@ while ($status == 6) {
 	elsif ($startlabel eq '') {			# default start at 1 (= 1st label)
 		$startlabel = 1;
 	}
-	
+
 	# &preparelabels returns a hash with the LaTeX sourcecode for all labels to
 	# be printed (QSLS=Q). 
 
-	%printlabels = &preparelabels($labeltype);
+	%printlabels = &preparelabels($labeltype, $daterange);
 
 	unless (%printlabels) {						# If there are no QSOs to print
 		addstr($wmain, 0,0, " "x(80*22));
