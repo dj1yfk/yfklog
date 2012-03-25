@@ -248,8 +248,12 @@ else {	# MYSQL, only if defined.
 # Open Rig for Hamlib
 
 sub connectrig {
-
-
+	if ( $autoqueryrig eq 1) {
+		if (-r '/usr/local/share/yfklog/rigctld.sh') {
+			system('sh /usr/local/share/yfklog/rigctld.sh');
+			sleep 1;                                        	
+		}
+	}
 }
 
 
@@ -1105,7 +1109,7 @@ sub readw {
 		elsif ($ch eq KEY_F(6)) {
 			my $lookup = ${$_[3]}[0];
 			unless ($lookup) { $lookup = $input };
-			system("$browser http://www.qrz.com/callsign\?callsign=$lookup &> /dev/null &");
+			system("$browser http://www.qrz.com/db/$lookup &> /dev/null &");
 		}
 
 		# F7 -> go to remote mode for fldigi
@@ -1133,6 +1137,8 @@ sub readw {
 
 			if ($k =~ /y/i) {
 				endwin;						# Leave curses mode	
+				system ("killall -9 rigctld");
+				print "Thanks for using YFKlog!\n";
 				exit;
 			}
 		}
