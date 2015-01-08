@@ -2730,7 +2730,15 @@ sub preparelabels {
 		if ($qslr eq 'Y') { $qslr = 'TNX'; }
 		else { $qslr = 'PSE';}
 
-		my $scall=$call;				# Altlasten...
+		my $scall=$call;
+		# $scall is the "sort call". Usually it's the same as the call, but if
+		# there is a QSLINFO, it will replaced by it plus the callsign of the
+		# recipient. $scall is the key for the # hash.
+
+		if ($mgr) {						# There is a manager
+			$scall = $mgr.$call;		# sort by manager call+call
+		}
+
 
 		# Check if key $scall already exists in the %calls hash, if not add it
 		# if it exists, check if label is full, if so make new one, otherwise
