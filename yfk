@@ -26,7 +26,7 @@ use DBI;				# Database interface
 use Curses;	
 use Net::FTP;			# upload of online log or backup
 
-my $prefix="/usr/local";		
+my $prefix="/usr";		
 
 if (-f './yfk' && -f './yfksubs.pl' && -f 'THANKS') {
 	# we're in the source directory, source the local copy
@@ -60,7 +60,9 @@ my @wi;					# contains the windows inside the input-window
 my @qso = ("","","","",	# Data of the current QSO which is read from input.
 "","","","","","","",""	# 0 Callsign, 1  Date, 2 time on, 3 time off
 ,"","");				# 4 QRG, 5 Mode, 6 QTH, 7 Name, 8 QSL-TX, 9 QSL-RX
-						# 10 RSTs, 11 RSTr, 12 Remarks, 13 PWR
+						# 10 RSTs, 11 RSTr, 12 Remarks, 13 PWR, 14 ser. nr.
+						# (Ser. nr. is appended to RSTs field and increased
+						# only on successfully saved QSO)
 my $qso = \@qso;		# QSO reference
 my $editnr=0;			# the QSO which we are editing. 0 = no QSO is edited nw
 my $screenlayout=0;		# screen layout - 0 or 1 
@@ -70,6 +72,9 @@ my $dbserver='';
 my $directory='/tmp';
 my $qsldetails=1;		# show details of QSO in Write mode?
 my $drem="";			# default remarks
+my $serial=0;			# Auto serial number for casual contesting
+# Set to nonzero value to start logging with this number
+   $qso[14] = -1;		# serial number saved here; -1 means not set yet
 
 sub readconfig {
 
@@ -93,6 +98,7 @@ while (defined (my $line = <CONFIG>)) {			# Read line into $line
 	if ($line =~ /^colors=(.+)/)   { $colors = $1; }
 	if ($line =~ /^qsldetails=(.+)/)   { $qsldetails = $1; }
 	if ($line =~ /^drem=(.+)/)   { $drem= $1; }
+	if ($line =~ /^serial=(.+)/)   { $serial = $1; }
 }
 close CONFIG;
 
@@ -361,6 +367,12 @@ if ($af == 1) {							# READ CALLSIGN FIELD
 		if ($qso[10] eq "") { 				# RST sent to 59(9)
 				if ($dmode =~ /CW|RTTY|PSK/) {$qso[10] = "599";}
 				else {$qso[10] = "59"; }
+				if ($serial) {
+					if ($qso[14] == -1) {
+						$qso[14] = $serial;
+					}
+					$qso[10] .= sprintf("%03d", $qso[14]);
+				}
 		}
 		if ($qso[11] eq "") { 				# RST rcvd to 59(9)
 				if ($dmode =~ /CW|RTTY|PSK/) {$qso[11] = "599";}
@@ -602,7 +614,9 @@ while ($aw == 2) {
 	# existing QSO because &saveqso; checks for an existing $editnr
 
 	&clearinputfields($wi,1);				# deletes all input fields
+	my $snr = $qso[14];						# remember sent serial
 	@qso = &getqso($editnr,$wi);
+	$qso[14] = $snr;
 	&callinfo($qso,$winfo,$wi,$wqsos, $editnr);
 	$aw = 1;
 	}
@@ -634,7 +648,9 @@ while ($aw == 3) {
 	# proceed like before.
 	
 	&clearinputfields($wi,1);				# deletes all input fields
+	my $snr = $qso[14];						# remember sent serial
 	@qso = &getqso($editnr,$wi);			# put QSO number $editnr in @qso
+	$qso[14] = $snr;
 	&callinfo($qso,$winfo,$wi,$wqsos,$editnr);		# show callinfo
 	$aw = 1;								# go to edit window
 	}
@@ -1945,7 +1961,8 @@ while ($status == 15) {
 	sprintf("colors=%-15s       - Enable colors? [1/0] (requires restart)", $colors),
 	sprintf("usehamdb=%-15s     - Use Ham::Callsign::DB to fill data", $yfksubs::usehamdb),
 	sprintf("qsldetails=%-15s   - Show QSO details in QSL write mode?", $qsldetails),
-	sprintf("drem=%-15s         - Default QSO remarks value", $drem)
+	sprintf("drem=%-15s         - Default QSO remarks value", $drem),
+	sprintf("serial=%-15s       - Sent Serial Nr. (0 = None)", $serial)
 	);
 
 	my $choice = &selectlist(\$wmain, 2, 1, 18, 78, \@setup);
@@ -2258,7 +2275,7 @@ while ($status == 15) {
 		}
 	}
 	elsif ($choice == 32) {
-		$original = "drem=$qsldetails";
+		$original = "drem=$drem";
 		my $ret = &askbox(10,20,4,30, 'text', "Default remarks text?",
 				$drem);
 		if ($ret eq 'm') { last }
@@ -2266,7 +2283,15 @@ while ($status == 15) {
 			&changeconfig($original, "drem=$ret");
 		}
 	}
-
+	elsif ($choice == 33) {
+		$original = "serial=$serial";
+		my $ret = &askbox(10,20,4,30, 'text', "Default serial nr. (0 = none)?",
+				$serial);
+		if ($ret eq 'm') { last }
+		elsif ($ret ne '') {
+			&changeconfig($original, "serial=$ret");
+		}
+	}
 	&readconfig;
 	&readsubconfig;
 }

@@ -87,7 +87,7 @@ our $checklogs = '';							# add. logs to chk fr prev QSOs
 our $lotwdetails='0';							# LOTW import details?
 our $autoqueryrig='0';							# Query rig at new QSO?
 our $directory='/tmp/';							# where to look for stuff
-our $prefix="/usr/local";								# may be changed by 'make'
+our $prefix="/usr";								# may be changed by 'make'
 my $db='';										# sqlite or mysql?
 our $fieldorder=									# TAB/Field order.
 'CALL DATE TON TOFF BAND MODE QTH NAME QSLS QSLR RSTS RSTR REM PWR';
@@ -1039,9 +1039,16 @@ sub readw {
 		# and the input fields are deleted.
 		elsif  ($ch eq KEY_F(2)) {					# pressed F2 -> SAVE
 			${$_[3]}[$_[2]] = $input;				# save field to @qso
-			if (&saveqso(@{$_[3]},$editnr)) {		# save @QSO to DB
+			if (&saveqso(@{$_[3]}[0..13],$editnr)) {		# save @QSO to DB
+
 				&clearinputfields($_[0],1);			# clear input fields 0..13
+				# Increase serial number in QSO array, clear all other fields
+				my $snr = ${$_[3]}[14];
+				if ($editnr == 0) { 
+					$snr++;
+				}
 				@{$_[3]} = ("","","","","","","","","","","","","","");
+				${$_[3]}[14] = $snr;
 				# Now we actualize the display of the last QSOs in the
 				# window $wlog.   
 				&lastqsos(\$wlog);
@@ -1078,9 +1085,7 @@ sub readw {
 				for (0 .. 13) {					# iterate through windows 0-13
 					addstr(@{$_[0]}[$_],0,0," "x80);	# clear it
 					refresh(@{$_[0]}[$_]);
-				}
-				foreach (@{$_[3]}) {			# iterate through QSO-array
-					$_="";						# clear content
+					${$_[3]}[$_] = "";			# clear QSO array
 				}
 				${$_[5]} = 0;					# editqso = 0
 				return 4;						# return 4 -> to window 0 (call)
