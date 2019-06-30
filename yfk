@@ -721,8 +721,8 @@ while ($status == 2) {
     "Select Logbook    - Change active Logbook or create/delete new one",
     "Awards/Statistics - DXCC, WAZ, WPX, IOTA etc. plus statistics",
     "Edit Name/QTH DB  - Edit the database used to save Names and QTHs",
-    "Import from LOTW  - Read LOTW report and update the confirmations",
-    "Export to LOTW    - Generate ADIF file of QSOs not uploaded yet",
+    "Import from LoTW  - Read LoTW report and update the confirmations",
+    "Export to LoTW    - Generate ADIF file of QSOs not uploaded yet",
     "Setup YFKlog      - Most logbook settings can be changed here"
     );
 		
@@ -776,10 +776,10 @@ while ($status == 2) {
 	elsif ($choice == 10) {			# Name/QTH editor
 		$status = 12;
 	}
-	elsif ($choice == 11) {			# LOTW  import
+	elsif ($choice == 11) {			# LoTW  import
 		$status = 13;
 	}
-	elsif ($choice == 12) {			# LOTW export
+	elsif ($choice == 12) {			# LoTW export
 		$status = 14;
 	}
 	elsif ($choice == 13) {			# Setup mode
@@ -1122,7 +1122,7 @@ while ($status == 6) {
 
 ##############################################################################
 # ADIF EXPORT MODE  $status = 7
-# LOTW ADIF export mode, $status = 14
+# LoTW ADIF export mode, $status = 14
 ##############################################################################
 
 while (($status == 7) || ($status == 14)) {
@@ -1138,7 +1138,7 @@ while (($status == 7) || ($status == 14)) {
 	addstr($whead, 0,0, "YFKlog v$yfkver - ADIF export mode - Active Logbook: ".
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 7);
 
-	addstr($whead, 0,0, "YFKlog v$yfkver - LOTW export mode - Active Logbook: ".
+	addstr($whead, 0,0, "YFKlog v$yfkver - LoTW export mode - Active Logbook: ".
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 14);
 
 	addstr($whelp, 0,0, "Enter a filename to export. F1: Main Menu  F12: Exit"." " x 70);
@@ -1228,8 +1228,8 @@ while (($status == 7) || ($status == 14)) {
 	addstr($wmain,0,0, ' ' x (80*22));			# clear main window
 	addstr($wmain,10,10,"$nr QSOs exported to $filename");
 
-    if ($status == 14) {    # LOTW
-	    addstr($wmain,11,22,"LOTW status updated to 'Requested'.");
+    if ($status == 14) {    # LoTW
+	    addstr($wmain,11,22,"LoTW status updated to 'Requested'.");
 
         # check if there are any station locations set for $mycall
 
@@ -1270,12 +1270,12 @@ while (($status == 7) || ($status == 14)) {
                 refresh($wmain);
             }
             else {
-	            addstr($wmain,12,17,"Sign $filename with tqsl and upload to LOTW!");
+	            addstr($wmain,12,17,"Sign $filename with tqsl and upload to LoTW!");
                 refresh($wmain);
             }
         } # no lotwlocations found
         else {
-	        addstr($wmain,12,17,"Sign $filename with tqsl and upload to LOTW!");
+	        addstr($wmain,12,17,"Sign $filename with tqsl and upload to LoTW!");
             refresh($wmain);
         }
     }
@@ -1645,7 +1645,7 @@ while ($status == 11) {
 	my %result= ('a'=>'b');			# DXCCs, WAZ, etc. for each band.
 	my %resultc = ('a'=>'b');		# same, but CFMed
 	my %resultcp = ('a'=>'b');		# same, Paper QSL received
-	my %resultcl = ('a'=>'b');		# same, LOTW received
+	my %resultcl = ('a'=>'b');		# same, LoTW received
 	my $custom='';					# DOK, RDA...
 	
 	attron($wmain, COLOR_PAIR(4));
@@ -1768,7 +1768,7 @@ while ($status == 11) {
 		# values.
 		&awards($daterange,$menu[$choice], \%result, \%resultc, \%resultcp,
 				\%resultcl, $bands, $modes, $custom);
-		addstr($wmain, 5, 20, "Band    Wkd   Cfmd    QSL    LOTW");
+		addstr($wmain, 5, 20, "Band    Wkd   Cfmd    QSL    LoTW");
 		my $y = 5;
 		# Since "All" is not numeric and fucks up the sorting, we change it to
 		# 9999 instead and change later. 
@@ -1779,17 +1779,13 @@ while ($status == 11) {
 		delete $resultcp{'All'}; delete $resultcl{'All'};
 
 		foreach my $key (sort {$a <=> $b} keys %result) {
-#				if ($key eq '9999') { next; }		# All=9999 comes last!
 				$y++;
 				addstr($wmain, $y, 20, 
 						sprintf("%-4s     %-4s   %-4s   %-4s   %-4s" ,
 								$key, $result{$key}, $resultc{$key},
 								$resultcp{$key}, $resultcl{$key}));
 		}
-		addstr($wmain, $y, 20, 
-						sprintf("%-4s     %-4s   %-4s" ,"All", $result{'9999'},
-								$resultc{'9999'},
-								$resultcp{'9999'}, $resultcl{'9999'}));
+		addstr($wmain, $y, 20, sprintf("%-4s" ,"All")); # only overwrite 9999 with All
 
 		addstr($wmain, $y+2,5, "Created detailed HTML-summary at $directory/$mycall-$menu[$choice].html");
 	}
@@ -1858,7 +1854,7 @@ while ($status == 12) {
 
 
 ##############################################################################
-# LOTW IMPORT  MODE  $status == 13
+# LoTW IMPORT  MODE  $status == 13
 ##############################################################################
 
 while ($status == 13) {
@@ -1868,9 +1864,9 @@ while ($status == 13) {
 	my ($nr, $match, $updated, $nf);
 
 	attron($wmain, COLOR_PAIR(4));
-	addstr($whead, 0,0, "YFKlog v$yfkver - LOTW import mode - Active Logbook: ".
+	addstr($whead, 0,0, "YFKlog v$yfkver - LoTW import mode - Active Logbook: ".
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
-	addstr($whelp, 0,0, 'Select a directory. F1 to abort.');
+	addstr($whelp, 0,0, 'Select source of LoTW file. F1 to abort.');
 	erase($wmain);
 	addstr($wmain,0,0, ' 'x(80*22));			# blue background
 
@@ -1878,56 +1874,96 @@ while ($status == 13) {
 	refresh($whead);
 	refresh($whelp);
 
-	curs_set(1);
-	$lotwdir = &askbox(10, 5, 4, 70, 'filename', "Directory to search ".
-			"for LOTW files:", $directory);
-	curs_set(0);
+    my @options = ('Open local file', 'Download from LoTW');
 
-	# Check if directory is valid and there are ADIF files
+	my $choice = &selectlist(\$wmain, 4,15, 10 , 50, \@options);
+    attron($wmain, COLOR_PAIR(4));
 
-	unless (-e $lotwdir) {
-		addstr($wmain, 5,15, "$lotwdir does not exist! Any key to continue.");
-		refresh($wmain);
-		getch();
-		$status = 2;				# back to main menu
-		next;
-	}
+    if ($choice eq "m") {
+		$status = 2;
+		last;
+    }
+    elsif ($choice == 1) {      # download automatically
+	    addstr($whelp,0,0, ' 'x(80*22));			# blue background
+        addstr($whelp, 0,0, "Trying to download LoTW report...");
+        erase($wmain);
+        addstr($wmain,0,0, ' 'x(80*22));
+        addstr($wmain, 2,5, "Checking for newest LoTW confirmation to set the start date...");
+        refresh($wmain);
+        refresh($whelp);
 
-	addstr($whelp, 0,0, "Select a LOTW file from $lotwdir or F1 to quit");
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));			# blue background
-	addstr($wmain, 2,10, "Select a LOTW file from $lotwdir to import!");
-	refresh($wmain);
-	refresh($whead);
-	refresh($whelp);
+        my $startdate = &getlotwstartdate();
+        addstr($wmain, 3,5, "Using date: $startdate");
+        refresh($wmain);
+        addstr($wmain, 4,5, "Attempting to download. This may take a while. Please wait...");
+        refresh($wmain);
 
-	@lotwfiles = <$lotwdir/*.adi>;
-	push(@lotwfiles, <$lotwdir/*.ADI>);
-	push(@lotwfiles, <$lotwdir/*.ADIF>);
-	push(@lotwfiles, <$lotwdir/*.adif>);
-	my $y = scalar(@lotwfiles);
+        $lotwfile = &downloadlotw($startdate);
 
-	if ($y == 0) {
-		addstr($wmain, 5,15, "No ADI-Files in $lotwdir! Any key to continue.");
-		refresh($wmain);
-		getch;
-		$status = 2;				# back to main menu
-		next;
-	}
+        if (!$lotwfile) {
+		    attron($wmain, COLOR_PAIR(6));
+            addstr($wmain,6, 5, "Download failed! Check username/password and/or network connection.");
+            attron($wmain, COLOR_PAIR(4));
+            refresh($wmain);
+            getch();
+            $status = 2;				# back to main menu
+            next;
+        }
 
-	# If there are more than 15 ADIF files in the list, we make it scrollable,
-	# with a fixed height of 15.
-	
-	if ($y > 15) { $y = 15; }
+    }
+    else {
+        curs_set(1);
+        $lotwdir = &askbox(10, 5, 4, 70, 'filename', "Directory to search ".
+            "for LoTW files:", $directory);
+        curs_set(0);
 
-	$lotwfile = &selectlist(\$wmain, 4,15, $y , 50, \@lotwfiles);
+        # Check if directory is valid and there are ADIF files
+
+        unless (-e $lotwdir) {
+            addstr($wmain, 5,15, "$lotwdir does not exist! Any key to continue.");
+            refresh($wmain);
+            getch();
+            $status = 2;				# back to main menu
+            next;
+        }
+
+        addstr($whelp, 0,0, "Select a LoTW file from $lotwdir or F1 to quit");
+        erase($wmain);
+        addstr($wmain,0,0, ' 'x(80*22));			# blue background
+        addstr($wmain, 2,10, "Select a LoTW file from $lotwdir to import!");
+        refresh($wmain);
+        refresh($whead);
+        refresh($whelp);
+
+        @lotwfiles = <$lotwdir/*.adi>;
+        push(@lotwfiles, <$lotwdir/*.ADI>);
+        push(@lotwfiles, <$lotwdir/*.ADIF>);
+        push(@lotwfiles, <$lotwdir/*.adif>);
+        my $y = scalar(@lotwfiles);
+
+        if ($y == 0) {
+            addstr($wmain, 5,15, "No ADI-Files in $lotwdir! Any key to continue.");
+            refresh($wmain);
+            getch;
+            $status = 2;				# back to main menu
+            next;
+        }
+
+        # If there are more than 15 ADIF files in the list, we make it scrollable,
+        # with a fixed height of 15.
+
+        if ($y > 15) { $y = 15; }
+
+        $lotwfile = &selectlist(\$wmain, 4,15, $y , 50, \@lotwfiles);
+        $lotwfile = $lotwfiles[$lotwfile];
+    } # select file
 
 	if ($lotwfile eq 'm') {			# F1 pressed, go back to the menu
 		$status = 2;
 		last;
 	}
 	else {							# we want to import $lotwfiles[$lotwfile]
-		 ($nr,$match,$nf) = &lotwimport($lotwfiles[$lotwfile],$whelp)
+		 ($nr,$match,$nf) = &lotwimport($lotwfile,$whelp)
 	}
 
 	attron($wmain, COLOR_PAIR(4));
@@ -1935,15 +1971,15 @@ while ($status == 13) {
 	addstr($wmain,0,0, ' 'x(80*22));			# blue background
 
 	if ($nr > 0) {									# OK, QSOs imported
-		$lotwfiles[$lotwfile] =~ /([^\/]+)$/;
+		$lotwfile =~ /([^\/]+)$/;
 		my $basename = $1;
 		addstr($wmain,  8,25, "QSOs processed: $nr. Matches: $match. ");
 		addstr($wmain, 10,28, "Not found: $nf.");
-		addstr($wmain, 13,5, "See /tmp/$mycall-LOTW-update-from-$basename.err for QSLs that were not found.") if $nf;
+		addstr($wmain, 13,5, "See /tmp/$mycall-LoTW-update-from-$basename.err for QSLs that were not found.") if $nf;
 
 	}
 	else {			# Nothing
-		addstr($wmain,  7,10, "No QSLs imported. Possibly this file doesn't meet the LOTW");
+		addstr($wmain,  7,10, "No QSLs imported. Possibly this file doesn't meet the LoTW");
 		addstr($wmain,  8,10, "specifications. ");
 		addstr($wmain,  9,10, "If you think the file is OK, contact author.");
 	}
@@ -1953,7 +1989,7 @@ while ($status == 13) {
 
 	$status = 2;				# back to main menu
 
-} # end of $status = 13, LOTW import
+} # end of $status = 13, LoTW import
 
 ##############################################################################
 # SETUP MODE  $status == 15
