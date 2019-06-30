@@ -1,7 +1,7 @@
 <html>
 
 <head>
-		<title>YFKlog v0.3.5 Manual</title>
+		<title>YFKlog v0.4.0 Manual</title>
 </head>
 
 <style> <!-- 
@@ -11,15 +11,15 @@
 
 <body>
 
-<h1>YFKlog v0.3.5 Manual</h1>
+<h1>YFKlog v0.4.0 Manual</h1>
 <p><em>Preliminary version (11-Mar-2008). Always under construction.</em></p>
-<p><code>Copyright (c)  2008  Fabian Kurz, DJ1YFK &lt;<a href="mailto:mail&#64;fkurz.net">mail&#64;fkurz.net</a>&gt;<br>
+<p><code>Copyright (c)  2008-2019  Fabian Kurz, DJ1YFK &lt;<a href="mailto:mail&#64;fkurz.net">mail&#64;fkurz.net</a>&gt;<br>
 		Permission is granted to copy, distribute and/or modify this document<br>
 		under the terms of the GNU Free Documentation License, Version 1.2<br>
 		or any later version published by the Free Software Foundation;<br>
 		with no Invariant Sections, no Front-Cover Texts, and no Back-Cover<br>
 		Texts.  A copy of the license is included in the section entitled "GNU<br>
-Free Documentation License".
+        Free Documentation License".
 </code></p>
 
 <hr noshade>
@@ -65,10 +65,10 @@ and functions of YFKlog.</p>
 		</ol>
 		</li>
 		<li><a href="#name">Name/QTH database</a></li>
-		<li><a href="#lotw">LOTW functions</a>
+		<li><a href="#lotw">LoTW functions</a>
 		<ol>
-				<li>LOTW export</li>
-				<li>LOTW import</li>
+				<li>LoTW export (and optional upload)</li>
+				<li>LoTW import</li>
 		</ol>
 		</li>
 		<li><a href="#hamlib">Transceiver control, hamlib</a></li>
@@ -86,9 +86,9 @@ and functions of YFKlog.</p>
 YFKlog and unpack the tarball to a directory of your choice, then run 
 <code>make install</code>.</p> 
 <code><pre>
-$ wget http://fkurz.net/ham/yfklog/yfklog-0.3.5.tar.gz
-$ tar zxfv yfklog-0.3.5.tar.gz
-$ cd yfklog-0.3.5 
+$ wget http://fkurz.net/ham/yfklog/yfklog-0.4.0.tar.gz
+$ tar zxfv yfklog-0.4.0.tar.gz
+$ cd yfklog-0.4.0 
 $ su
 # make install
 </pre></code>
@@ -133,9 +133,9 @@ grant the user the neccessary permissions:
 <code><pre>
 $ mysqladmin -u root -p create YFKlog
 $ mysql -u root -p
-mysql> GRANT ALL ON YFKlog.* TO dj1yfk@localhost IDENTIFIED BY 'notmypassword';
-mysql> FLUSH PRIVILEGES;
-mysql> quit
+mysql&gt; GRANT ALL ON YFKlog.* TO dj1yfk@localhost IDENTIFIED BY 'notmypassword';
+mysql&gt; FLUSH PRIVILEGES;
+mysql&gt; quit
 </pre></code>
 
 <p>Now start YFKlog and change at least the
@@ -249,7 +249,7 @@ they are not important.</p>
 		automatically queried from the radio.</li>
 		
 		<li><strong>lotwdetails</strong> - Whether or not to use QSO details
-		from LOTW to update the log.</li>
+		from LoTW to update the log.</li>
 
 		<li><strong>directory</strong> - The default directory for every file
 		to be written or read by YFKlog (like ADIF logs, QSL labels etc). By
@@ -277,9 +277,9 @@ they are not important.</p>
 		Default: Ascending.
 		</li>
 
-		<li><strong>browser</strong> - Browser for QRZ.com lookups. (Default:
-		dillo)
-		</li>
+		<li><strong>browser</strong> - Browser for QRZ.com lookups. (Default: dillo) </li>
+
+        <li><strong>lotwlocation</strong> - List of station locations for LoTW</li>
 
 
 </ul>
@@ -323,8 +323,8 @@ following sections; some are self explanatory. A quick overview:</p>
 		for every station when it's first worked. When working the same station
 		again, this information is immediately available. Entries in this
 		database can be changed or deleted in this menu point.</li>
-		<li><strong>Import/Export LOTW</strong> - Support for working with
-		ARRL's LOTW. See <a href="#lotw">chapter LOTW</a> for details.</li>
+		<li><strong>Import/Export LoTW</strong> - Support for working with
+		ARRL's LoTW. See <a href="#lotw">chapter LoTW</a> for details.</li>
 		<li><strong>Setup YFKlog</strong> - Most settings mentioned in <a
 				href="#setup">Setup</a> can be changed here. </li>
 </ul>
@@ -392,7 +392,7 @@ respectively.</p>
 		<li>The last few QSOs in the log are shown in Window 3. You can jump
 		here by pressing <strong>F9</strong> and select any QSO to edit it. The
 		fields shown are: Callsign, Band, Mode, Time, Date, Name, QTH,
-		RST-sent, RST-received, QSL-sent, QSL-received, LOTW-status. Sort order
+		RST-sent, RST-received, QSL-sent, QSL-received, LoTW-status. Sort order
 		can be changed by "logsort" (see above).</li>
 
 		<li>Window 4 shows the last QSOs with the station you are currently
@@ -504,7 +504,7 @@ design of YFKlog and differences to ADIF.</p>
 <p>Almost all fields in the log table in YFKlog's database can directly be mapped to
 an ADIF field. This means, that (almost) no data is lost when exporting to ADIF
 from YFKlog. There are two exceptions:</p>
-<ol><li>YFKlog has a separate log field for handling LOTW confirmations. This
+<ol><li>YFKlog has a separate log field for handling LoTW confirmations. This
 		field has no ADIF equivalent and is not used when exporting to
 		ADIF.</li>
 	<li>Exported logs from YFKlog currently don't include any DXCC information.
@@ -567,13 +567,13 @@ QSL labels however, or exporting the log, it's changed back to a slash.</p>
 <h3>10.1 Standings for awards</h3>
 <p>The standings for several popular awards, namely DXCC, WPX (PFX),  WAZ
 (CQZ), IOTA and WAS (STATE) and VUCC (GRID) can be calculated by YFKlog. It considers both
-paper QSL and LOTW confirmations for this, and lists them once combined and
+paper QSL and LoTW confirmations for this, and lists them once combined and
 once separately. Custom awards are possible with some limitations.</p>
 
 <p>The screenshot shows the author's DXCC score. You can see five columns:
-Band, number of worked entities, number of confirmed entities (either LOTW or
+Band, number of worked entities, number of confirmed entities (either LoTW or
 paper), number of entities confirmed by paper QSO, number of entities confirmed
-by LOTW.</p>
+by LoTW.</p>
 
 <p>The used date range (if any) and the bands to be included in these standings
 can be chosen/changed at runtime if wanted. The default bands are set in the
@@ -617,36 +617,45 @@ Name/QTH DB" from the main menu.</p>
 
 <hr>
 
-<h2><a id="lotw" name="lotw">12. LOTW functions</a></h2>
+<h2><a id="lotw" name="lotw">12. LoTW functions</a></h2>
 
-<p>YFKlog makes it easy to keep track with the LOTW status of your QSOs, but
-still is far away from <em>full LOTW integration</em>.</p>
+<p>YFKlog makes it easy to keep track with the LoTW status of your QSOs and
+upload data to LoTW.</p>
 
-<p>For each QSO, YFKlog saves a value (called QSLrL, QSL-received-LOTW), which
+<p>For each QSO, YFKlog saves a value (called QSLrL, QSL-received-LoTW), which
 can be: 
 <ul>
-		<li><strong>N</strong> (No): This QSO has not been uploaded to LOTW</li>
+		<li><strong>N</strong> (No): This QSO has not been uploaded to LoTW</li>
 		<li><strong>R</strong> (Requested): This QSO has been uploaded to
-		LOTW, but no confirmation yet.</li>
+		LoTW, but no confirmation yet.</li>
 		<li><strong>Y</strong> (Yes): This QSO has been
-		<strong>confirmed</strong> via LOTW.</li>
+		<strong>confirmed</strong> via LoTW.</li>
 </ul>
 </p>
 
-<h3>12.1 LOTW export</h3>
-<p>Selecting "Export to LOTW" from the main menu will cause YFKlog to export
+<h3>12.1 LoTW export (and upload)</h3>
+<p>Selecting "Export to LoTW" from the main menu will cause YFKlog to export
 all QSOs from the current log with the QSLrL-flag  <em>N</em> to an ADIF
 file, and changes these QSOs to <em>R</em> (requested). The ADIF file can
-then be signed with tQSL and uploaded to LOTW.</p>
+then be signed with tQSL and uploaded to LoTW or signed and uploaded
+automatically.</p>
 
-<h3>12.2 LOTW import</h3>
-<p>Received QSL records from LOTW can be downloaded via the LOTW web-interface,
-under "Your QSOs" -&gt; "Download report". A file called
+<p>For uploading directly with <code>tqsl</code> you need to specify at least
+one station location in the configuration value <code>lotwlocation</code> for
+each callsign. An example value would be:
+<pre>lotwlocation=DJ1YFK:Rheine,DJ1YFK:Dresden,DJ1YFK:Munich,SO5CW:Warka</pre>
+which defines three station locations for DJ1YFK and one for SO5CW. Once you
+have exported the ADIF data for LoTW, YFKlog will ask you if you would like to
+sign and upload the file; you can select one of the defined station locations.</p>
+
+<h3>12.2 LoTW import</h3>
+<p>Received QSL records from LoTW can be downloaded via the LoTW web-interface,
+under "Your QSOs" &rarr; "Download report". A file called
 <code>lotwreport.adi</code> is generated, which contains all confirmations, by
 default since the last download of this file.</p>
 
 <p>This file may contain QSL records for <em>one or several</em> of your
-callsigns, and can be imported to YFKlog via "Import from LOTW" in the main
+callsigns, and can be imported to YFKlog via "Import from LoTW" in the main
 menu.</p>
 
 <p>YFKlog will update the QSLrL flag of each confirmed contact accordingly. If
@@ -656,8 +665,8 @@ logbook) cannot be found.</p>
 
 <p>The <code>lotwreport.adi</code> file might contain additional information,
 like the CQ zone or IOTA reference of the station. By default, this
-information is not considered by YFKlog, but by setting
-<code>lotwdetails=1</code> in the config file they will be added to your
+information is ignored by YFKlog, but by setting
+<code>lotwdetails=1</code> in the config file, this information will be added to your
 logbook.</p>
 
 <p>Note that repeatedly importing the same lotwreport file doesn't cause any
