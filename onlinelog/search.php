@@ -26,7 +26,7 @@ $callsign = strtoupper($callsign);
 <?php 
 $qsos = file("test.txt");
 foreach ($qsos as $qso) {
-	if (ereg($callsign, $qso)) {				# line contains the call
+	if (preg_match("/$callsign/", $qso)) {				# line contains the call
 		echo "<tr>";
 		$data = explode('~', $qso);				# put stuff in $data
 		foreach ($data as $foo) {				# every data..

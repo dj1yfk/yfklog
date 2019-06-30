@@ -1,3 +1,8 @@
 Just a quick example how to use the $callsign.log to make a searchable online
-log. Of course it's also possible to directly use the MySQL database for the
-online log, etc...
+log. 
+
+Of course it's also possible (and probably a much better idea!) to
+directly use the MySQL database for the online log, etc.
+
+Example (live): https://fkurz.net/ham/log/ (link to source code on that page)
+

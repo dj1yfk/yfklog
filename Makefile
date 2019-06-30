@@ -45,8 +45,6 @@ dist:
 		COPYING Makefile\
 	 INSTALL MANUAL README p.png RELEASENOTES *.lab yfklog-$(VERSION)
 	cp clubs/README yfklog-$(VERSION)/clubs
-	cp clubs/hscmember.txt yfklog-$(VERSION)/clubs
-	cp clubs/hsc2sql.awk yfklog-$(VERSION)/clubs
 	cp onlinelog/README yfklog-$(VERSION)/onlinelog
 	cp onlinelog/search.php yfklog-$(VERSION)/onlinelog
 	cp onlinelog/test.txt yfklog-$(VERSION)/onlinelog

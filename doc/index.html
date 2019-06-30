@@ -89,13 +89,16 @@ and functions of YFKlog.</p>
     <li>SQLite</li>
     <li>ncurses</li>
     <li>Make</li>
+    <li>libwww-perl</li>
 </ul>
 
 <p>On Ubuntu or Debian Linux, you can satisfy all requirements simply by
 running:</p>
 <code>sudo apt-get install perl libdbd-sqlite3-perl libclass-dbi-sqlite-perl
-    make 
-    libsqlite3-0 libcurses-perl</code>
+    make libsqlite3-0 libcurses-perl libwww-perl</code>
+
+<p>For LoTW, you will also need the packages <pre>trustedqsl</pre> and
+<pre>xvfb</pre>.</p>
 
 <p>Download the <a href="http://fkurz.net/ham/yfklog/">latest version</a> of
 YFKlog and unpack the tarball to a directory of your choice, then run 
@@ -107,6 +110,7 @@ $ cd yfklog-0.4.0
 $ su
 # make install
 </pre></code>
+
 <p>By default, YFKlog will be installed to <code>/usr</code>, but you can specify
 another directory by adding the option
 <code>DESTDIR=/your/favorite/directory</code>. If you have no root privileges on
