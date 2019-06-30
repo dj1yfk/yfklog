@@ -1261,9 +1261,10 @@ sub callinfo {
 		# added whitespaces behind it so any previous entries will be
 		# overwritten.  
 		my @dxcc = &dxcc($call);	# dxcc array gets filled
+        my $sprefix = substr($prefix, 0, 5);
 		addstr($dxwin, 0,9, $dxcc[0]." " x (25-length($dxcc[0])));
 		addstr($dxwin, 0,40, $dxcc[7]." " x (5-length($dxcc[7])));
-		addstr($dxwin, 0,51, $prefix." " x (5-length($prefix)));
+		addstr($dxwin, 0,51, $sprefix." " x (5-length($sprefix)));
 		addstr($dxwin, 0,61, $dxcc[2]." " x (2-length($dxcc[2])));
 		addstr($dxwin, 0,69, $dxcc[1]." " x (2-length($dxcc[1])));
 		addstr($dxwin, 1,5, $dxcc[4]." " x (7-length($dxcc[4])));
