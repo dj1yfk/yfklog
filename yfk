@@ -1227,13 +1227,61 @@ while (($status == 7) || ($status == 14)) {
 
 	addstr($wmain,0,0, ' ' x (80*22));			# clear main window
 	addstr($wmain,10,10,"$nr QSOs exported to $filename");
-	addstr($wmain,11,22,"LOTW status updated to 'Requested'.") if ($status==14);
-	addstr($wmain,12,17,"Sign $filename with tqsl and upload to LOTW!") if ($status==14);
+
+    if ($status == 14) {    # LOTW
+	    addstr($wmain,11,22,"LOTW status updated to 'Requested'.");
+
+        # check if there are any station locations set for $mycall
+
+        my @lotwlocations = &getlotwlocations();
+
+        if ($#lotwlocations) {
+	        addstr($whelp, 0,0, 'LoTW upload...'.' 'x50);
+            refresh($whelp);
+	        addstr($wmain,12,17,"Select station location for signing with tqsl!");
+            refresh($wmain);
+    	    curs_set(0);
+            unshift (@lotwlocations, "  Cancel  ");
+	        my $choice = &selectlist(\$wmain, 14,30,6,22, \@lotwlocations);
+		    attron($wmain, COLOR_PAIR(4));
+	        curs_set(0);
+            print STDERR $choice;
+            if ($choice ne "m" and $choice > 0) {
+	            addstr($wmain,0,0," "x(80*22));			# clear main window
+                my @ret = &tqslsign($filename, $lotwlocations[$choice]);
+                if ($ret[0] == 0) {
+                    addstr($wmain,5,18, "Upload successful! LoTW output below:");
+                }
+                else {
+		            attron($wmain, COLOR_PAIR(6));
+                    addstr($wmain,5, 5, "Upload failed.");
+        		    attron($wmain, COLOR_PAIR(4));
+                    addstr($wmain,6, 5, "You should upload this file ($filename) manually since");
+                    addstr($wmain,7, 5, "the QSOs are flagged as 'Sent' already.");
+                }
+                #shift @ret;
+                my $line = 9;
+                foreach (@ret) {
+                    my $l = $_;
+                    chomp($l);
+                    addstr($wmain, $line++, 2, ">".$l);
+                }
+
+                refresh($wmain);
+            }
+            else {
+	            addstr($wmain,12,17,"Sign $filename with tqsl and upload to LOTW!");
+                refresh($wmain);
+            }
+        } # no lotwlocations found
+        else {
+	        addstr($wmain,12,17,"Sign $filename with tqsl and upload to LOTW!");
+            refresh($wmain);
+        }
+    }
+
 	refresh($wmain);
-
 	getch();
-	
-
 	
 	$status = 2;
 } # end ADIF export mode, $status==7
@@ -1951,7 +1999,7 @@ while ($status == 15) {
 	sprintf("rigpath=%-15s      - hamlib rig path (e.g. /dev/ttyS0)", $yfksubs::rigpath),
 	sprintf("autoqueryrig=%-15s - Query hamlib automatically?", $yfksubs::autoqueryrig),
 	sprintf("operator=%-15s     - Operator's callsign", $yfksubs::operator),
-	sprintf("lotwdetails=%-15s  - Include details from LOTW?", $yfksubs::lotwdetails),
+	sprintf("lotwdetails=%-15s  - Include details from LoTW?", $yfksubs::lotwdetails),
 	sprintf("directory=%-15s    - Default directory (ADIF, etc)", $yfksubs::directory),
 	sprintf("fieldorder=%-15s   - Default entry field order", $yfksubs::fieldorder),
 	sprintf("askme=%-15s        - Ask for confirmations?", $yfksubs::askme),
@@ -1962,7 +2010,8 @@ while ($status == 15) {
 	sprintf("usehamdb=%-15s     - Use Ham::Callsign::DB to fill data", $yfksubs::usehamdb),
 	sprintf("qsldetails=%-15s   - Show QSO details in QSL write mode?", $qsldetails),
 	sprintf("drem=%-15s         - Default QSO remarks value", $drem),
-	sprintf("serial=%-15s       - Sent Serial Nr. (0 = None)", $serial)
+	sprintf("serial=%-15s       - Sent Serial Nr. (0 = None)", $serial),
+	sprintf("lotwlocation=%-15s - LoTW station locations", $yfksubs::lotwlocation)
 	);
 
 	my $choice = &selectlist(\$wmain, 2, 1, 18, 78, \@setup);
@@ -2290,6 +2339,14 @@ while ($status == 15) {
 		if ($ret eq 'm') { last }
 		elsif ($ret ne '') {
 			&changeconfig($original, "serial=$ret");
+		}
+	}
+	elsif ($choice == 34) { # todo: askbox doesn't scroll beyond initial size
+		$original = "lotwlocation=$yfksubs::lotwlocation";
+		my $ret = &askbox(10,5,4,70, '[A-Za-z0-9\-\/_,:]', "LoTW station locations?", $yfksubs::lotwlocation);
+		if ($ret eq 'm') { last }
+		elsif ($ret ne '') {
+			&changeconfig($original, "lotwlocation=$ret");
 		}
 	}
 	&readconfig;

@@ -33,7 +33,7 @@ preparelabels labeltex emptyqslqueue adifexport ftpupload adifimport getlogs
 changemycall newlogtable oldlogtable choseeditqso geteditqso editw updateqso checkdate
 awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
-connectdb connectrig jumpfield receive_qso);
+connectdb connectrig jumpfield receive_qso tqslsign getlotwlocations);
 
 use strict;
 use POSIX;				# needed for acos in distance/direction calculation
@@ -98,6 +98,7 @@ our $logsort="N";								# Order of log display
 our $prevsort="A";								# Order of prev. QSOs
 our $browser='dillo';
 our $hamlibtcpport = 4532;
+our $lotwlocation="";                 # LoTW station locations in format: CALL:location,CALL:location
 
 # We read the configuration file .yfklog.
 
@@ -213,6 +214,9 @@ while (defined (my $line = <CONFIG>))   {			# Read line into $line
 	}
 	elsif ($line =~ /^usehamdb=(.+)/) {
 			$usehamdb= $1;
+	}
+	elsif ($line =~ /^lotwlocation=(.+)/) {
+            $lotwlocation = $1;
 	}
 }
 close CONFIG;	# Configuration read.
@@ -5842,7 +5846,30 @@ sub getch2 {
 	return $ch;
 }
 
+sub tqslsign {
+    my $filename = shift;
+    my $location = shift;
+    my $cmd = "xvfb-run tqsl -x -u -c $mycall -d -l $location $filename 2>&1";
+    my @result = `$cmd`;
 
+    unshift @result, $cmd;
+    unshift @result, $?; # return code
+    return @result;
+
+}
+
+sub getlotwlocations {
+    my @a = split(/,/, $lotwlocation);
+    my @ret;
+
+    foreach (@a) {
+        if ($_ =~ /$mycall:(.*)/i) {
+            push @ret, $1;
+        }
+    }
+
+    return @ret;
+}
 
 
 return 1;
