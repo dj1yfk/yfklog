@@ -190,10 +190,10 @@ askme=1
 logsort=C
 
 # (O) prevsort: How to sort the display of previous QSOs for a certain call
-# D = By date, Descending
-# A = By date, ascending. (default)
+# D = By date, descending (default)
+# A = By date, ascending
 
-prevsort=A
+prevsort=D
 
 # (O) browser: A browser to do QRZ.com call lookups.
 
@@ -208,5 +208,3 @@ colors=1
 # fill in QSO information with FCC and/or QRZ lookup information
 #
 usehamdb=0
-
-

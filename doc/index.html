@@ -82,6 +82,21 @@ and functions of YFKlog.</p>
 <hr>
 <h2><a id="install" name="install">1. Installation</a></h2>
 
+<p>Install the required packages:</p>
+<ul>
+    <li>Perl</li>
+    <li>DBI</li>
+    <li>SQLite</li>
+    <li>ncurses</li>
+    <li>Make</li>
+</ul>
+
+<p>On Ubuntu or Debian Linux, you can satisfy all requirements simply by
+running:</p>
+<code>sudo apt-get install perl libdbd-sqlite3-perl libclass-dbi-sqlite-perl
+    make 
+    libsqlite3-0 libcurses-perl</code>
+
 <p>Download the <a href="http://fkurz.net/ham/yfklog/">latest version</a> of
 YFKlog and unpack the tarball to a directory of your choice, then run 
 <code>make install</code>.</p> 
@@ -274,14 +289,14 @@ they are not important.</p>
 		<li><strong>prevsort</strong> - The sort order of the display of the
 		previous QSOs with a certain station. By date, either
 		<strong>A</strong> for ascending or <strong>D</strong> for descending.
-		Default: Ascending.
+		Default: Descending.
 		</li>
 
 		<li><strong>browser</strong> - Browser for QRZ.com lookups. (Default: dillo) </li>
 
         <li><strong>lotwlocation</strong> - List of station locations for LoTW</li>
-
-
+        <li><strong>lotwuser</strong> - LoTW web user name to download reports</li>
+        <li><strong>lotwpass</strong> - LoTW web password</li>
 </ul>
 
 <hr>
@@ -619,8 +634,7 @@ Name/QTH DB" from the main menu.</p>
 
 <h2><a id="lotw" name="lotw">12. LoTW functions</a></h2>
 
-<p>YFKlog makes it easy to keep track with the LoTW status of your QSOs and
-upload data to LoTW.</p>
+<p>YFKlog makes it easy to keep track with the LoTW status of your QSOs!</p>
 
 <p>For each QSO, YFKlog saves a value (called QSLrL, QSL-received-LoTW), which
 can be: 
@@ -640,7 +654,8 @@ file, and changes these QSOs to <em>R</em> (requested). The ADIF file can
 then be signed with tQSL and uploaded to LoTW or signed and uploaded
 automatically.</p>
 
-<p>For uploading directly with <code>tqsl</code> you need to specify at least
+<p>For uploading directly with <code>tqsl</code> (which needs to be fully set
+up and working on your PC before you can use it from YFKlog) you need to specify at least
 one station location in the configuration value <code>lotwlocation</code> for
 each callsign. An example value would be:
 <pre>lotwlocation=DJ1YFK:Rheine,DJ1YFK:Dresden,DJ1YFK:Munich,SO5CW:Warka</pre>
@@ -648,11 +663,14 @@ which defines three station locations for DJ1YFK and one for SO5CW. Once you
 have exported the ADIF data for LoTW, YFKlog will ask you if you would like to
 sign and upload the file; you can select one of the defined station locations.</p>
 
-<h3>12.2 LoTW import</h3>
+<h3>12.2 LoTW import / download</h3>
 <p>Received QSL records from LoTW can be downloaded via the LoTW web-interface,
-under "Your QSOs" &rarr; "Download report". A file called
-<code>lotwreport.adi</code> is generated, which contains all confirmations, by
-default since the last download of this file.</p>
+under "Your QSOs" &rarr; "Download report" or downloaded by YFKlog (for this
+to work you need to set your LoTW account username and password in your config
+file).
+
+The file downloaded from LoTW, called <code>lotwreport.adi</code>, contains all
+new confirmations since your last download.</p>
 
 <p>This file may contain QSL records for <em>one or several</em> of your
 callsigns, and can be imported to YFKlog via "Import from LoTW" in the main

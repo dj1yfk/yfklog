@@ -4,7 +4,7 @@
 
 # Several subroutines for yfklog, a amateur radio logbook software 
 # 
-# Copyright (C) 2005-2009  Fabian Kurz, DJ1YFK
+# Copyright (C) 2005-2019  Fabian Kurz, DJ1YFK
 #
 # This program is free software; you can redistribute it and/or modify 
 # it under the terms of the GNU General Public License as published by 
@@ -33,7 +33,8 @@ preparelabels labeltex emptyqslqueue adifexport ftpupload adifimport getlogs
 changemycall newlogtable oldlogtable choseeditqso geteditqso editw updateqso checkdate
 awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
-connectdb connectrig jumpfield receive_qso tqslsign getlotwlocations);
+connectdb connectrig jumpfield receive_qso tqslsign getlotwlocations 
+getlotwstartdate downloadlotw);
 
 use strict;
 use POSIX;				# needed for acos in distance/direction calculation
@@ -42,6 +43,7 @@ use Net::FTP;
 use IO::Socket;
 use DBI;
 use IPC::SysV qw(IPC_PRIVATE IPC_RMID IPC_NOWAIT IPC_CREAT);
+use LWP::UserAgent ();
 
 my $havehamdb = eval "require Ham::Callsign::DB;";
 my $hamdb;
@@ -95,10 +97,12 @@ my @fieldorder = split(/\s+/, $fieldorder);
 our $usehamdb = 0;
 our $askme=0;						# ask before clearing QSOs etc
 our $logsort="N";								# Order of log display
-our $prevsort="A";								# Order of prev. QSOs
+our $prevsort="D";								# Order of prev. QSOs
 our $browser='dillo';
 our $hamlibtcpport = 4532;
 our $lotwlocation="";                 # LoTW station locations in format: CALL:location,CALL:location
+our $lotwuser="";                     # Username for automatic LoTW download
+our $lotwpass="";                     # Password for automatic LoTW download
 
 # We read the configuration file .yfklog.
 
@@ -218,6 +222,12 @@ while (defined (my $line = <CONFIG>))   {			# Read line into $line
 	elsif ($line =~ /^lotwlocation=(.+)/) {
             $lotwlocation = $1;
 	}
+	elsif ($line =~ /^lotwuser=(.+)/) {
+            $lotwuser= $1;
+	}
+	elsif ($line =~ /^lotwpass=(.+)/) {
+            $lotwpass = $1;
+	}
 }
 close CONFIG;	# Configuration read.
 
@@ -261,7 +271,7 @@ sub connectrig {
 }
 
 
-# Now we read cty.dat from K1EA, or exit when it's not found.
+# Now we read cty.dat or exit when it's not found.
 my $ctydat = "$prefix/share/yfklog/cty.dat";
 if (-R "./cty.dat") {
 	$ctydat = "./cty.dat";
@@ -270,6 +280,7 @@ if (-R "./cty.dat") {
 open CTY, "$ctydat" or die "$ctydat not found.".
 			"Please download it from http://country-files.com/\n";
 
+my %fullcalls;          # hash of full calls (=DL1XYZ)
 my %prefixes;			# hash of arrays  main prefix -> (all, prefixes,..)
 my %dxcc;				# hash of arrays  main prefix -> (CQZ, ITUZ, ...)
 my $mainprefix;
@@ -283,6 +294,25 @@ while (my $line = <CTY>) {
 	}
 	else {										# prefix-line
 		$line =~ s/\s+//g;
+
+        # read full calls into separate hash. this hash only
+        # contains the information that this is a full call and
+        # therefore doesn't need to be handled by &wpx even if
+        # it contains a slash
+
+        if ($line =~ /=/) {
+            my @matches = ($line =~ /=([A-Z0-9\/]+)(\(\d+\))?(\[\d+\])?[,;]/g);
+            foreach (@matches) {
+                $fullcalls{$_} = 1 if $_;
+            }
+        }
+
+        # Continue with everything else. Including full calls, which will
+        # be read as normal prefixes.
+
+        $line =~ s/=//g;
+
+        # handle "normal" prefixes
 		unless (defined($prefixes{$mainprefix}[0])) {
 			@{$prefixes{$mainprefix}} = split(/,|;/, $line);
 		}
@@ -436,11 +466,12 @@ else { return undef; }    # no proper callsign received.
 ##############################################################################
 #
 # &dxcc determines the DXCC country of a given callsign using the cty.dat file
-# provided by K1EA at http://www.k1ea.com/cty/cty.dat .
+# provided by AD1C at https://www.country-files.com/
 # An example entry of the file looks like this:
 #
-# Portugal:                 14:  37:  EU:   38.70:     9.20:     0.0:  CT:
-#     CQ,CR,CR5A,CR5EBD,CR6EDX,CR7A,CR8A,CR8BWW,CS,CS98,CT,CT98;
+# Portugal:                 14:  37:  EU:   39.50:     8.00:     0.0:  CT:
+#     CQ,CR,CS,CT,=CR5FB/LH,=CS2HNI/LH,=CS5E/LH,=CT/DJ5AA/LH,=CT1BWW/LH,=CT1GFK/LH,=CT1GPQ/LGT,
+#     =CT7/ON4LO/LH,=CT7/ON7RU/LH;
 #
 # The first line contains the name of the country, WAZ, ITU zones, continent, 
 # latitude, longitude, UTC difference and main Prefix, the second line contains 
@@ -472,7 +503,11 @@ sub dxcc {
 	my $letter='';
 
 
-if ($testcall =~ /(^OH\/)|(\/OH[1-9]?$)/) {    # non-Aland prefix!
+if ($fullcalls{$testcall}) {            # direct match with "="
+    # do nothing! don't try to resolve WPX, it's a full
+    # call and will match correctly even if it contains a /
+}
+elsif ($testcall =~ /(^OH\/)|(\/OH[1-9]?$)/) {    # non-Aland prefix!
     $testcall = "OH";                      # make callsign OH = finland
 }
 elsif ($testcall =~ /(^3D2R)|(^3D2.+\/R)/) { # seems to be from Rotuma
@@ -480,6 +515,9 @@ elsif ($testcall =~ /(^3D2R)|(^3D2.+\/R)/) { # seems to be from Rotuma
 }
 elsif ($testcall =~ /^3D2C/) {               # seems to be from Conway Reef
     $testcall = "3D2CR";                 # will match with Conway
+}
+elsif ($testcall =~ /(^LZ\/)|(\/LZ[1-9]?$)/) {  # LZ/ is LZ0 by DXCC but this is VP8h
+    $testcall = "LZ";
 }
 elsif ($testcall =~ /\//) {                  # check if the callsign has a "/"
 	my $prfx = &wpx($testcall,1);
@@ -5859,6 +5897,8 @@ sub tqslsign {
 
 }
 
+# return all LoTW station locations from the global variable
+# $lotwlocation which match $mycall
 sub getlotwlocations {
     my @a = split(/,/, $lotwlocation);
     my @ret;
@@ -5872,6 +5912,42 @@ sub getlotwlocations {
     return @ret;
 }
 
+# find the date of the last LoTW confirmation
+# in the current log. the next download should
+# start at this date.
+sub getlotwstartdate {
+	my $query = $dbh->prepare("SELECT date from log_$mycall where qslrl='Y' order by date desc limit 1");
+	$query->execute;
+	my $date = $query->fetchrow_array();
+
+    if ($date) {
+        return $date;
+    }
+    else {
+        return "1970-01-01";
+    }
+}
+
+sub downloadlotw {
+    my $startdate = shift;
+    my $url = "https://lotw.arrl.org/lotwuser/lotwreport.adi?qso_query=1&login=$lotwuser&password=$lotwpass&qso_qsl=yes&qso_withown=yes&qso_qslsince=$startdate";
+
+    my $filename = "/tmp/$mycall-lotw-download.adi";
+
+    my $ua = LWP::UserAgent->new(timeout => 120);
+    my $response = $ua->get($url);
+
+    open LOTW, ">$filename";
+    print LOTW $response->decoded_content;
+    close LOTW;
+
+    if ($response->is_success and $response->decoded_content =~ /APP_LoTW_NUMREC/) {
+        return $filename;
+    }
+    else {
+        return 0;
+    }
+}
 
 return 1;
 

@@ -1,3 +1,10 @@
+2019-Jun-30:   Version 0.4.0
+-------------------------------------------------------------------------------
+- Many small improvements contributed over the years, mostly by DF6FR and CT1DRB 
+- Add support for LoTW upload and download directy from YFKlog (requires tqsl)
+- Update dxcc algorithm to handle "new" style country files (with full calls
+  marked with a =).
+
 2008-Jan-31:   Version 0.3.5
 -------------------------------------------------------------------------------
 - Remote logging from fldigi; uses the same interface as Xlog.

@@ -1,14 +1,13 @@
-YFKlog 0.3.6  INSTALLATION GUIDE
+YFKlog 0.4.0  INSTALLATION GUIDE
 --------------------------------
 
 More detailled instructions at http://fkurz.net/ham/yfklog/doc/
 
 --------------------------------
 
-YFKlog 0.3.6 comes with a PERL Makefile.
+YFKlog 0.4.0 comes with a Makefile
 
-$   perl Makefile.PL [PREFIX=/usr/local]
-#   (sudo) make install
+$   (sudo) make install [PREFIX=/usr/local]
 
 will install it into PREFIX (default /usr/[bin|share/yfklog/]).
 

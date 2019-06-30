@@ -4,7 +4,7 @@
 
 # yfklog - a general purpose ham radio logbook
 # 
-# Copyright (C) 2005  Fabian Kurz, DJ1YFK
+# Copyright (C) 2005-2019  Fabian Kurz, DJ1YFK
 #
 # This program is free software; you can redistribute it and/or modify 
 # it under the terms of the GNU General Public License as published by 
@@ -36,8 +36,8 @@ if (-f './yfk' && -f './yfksubs.pl' && -f 'THANKS') {
 }
 import yfksubs;
 
-our $yfkver = '0.3.6';	# Program Version
-our $VERSION = '0.3.6'; # XXX
+our $yfkver = '0.4.0';	# Program Version
+our $VERSION = '0.4.0'; # XXX
 
 # Here we give some variables their default values. Some of them will be
 # changed later when reading the config-file .yfklog.
