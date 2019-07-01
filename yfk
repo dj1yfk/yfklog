@@ -1245,7 +1245,6 @@ while (($status == 7) || ($status == 14)) {
 	        my $choice = &selectlist(\$wmain, 14,30,6,22, \@lotwlocations);
 		    attron($wmain, COLOR_PAIR(4));
 	        curs_set(0);
-            print STDERR $choice;
             if ($choice ne "m" and $choice > 0) {
 	            addstr($wmain,0,0," "x(80*22));			# clear main window
                 my @ret = &tqslsign($filename, $lotwlocations[$choice]);
