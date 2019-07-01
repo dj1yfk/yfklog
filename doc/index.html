@@ -4,9 +4,27 @@
 		<title>YFKlog v0.4.0 Manual</title>
 </head>
 
-<style> <!-- 
-		body,td,a,p{font-family:arial,sans-serif}
-		-->
+<style>
+body,td,a,p{font-family:arial,sans-serif}
+figure {
+  padding: 5px;
+  float: right;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  width: 484px;
+}
+
+figure img {
+  border-radius: 3px 3px 0 0;
+}
+
+figure figcaption {
+  padding: 2px 4px 2px 4px;
+  background-color: #636363;
+  color: #eeeeee;
+  font-style: italic;
+  border-radius: 0 0 3px 3px;
+}
 </style>
 
 <body>
@@ -97,17 +115,25 @@ running:</p>
     make libsqlite3-0 libcurses-perl libwww-perl</code>
 
 <p>For LoTW, you will also need the packages <code>trustedqsl</code> and
-<pre>xvfb</pre>.</p>
+<code>xvfb</code>.</p>
 
 <p>Download the <a href="http://fkurz.net/ham/yfklog/">latest version</a> of
-YFKlog and unpack the tarball to a directory of your choice, then run 
+YFKlog (or clone the latest version from git) and unpack the tarball to a directory of your choice, then run 
 <code>make install</code>.</p> 
+
+<h3>Install from distribution archive</h3>
 <code><pre>
 $ wget http://fkurz.net/ham/yfklog/yfklog-0.4.0.tar.gz
 $ tar zxfv yfklog-0.4.0.tar.gz
 $ cd yfklog-0.4.0 
-$ su
-# make install
+$ sudo make install
+</pre></code>
+
+<h3>Install from git</h3>
+<code><pre>
+$ git clone https://git.fkurz.net/dj1yfk/yfklog.git
+$ cd yfklog
+$ sudo make install
 </pre></code>
 
 <p>By default, YFKlog will be installed to <code>/usr</code>, but you can specify
@@ -128,20 +154,14 @@ You can chose between two databases,
 <a href="http://www.mysql.com/">MySQL</a>.</p>
 <p>SQLite is a lightweight,
 self-contained, zero-configuration SQL database engine and probably the right
-choice for most users of YFKlog. It's very easy to set up (for example in
-Debian, just install <code>libdbd-sqlite3-perl</code> and
-<code>libclass-dbi-sqlite-perl</code> and you're set!) and surprisingly fast.
-</p>
-
-<p>MySQL is pretty much the opposite. Don't use it, unless you know why you'd
-want to.</p>
+choice for most users of YFKlog. Only use MySQL if you know why.</p>
 
 <h3>1.1 SQLite</h3>
 <p>There is nothing really to set up, this is the default setting. 
 SQLite will autmatically create a SQLite database file
 of the name as set in <code>dbname=...</code>. This single file contains the
 whole database. It's trivial to back up and (if needed) accessible via the
-<code>sqlite3</code> command line utility just like a MySQL database.</p>
+<code>sqlite3</code> command line utility.</p>
 
 <h3>1.2 MySQL</h3>
 <p>Create a database (in this example it's called <code>YFKlog</code>, the user
@@ -303,8 +323,10 @@ they are not important.</p>
 </ul>
 
 <hr>
-
-<img src= "menu.png" align="right">
+<figure>
+    <img src="menu.png">
+    <figcaption>YFKlog main menu</figcaption>
+</figure>
 <h2><a id="menu" name="menu">3. Main Menu</a></h2>
 <p>All functions of YFKlog are accessible through the main menu, shown on the
 right. The single menu points will be described in greater detail in the
@@ -348,8 +370,10 @@ following sections; some are self explanatory. A quick overview:</p>
 </ul>
 
 <hr>
-
-<img src= "logmode1.png" align="right">
+<figure>
+<img src= "logmode1.png">
+<figcaption>The main logging screen of YFKlog</figcaption>
+</figure>
 <h2><a id="logging" name="logging">4. Logging QSOs</a></h2>
 <p>In the <strong>Logging Mode</strong>, as shown in the picture, the screen is
 split up into 4 main windows. A QSO can be saved with <strong>F2</strong>,
@@ -401,7 +425,7 @@ respectively.</p>
 		<li> This window shows information about the callsign entered, derived
 		from the country file <code>cty.dat</code>. The last line also shows -
 		if available
-		- known <a href="">club memberships</a>, if the DXCC was worked before,
+		- known <a href="#clubs">club memberships</a>, if the DXCC was worked before,
 		and if so on which bands, and if the callsign appears in any other log,
 		as specified by <a href="">checklogs</a> in the config file.  <a
 				href="logmode2.png">This is an example</a> where all these
@@ -421,8 +445,11 @@ respectively.</p>
 </ol>
 
 <hr>
+<figure>
+<img src="edit1.png">
+<figcaption>Editing QSOs</figcaption>
+</figure>
 
-<img src="edit1.png" align="right">
 <h2><a id="search" name="search">5. Searching and Editing QSOs</a></h2>
 
 <p>Logged QSOs can be searched and edited under the menu point <strong>Search
@@ -453,7 +480,10 @@ which can easily be adopted, even without knowledge of SQL.</p>
 <p>Effective handling of QSL cards, both incoming and outgoing, is 
 easily done with YFKlog. This section describes how.</p>
 
-<img src="qslin1.png" align="right">
+<figure>
+<img src="qslin1.png">
+<figcaption>Marking QSL cards as received in the log</figcaption>
+</figure>
 <h3>6.1 Incoming QSL cards</h3>
 <p>The menu point <strong>QSL enter mode</strong> allows you to record received
 QSLs very effectively. After entering 3 or more letters of the callsign, all
@@ -525,8 +555,7 @@ from YFKlog. There are two exceptions:</p>
 <ol><li>YFKlog has a separate log field for handling LoTW confirmations. This
 		field has no ADIF equivalent and is not used when exporting to
 		ADIF.</li>
-	<li>Exported logs from YFKlog currently don't include any DXCC information.
-	This will be fixed in foreseable future.</li>
+	<li>Exported logs from YFKlog currently don't include any DXCC information.</li>
 </ol>
 
 <p>To export the current logbook to an ADIF file, chose "ADIF export" in the
@@ -562,7 +591,7 @@ author's PC (1.8GHz, 256MB RAM).</p>
 
 <h2><a id="online" name="online">8. Update Onlinelog</a></h2>
 <p>
-to be written...
+... function to be rewritten completely ...
 </p>
 <hr>
 
@@ -579,7 +608,10 @@ QSL labels however, or exporting the log, it's changed back to a slash.</p>
 
 <hr>
 
+<figure>
 <img src="awards1.png" align="right">
+<figcaption>DXCC award tracking with YFKlog</figcaption>
+</figure>
 <h2><a id="awards" name="awards">10. Awards and Statistics</a></h2>
 
 <h3>10.1 Standings for awards</h3>
@@ -635,9 +667,13 @@ Name/QTH DB" from the main menu.</p>
 
 <hr>
 
+<figure>
+<img src="lotwimport.png" align="right">
+<figcaption>YFKlog shows which contacts were recently confirmed on LoTW</figcaption>
+</figure>
 <h2><a id="lotw" name="lotw">12. LoTW functions</a></h2>
 
-<p>YFKlog makes it easy to keep track with the LoTW status of your QSOs!</p>
+<p>YFKlog makes it easy to keep track with the LoTW status of your QSOs and supports direct upload and download to/from LoTW.</p>
 
 <p>For each QSO, YFKlog saves a value (called QSLrL, QSL-received-LoTW), which
 can be: 
@@ -739,12 +775,49 @@ message queue and be fetched as soon as YFKlog enters the remote mode.</p>
 
 <hr>
 
-<h2><a id="appendix" name="appendix">Appendix (very much UNDER CONSTRUCTION)</a></h2>
+<h2><a id="appendix" name="appendix">Appendix</a></h2>
 
 <h3>Using Putty</h3>
 <p>When using YFKlog via ssh with Putty, the F-keys may not work in the default
 configuration. In the putty configuration (Terminal -&gt; Keyboard), set
 &quot;The Function keys and keypad:&quot; to <em>Xterm R6</em>.</p> 
+
+<h3 id="clubs">Club memberships</h3>
+
+<p>When entering a callsign in logging mode, YFKlog searches for this
+callsign in a database table named <code>clubs</code>. This database
+table has three columns, <code>club</code> (the name of the club), <code>nr</code>
+the membership number, and <code>call</code> (the callsign).</p>
+<p>By default this table is empty. In the <code>clubs</code> subdirectory
+you'll find a couple of scripts which download membership data from a
+number of different sources and generate SQL statements from them, which
+you can then push into the database. Some of these membership databases
+are directly pulled from the respective clubs, others come via the
+<a href="http://www.g4bki.com/club_call_history.htm">CW Club files 
+by G4BKI / VP9KF</a>.</p>
+
+<p>By adapting the existing scripts, you should be able to add your own clubs if needed.</p>
+
+<h4>Example: HSC member list</h4>
+<p>The script <code>hsc.pl</code> will download the HSC member list and
+generate SQL statements for it. Here's an example how to use it:</p>
+
+<pre>
+$ ~/dev/yfklog/clubs/hsc.pl
+ --2019-07-01 21:52:36--  http://hsc.dj1yfk.de/db/hsc_list_n1mm.txt
+Resolving hsc.dj1yfk.de (hsc.dj1yfk.de)... 88.99.84.60
+Connecting to hsc.dj1yfk.de (hsc.dj1yfk.de)|88.99.84.60|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/plain]
+Saving to: 'hsc.txt'
+
+2019-07-01 21:52:36 (116 MB/s) - 'hsc.txt' saved [30910]
+
+Saved to hsc.sql (1358 records).
+$ mysql -uUSERNAME -pPASSWORD YFKlog < hsc.sql   # for MySQL
+$ sqlite3 ~/.yfklog/YFKlog < hsc.sql             # for sqlite
+</pre>
+
 
 
 <h3>Database backup</h3>
@@ -753,13 +826,13 @@ MySQL you can easily produce a so-called <em>SQL dump</em> of the database,
 from which you'll be able to completely restore your database in case of data
 loss.</p>
 <p>For SQLite, use the following command-line:</p>
-<pre><code>sqlite3 ~/.yfklog/YFKlog '.dump' | gzip -c > dump.sql.gz</code></pre>
+<pre><code>sqlite3 ~/.yfklog/YFKlog '.dump' | gzip -c &gt; dump.sql.gz</code></pre>
 <p>This will produce a compressed file <code>dump.sql.gz</code> which contains the
 whole database in human readable SQL format. Replace
 <code>~/.yfklog/YFKlog</code> with the location of the SQLite database file, in
 case you don't use the default location.</p>
 <p>For MySQL, use the command line utility <code>mysqldump</code>:
-<pre><code>mysqldump -p YFKlog | gzip -c > dump.sql.gz</code></pre>
+<pre><code>mysqldump -p YFKlog | gzip -c &gt; dump.sql.gz</code></pre>
 Where <code>YFKlog</code> is the name of the database. You will be prompted to
 enter your password; alternatively you may directly include it in the command
 line (for example when invoked from cron): <code>mysqldump -pMYPASSWORD
@@ -795,25 +868,6 @@ Rows matched: 3158  Changed: 3158  Warnings: 0
 
 mysql&gt;
 </code></pre>
-
-<h3>Database Backup</h3>
-
-<p>A backup of the complete database can be easily done by sqldump. In this
-example the database name is YFKlog.</p>
-
-<h4>MySQL</h4>
-<pre><code>mysqldump -p YFKlog | gzip - - > dump.sql.gz</code></pre>
-<p>mysqldump will promt you for the password to access the database. If you
-invoke mysqldump from a script, you may add the password in the command line
-(mysqldump -pPASSWORD) but be advised that this is not very secure. Everyone
-doing a <code>ps a</code> during the backup can see your password. You may want
-to consider using for example <code>expect</code> if this is an issue.</p>
-
-<h4>SQLite3</h4>
-<pre><code>sqlite3 ~/.yfklog/YFKlog .dump YFKlog | gzip - - > dump.sql.gz</code></pre>
-<p>Alternatively, just back up the database file itself, ~/.yfklog/YFKlog, but
-makre sure there is not currently any process writing to it.</p>
-
 
 
 <h2><a id="GNUFDL" name="GNUFDL"> GNU Free Documentation License </a></h2>
