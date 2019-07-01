@@ -4927,6 +4927,7 @@ sub lotwimport {
 	my $logs='';
 	my $line;
 	my ($nr, $match, $updated, $nf) = (0,0,0,0);
+    my @summary;
 
 	my ($stncall, $call, $band, $mode, $qsodate, $time, $qslr); 	# standard
 	my ($cont, $cqz, $ituz, $iota, $grid, $state, $cnty);			# details
@@ -5056,6 +5057,7 @@ sub lotwimport {
 					}
 					else {
 						$match++;
+                        push @summary, sprintf("%-3d %-10s %-12s %-4s %-4s %-8s %4s", $match, uc($stncall), $call, $band, $mode, $qsodate, substr($time,0,5));
 					}
 
 				}
@@ -5068,7 +5070,7 @@ sub lotwimport {
 
 close ERROR;
 
-return ($nr, $match, $nf);
+return ($nr, $match, $nf, @summary);
 }
 
 ###############################################################################

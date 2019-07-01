@@ -1861,6 +1861,7 @@ while ($status == 13) {
 	my $lotwdir;
 	my $lotwfile;
 	my ($nr, $match, $updated, $nf);
+    my @updates;
 
 	attron($wmain, COLOR_PAIR(4));
 	addstr($whead, 0,0, "YFKlog v$yfkver - LoTW import mode - Active Logbook: ".
@@ -1962,7 +1963,7 @@ while ($status == 13) {
 		last;
 	}
 	else {							# we want to import $lotwfiles[$lotwfile]
-		 ($nr,$match,$nf) = &lotwimport($lotwfile,$whelp)
+		 ($nr,$match,$nf,@updates) = &lotwimport($lotwfile,$whelp)
 	}
 
 	attron($wmain, COLOR_PAIR(4));
@@ -1972,19 +1973,19 @@ while ($status == 13) {
 	if ($nr > 0) {									# OK, QSOs imported
 		$lotwfile =~ /([^\/]+)$/;
 		my $basename = $1;
-		addstr($wmain,  8,25, "QSOs processed: $nr. Matches: $match. ");
-		addstr($wmain, 10,28, "Not found: $nf.");
-		addstr($wmain, 13,5, "See /tmp/$mycall-LoTW-update-from-$basename.err for QSLs that were not found.") if $nf;
+		addstr($wmain,  4,15, "QSOs processed: $nr. Matches: $match. Not found: $nf");
+		addstr($wmain, 5,5, "See /tmp/$mycall-LoTW-update-from-$basename.err for QSLs that were not found.") if $nf;
 
+        &selectlist(\$wmain, 7, 15, 14, 55, \@updates);
+	    attron($wmain, COLOR_PAIR(4));
 	}
 	else {			# Nothing
 		addstr($wmain,  7,10, "No QSLs imported. Possibly this file doesn't meet the LoTW");
 		addstr($wmain,  8,10, "specifications. ");
 		addstr($wmain,  9,10, "If you think the file is OK, contact author.");
+	    getch();
 	}
-		refresh($wmain);
-
-	getch();
+    refresh($wmain);
 
 	$status = 2;				# back to main menu
 
