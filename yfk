@@ -123,6 +123,7 @@ start_color if $colors;;	# got colors!
 curs_set(0);				# cursor invisible
 
 getmaxyx($row, $col);
+$row-- if ($row % 2);   # force even number of rows
 
 printw &splashscreen($yfkver);
 
@@ -1990,7 +1991,7 @@ while ($status == 13) {
 		addstr($wmain,  4,15, "QSOs processed: $nr. Matches: $match. Not found: $nf");
 		addstr($wmain, 5,5, "See /tmp/$mycall-LoTW-update-from-$basename.err for QSLs that were not found.") if $nf;
 
-        &selectlist(\$wmain, 7, 15, 14, 55, \@updates);
+        &selectlist(\$wmain, 7, 15, $row-10, 55, \@updates);
 	    attron($wmain, COLOR_PAIR(4));
 	}
 	else {			# Nothing
