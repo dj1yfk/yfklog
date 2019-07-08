@@ -26,6 +26,14 @@ use DBI;				# Database interface
 use Curses;	
 use Net::FTP;			# upload of online log or backup
 
+# terminal size (will be queried later)
+our $col;
+our $row;
+
+$SIG{'WINCH'} = sub { 
+    &redraw();
+};
+
 my $prefix="/usr";		
 
 if (-f './yfk' && -f './yfksubs.pl' && -f 'THANKS') {
@@ -38,6 +46,7 @@ import yfksubs;
 
 our $yfkver = '0.4.0';	# Program Version
 our $VERSION = '0.4.0'; # XXX
+
 
 # Here we give some variables their default values. Some of them will be
 # changed later when reading the config-file .yfklog.
@@ -113,6 +122,7 @@ if (!has_colors && $colors) {	# we need colors, if not available, die
 start_color if $colors;;	# got colors!
 curs_set(0);				# cursor invisible
 
+getmaxyx($row, $col);
 
 printw &splashscreen($yfkver);
 
@@ -200,7 +210,7 @@ init_pair(7, COLOR_BLACK, COLOR_WHITE);
 
 # GENERAL WINDOWS, always visible
 our $whead  = &makewindow(1,80,0,0,2);		# head window
-our $whelp  = &makewindow(1,80,23,0,2);		# help window
+our $whelp  = &makewindow(1,80,$row-1,0,2);		# help window
 
 # LOGGING MODE WINDOWS  ($status = 1)
 our $winput = &makewindow(3,80,1,0,1);		# Input Window
@@ -216,13 +226,15 @@ if ($screenlayout==0) {						# original YFKlog style
 	$wqsos  = &makewindow(16,50,7,30,4);	# prev. QSOs window
 }
 elsif ($screenlayout==1) {					# more info, smaller windows
-	$wlog   = &makewindow(8,80,7,0,3);		# Logbook
-	$wqsos  = &makewindow(8,80,15,0,4);		# prev. QSOs window
+    # 8 lines are used for other stuff, so we have ($row-8)/2 lines left for
+    # each window
+	$wlog   = &makewindow(($row-8)/2,80,7,0,3);		# Logbook
+	$wqsos  = &makewindow(($row-8)/2,80,7+($row-8)/2,0,4);		# prev. QSOs window
 }
 
 # EDIT / SEARCH MODE WINDOWS ($status = 10)
 our $wedit      = &makewindow(5,80,1,0,1);		# Edit Window
-our $weditlog   = &makewindow(17,80,6,0,4);		# Search results
+our $weditlog   = &makewindow(($row-7),80,6,0,4);		# Search results
 
 
 # Inside the input-window, the input fields will also be defined as single
@@ -264,7 +276,7 @@ $wi[25] = &makewindow(1,6,5,53,5);			# Edit  Window: GRID
 my  $wi = \@wi;			# Window reference
 
 # GENERAL purpose Window all over the screen, except top and bottom lines
-my $wmain = &makewindow(22,80,1,0,4);		# Input Window
+my $wmain = &makewindow($row-2,80,1,0,4);		# Input Window
 
 
 ##############################################################################
@@ -299,9 +311,9 @@ addstr($whelp, 0,0, &fkeyline());				# help line (F-keys)
 addstr($winfo, 0,0, &winfomask(0));				# Country: ITU: CQZ: etc.
 addstr($winfo, 1,0, &winfomask(1));
 addstr($winfo, 2,0, " "x80);
-addstr($wqsos, 0,0, " "x666);					# prev qsos window delete
+addstr($wqsos, 0,0, " "x($row*80));					# prev qsos window delete
 
-&lastqsos(\$wlog);					# Print last 8/16 QSOs into $wlog window
+&lastqsos(\$wlog);					# Print last QSOs into $wlog window
 
 refresh($winfo);
 refresh($whead);
@@ -731,7 +743,7 @@ while ($status == 2) {
 	addstr($whelp, 0,0, "Use the cursor keys to choose. F12 exits."." " x 70);
 	refresh($whead);						
 	refresh($whelp);						
-	addstr($wmain, 0,0, " " x (80*22));			# empty
+	addstr($wmain, 0,0, " " x (80*($row-2)));			# empty
 	refresh($wmain);
 
 	# A (scrollable) list appears, where you can select any menu item. It
@@ -807,7 +819,7 @@ while ($status == 3) {
 	addstr($whelp, 0,0, "Enter a call and select QSOs. F1 Main menu  F2 Save  F3 Cancel  F12 Exit"." " x 70);
 	refresh($whead);						
 	refresh($whelp);						
-	addstr($wmain, 0,0, " " x (80*22));			# empty
+	addstr($wmain, 0,0, " " x (80*($row-2)));			# empty
 	refresh($wmain);
 
 	# We now ask for the callsign to search for...
@@ -823,7 +835,7 @@ while ($status == 3) {
 	# We check if at least 3 letters were entered. There are no calls shorter
 	# than this, and 2 or 1 call would return too many QSOs. 
 	elsif (length($qslcall) > 2)  {			
-		addstr($wmain, 0,0, " " x (80*23));				# wipe out window
+		addstr($wmain, 0,0, " " x (80*$row));				# wipe out window
 	
 		# Now we are ready to call &toggleqsl which will query the database for
 		# the callsign(fragment) entered and let the user toggle the
@@ -864,7 +876,7 @@ while ($status == 4) {
 	addstr($whelp, 0,0, "Update in progress ..."." " x 70);
 	refresh($whead);						
 	refresh($whelp);						
-	addstr($wmain, 0,0, " " x (80*22));			# empty
+	addstr($wmain, 0,0, " " x (80*($row-2)));			# empty
 	refresh($wmain);
 
 	$nr = &onlinelog();
@@ -882,7 +894,7 @@ while ($status == 4) {
 	elsif ($choice == 0) {			# Save FTP
 		$ftp = &ftpupload;			# upload log. return success or error msg
 		attron($wmain, COLOR_PAIR(4));				# fucked up by selectlist
-		addstr($wmain, 0,0, " " x (80*22));			# empty
+		addstr($wmain, 0,0, " " x (80*($row-2)));			# empty
 		addstr($wmain, 10,20, $ftp);				# show what ftpupload ret
 		refresh($wmain);
 	}
@@ -941,7 +953,7 @@ while ($status == 6) {
 	addstr($whead, 0,0, "YFKlog v$yfkver - QSL print mode - Active Logbook: ".
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
 
-	addstr($wmain,0,0," "x(80*22));			# clear main window
+	addstr($wmain,0,0," "x(80*($row-2)));			# clear main window
 	
 	# Ask for a date range...
 	addstr($wmain, 1,15, 'If you like to specify a date-range, or only print');
@@ -994,7 +1006,7 @@ while ($status == 6) {
 		}
 	}
 
-	addstr($wmain, 0,0, " "x(80*22));
+	addstr($wmain, 0,0, " "x(80*($row-2)));
 	addstr($wmain, 3,5, "All QSLs marked as queued in date range will be printed.");
 	addstr($wmain, 4,5, "Please select a label size.");
 	refresh($whelp);
@@ -1061,7 +1073,7 @@ while ($status == 6) {
 	%printlabels = &preparelabels($labeltype, $daterange);
 
 	unless (%printlabels) {						# If there are no QSOs to print
-		addstr($wmain, 0,0, " "x(80*22));
+		addstr($wmain, 0,0, " "x(80*($row-2)));
 		addstr($wmain, 10,28, "No QSL Cards in queue!");
 		refresh($wmain);
 		getch();
@@ -1078,7 +1090,7 @@ while ($status == 6) {
 
 	# the number of exported labels and pages will be shown
 
-	addstr($wmain, 0,0, " " x (80*22));			# delete window
+	addstr($wmain, 0,0, " " x (80*($row-2)));			# delete window
 	
 	$tex =~ /(\d+) (\d+)$/;
 	
@@ -1142,7 +1154,7 @@ while (($status == 7) || ($status == 14)) {
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 14);
 
 	addstr($whelp, 0,0, "Enter a filename to export. F1: Main Menu  F12: Exit"." " x 70);
-	addstr($wmain,0,0," "x(80*22));			# clear main window
+	addstr($wmain,0,0," "x(80*($row-2)));			# clear main window
 	refresh($whelp);
 	refresh($wmain);
 	refresh($whead);
@@ -1167,7 +1179,7 @@ while (($status == 7) || ($status == 14)) {
 	}
 
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));
+	addstr($wmain,0,0, ' 'x(80*($row-2)));
 
 	# Ask for a date range...
 	addstr($wmain, 1,15, 'If you like to specify a date-range, or only export');
@@ -1225,7 +1237,7 @@ while (($status == 7) || ($status == 14)) {
 	$nr = &adifexport($filename, 'adif', $daterange) if ($status == 7); 
 	$nr = &adifexport($filename, 'lotw', $daterange) if ($status == 14); 
 
-	addstr($wmain,0,0, ' ' x (80*22));			# clear main window
+	addstr($wmain,0,0, ' ' x (80*($row-2)));			# clear main window
 	addstr($wmain,10,10,"$nr QSOs exported to $filename");
 
     if ($status == 14) {    # LoTW
@@ -1246,7 +1258,7 @@ while (($status == 7) || ($status == 14)) {
 		    attron($wmain, COLOR_PAIR(4));
 	        curs_set(0);
             if ($choice ne "m" and $choice > 0) {
-	            addstr($wmain,0,0," "x(80*22));			# clear main window
+	            addstr($wmain,0,0," "x(80*($row-2)));			# clear main window
                 my @ret = &tqslsign($filename, $lotwlocations[$choice]);
                 if ($ret[0] == 0) {
                     addstr($wmain,5,18, "Upload successful! LoTW output below:");
@@ -1317,7 +1329,7 @@ while ($status == 8) {
 	addstr($wedit, 3,0, &entrymask(3));
 	addstr($wedit, 4,0, &entrymask(4));
 	erase($weditlog);
-	addstr($weditlog,0,0, ' 'x(80*22));
+	addstr($weditlog,0,0, ' 'x(80*($row-2)));
 	refresh($weditlog);
 	refresh($whelp);
 	refresh($wedit);
@@ -1461,7 +1473,7 @@ while ($status == 9) {
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
 	addstr($whelp, 0,0, 'Select a directory. F1 to abort.');
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));			# blue background
+	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
 
 	refresh($wmain);
 	refresh($whead);
@@ -1484,7 +1496,7 @@ while ($status == 9) {
 
 	addstr($whelp, 0,0, "Select a ADIF file from $adifdir or F1 to quit");
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));			# blue background
+	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
 	addstr($wmain, 2,10, "Select a ADIF file from $adifdir to import!");
 	refresh($wmain);
 	refresh($whead);
@@ -1522,7 +1534,7 @@ while ($status == 9) {
 
 	attron($wmain, COLOR_PAIR(4));		# selectlist changed attributes
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));			# blue background
+	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
 
 	if ($nr > 0) {									# OK, QSOs imported
 		$adifiles[$adifile] =~ /([^\/]+)$/;
@@ -1561,7 +1573,7 @@ while ($status == 10) {
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
 	addstr($whelp, 0,0, 'Choose one of the logs or create/delete a new one ..'.' 'x50);
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));			# blue background
+	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
 	addstr($wmain, 2,7, 'Select an existing logbook or create a new log or destroy an old one!');
 	refresh($wmain);
 	refresh($whead);
@@ -1576,10 +1588,12 @@ while ($status == 10) {
 	# position because it starts with a whitespace. This is needed because the
 	# case of creating a new logbook has to be treated different.
 
+    my $max = $row - 9;
+
 	# If there are more than 15 logs in the list, we make it scrollable,
 	# with a fixed height of 15.
 	my $y = scalar(@logs);
-	if ($y > 15) { $y = 15; }
+	if ($y > $max) { $y = $max; }
 
 	$choice = &selectlist(\$wmain, 4,30, $y ,20, \@logs);
 	
@@ -1652,7 +1666,7 @@ while ($status == 11) {
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
 	addstr($whelp, 0,0, 'Select an award to generate statistics for ..'.' 'x50);
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));			# blue background
+	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
 	refresh($wmain);
 	refresh($whead);
 	refresh($whelp);
@@ -1668,7 +1682,7 @@ while ($status == 11) {
 	attron($wmain, COLOR_PAIR(4));
 
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));
+	addstr($wmain,0,0, ' 'x(80*($row-2)));
 
 	# Custom award. Ask for award type/string
 	if ($choice eq '10') {
@@ -1718,7 +1732,7 @@ while ($status == 11) {
 
 	# limit bands for query
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));
+	addstr($wmain,0,0, ' 'x(80*($row-2)));
 
 	addstr($wmain, 2,17, 'The following bands will be considered, as set in');
 	addstr($wmain, 3,16, '~/.yfklog/config. You can add or remove bands now.');
@@ -1734,7 +1748,7 @@ while ($status == 11) {
 	unless ($choice eq '11') {# not for the QSLs
 		# limit modes for query
 		erase($wmain);
-		addstr($wmain,0,0, ' 'x(80*22));
+		addstr($wmain,0,0, ' 'x(80*($row-2)));
 
 		addstr($wmain, 2,17, 'The following modes will be considered, as set in');
 		addstr($wmain, 3,16, '~/.yfklog/config. You can add or remove modes now.');
@@ -1748,7 +1762,7 @@ while ($status == 11) {
 	
 	curs_set(0);						# cursor invisible	
 
-	addstr($wmain,0,0, ' 'x(80*22));		# clear window	
+	addstr($wmain,0,0, ' 'x(80*($row-2)));		# clear window	
 	addstr($wmain, 2, 25, "$menu[$choice] Statistics for " .
 		   uc(join('/', split(/_/, $mycall))) .
 		   " in " . join(', ', split(/\s+/, $modes)));
@@ -1831,7 +1845,7 @@ while ($status == 12) {
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
 	addstr($whelp, 0,0, 'Enter the callsign to edit.  F1: Menu  F12: Quit'.' 'x50);
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));			# blue background
+	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
 	refresh($wmain);
 	refresh($whead);
 	refresh($whelp);
@@ -1868,7 +1882,7 @@ while ($status == 13) {
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
 	addstr($whelp, 0,0, 'Select source of LoTW file. F1 to abort.');
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));			# blue background
+	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
 
 	refresh($wmain);
 	refresh($whead);
@@ -1884,10 +1898,10 @@ while ($status == 13) {
 		last;
     }
     elsif ($choice == 1) {      # download automatically
-	    addstr($whelp,0,0, ' 'x(80*22));			# blue background
+	    addstr($whelp,0,0, ' 'x(80*($row-2)));			# blue background
         addstr($whelp, 0,0, "Trying to download LoTW report...");
         erase($wmain);
-        addstr($wmain,0,0, ' 'x(80*22));
+        addstr($wmain,0,0, ' 'x(80*($row-2)));
         addstr($wmain, 2,5, "Checking for newest LoTW confirmation to set the start date...");
         refresh($wmain);
         refresh($whelp);
@@ -1929,7 +1943,7 @@ while ($status == 13) {
 
         addstr($whelp, 0,0, "Select a LoTW file from $lotwdir or F1 to quit");
         erase($wmain);
-        addstr($wmain,0,0, ' 'x(80*22));			# blue background
+        addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
         addstr($wmain, 2,10, "Select a LoTW file from $lotwdir to import!");
         refresh($wmain);
         refresh($whead);
@@ -1968,7 +1982,7 @@ while ($status == 13) {
 
 	attron($wmain, COLOR_PAIR(4));
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));			# blue background
+	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
 
 	if ($nr > 0) {									# OK, QSOs imported
 		$lotwfile =~ /([^\/]+)$/;
@@ -2004,7 +2018,7 @@ while ($status == 15) {
 	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
 	addstr($whelp, 0,0, 'Select the value you want to change. F1: Back to Menu.  F12: Exit.'.' 'x50);
 	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*22));			# blue background
+	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
 	addstr($wmain,0,10, 'Most settings of ~/.yfklog/config can be changed here.');
 	addstr($wmain,1,10, 'Please refer to the manual for further explanations.');
 	addstr($wmain, 2,30, 'YFKlog setup');
@@ -2050,7 +2064,7 @@ while ($status == 15) {
 	sprintf("lotwlocation=%-15s - LoTW station locations", $yfksubs::lotwlocation)
 	);
 
-	my $choice = &selectlist(\$wmain, 2, 1, 18, 78, \@setup);
+	my $choice = &selectlist(\$wmain, 2, 1, $row-6, 78, \@setup);
 
 	if ($choice eq 'm') {		# back to main menu
 		&readconfig;
@@ -2388,8 +2402,6 @@ while ($status == 15) {
 	&readconfig;
 	&readsubconfig;
 }
-
-
 
 } # end of MAIN PROGRAM LOOP
 

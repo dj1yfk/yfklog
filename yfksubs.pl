@@ -34,7 +34,7 @@ changemycall newlogtable oldlogtable choseeditqso geteditqso editw updateqso che
 awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
 connectdb connectrig jumpfield receive_qso tqslsign getlotwlocations 
-getlotwstartdate downloadlotw);
+getlotwstartdate downloadlotw redraw);
 
 use strict;
 use POSIX;				# needed for acos in distance/direction calculation
@@ -103,6 +103,14 @@ our $hamlibtcpport = 4532;
 our $lotwlocation="";                 # LoTW station locations in format: CALL:location,CALL:location
 our $lotwuser="";                     # Username for automatic LoTW download
 our $lotwpass="";                     # Password for automatic LoTW download
+
+
+
+sub redraw {
+    endwin();
+    initscr();
+    getmaxyx($main::row, $main::col);
+}
 
 # We read the configuration file .yfklog.
 
@@ -1119,7 +1127,7 @@ sub readw {
 			my $k='y';
 
 			if ($askme) {
-				$k = &askconfirmation("Really go clear this QSO? [y/N]", 
+				$k = &askconfirmation("Really clear this QSO? [y/N]", 
 					'y|n|\n|\s');
 			}
 
@@ -1212,8 +1220,8 @@ sub lastqsos {
 		$y=15;					# y-position in $wlog
 	}
 	elsif ($screenlayout == 1) {	# windows above each other, 8 QSOs
-		$nr = 8;
-		$y=7;					# y-position in $wlog
+		$nr = ($main::row - 8)/2;
+		$y = $nr - 1;					# y-position in $wlog
 	}
 	
 	# Now we fetch the last x QSOs in the database, only CALL, BAND, MODE and
@@ -1382,7 +1390,9 @@ sub callinfo {
 		
 		my $nbr;							# different layouts
 		if ($screenlayout == 0) {$nbr=16;}
-		if ($screenlayout == 1) {$nbr=8;}
+		if ($screenlayout == 1) {
+            $nbr = ($main::row - 8)/2;
+        }
 
 		# First count...
 		my $lqcount = $dbh->prepare("SELECT count(*) FROM log_$mycall WHERE
@@ -1692,8 +1702,8 @@ sub choseqso {
 		$nbr = 16;
 	}
 	elsif ($screenlayout == 1) {
-		$aline=7;
-		$nbr = 8;
+		$nbr = ($main::row-8)/2;
+		$aline=$nbr-1;
 	}
 
 	
@@ -1894,7 +1904,7 @@ sub chosepqso {
 		$nbr = 16;
 	}
 	elsif ($screenlayout == 1) {
-		$nbr = 8;
+		$nbr = ($main::row-8)/2;
 	}
 
 	# Get the homecall from a call with /, split and take longest part:
@@ -2357,15 +2367,16 @@ sub toggleqsl {
 
 	my ($yh, $xw);
 
+    my $row = $main::row;
 
 # First check if we are in QSL receive or write mode. When write mode, set
 # $write to 1
 if ($call eq "W") { 
 	$write = "1";
-	($yh, $xw) = (22 - ($details * 5), 80);	# x,y width of the window
+	($yh, $xw) = (($row-2) - ($details * 5), 80);	# x,y width of the window
 }
 else {	# receive
-	($yh, $xw) = (22, 80);
+	($yh, $xw) = (($row-2), 80);
 	$details = 0;
 }
 
@@ -3902,6 +3913,8 @@ sub choseeditqso {
 	my $sql2=' AND 1 ';
 	my @qso = @{$_[1]};			# search criteria
 	
+    my $nlines = $main::row - 7;
+    
     # Assemble a SQL string which contains the search criteria. First the
     # columns which should be displayed.  
     $sql = "SELECT `NR`, `CALL`, `NAME`, `DATE`, `T_ON`, `BAND`, `MODE`,
@@ -3942,14 +3955,14 @@ sub choseeditqso {
 
 	# Calculate offset and aline for last cursor position different from 1.
 
-	if ($$pos > 17) {
-		$offset = int(($$pos-1) / 17) * 17;
+	if ($$pos > $nlines) {
+		$offset = int(($$pos-1) / $nlines) * $nlines;
 		$aline = $$pos-1 - $offset;
 	}
 	else {$aline = $$pos-1;}
 
 do {
-	my $eq = $dbh->prepare($sql.$sql2." ORDER BY `DATE`, `T_ON` LIMIT $offset, 17;");
+	my $eq = $dbh->prepare($sql.$sql2." ORDER BY `DATE`, `T_ON` LIMIT $offset, $nlines;");
 	$eq->execute();
 	my ($nr, $call, $name, $date, $time, $band, $mode, 			# temp vars
 						$qsls, $qslr, $dxcc, $qslinfo, $qslrl);
@@ -3968,9 +3981,9 @@ do {
 		}
 		addstr($win, $y, 0, $line);
 		attron($win, COLOR_PAIR(4));		# restore normal color
-		($y < 17) ? $y++ : last;			# prints first 16 rows
+		($y < $nlines) ? $y++ : last;			# prints first rows
 	}
-	for (;$y < 17;$y++) {					# for the remaining rows
+	for (;$y < $nlines;$y++) {					# for the remaining rows
 		addstr($win, $y, 0, " "x80);		# fill with whitespace
 	}
 	refresh($win);
@@ -3981,12 +3994,12 @@ do {
 		# 1. Can we go down => $$pos < $count?
 		# 2. do we have to scroll down? => $aline < 15?
 		if ($$pos < $count) {				# we can go down!
-			if ($aline < 16) {				# stay on same page
+			if ($aline < ($nlines-1)) {		# stay on same page
 				$aline++;
 				$$pos++;
 			}
 			else {							# scroll down!
-				$offset += 17;				# next 17 QSOs from DB!
+				$offset += $nlines;			# next QSOs from DB!
 				$aline=0;					# start at first (highest) line
 				$$pos++;
 			}
@@ -4002,8 +4015,8 @@ do {
 				$$pos--;
 			}
 			else {							# scroll up!
-				$offset -= 17;				# next 17 QSOs from DB!
-				$aline=16;					# start at lowest line
+				$offset -= $nlines;			# prev QSOs from DB!
+				$aline=$nlines-1;			# start at lowest line
 				$$pos--;
 			}
 		}
@@ -4011,19 +4024,19 @@ do {
 
 	elsif ($ch eq KEY_NPAGE) {				# scroll a full page down
 		# can we scroll? are there more QSOs than fit on the current page?
-		if (($$pos-$aline+17) < $count) {
-			$offset += 17;					# scroll a page = 17 lines
-			$$pos += (17- $aline);			# consider $aline!	
+		if (($$pos-$aline+$nlines) < $count) {
+			$offset += $nlines;				# scroll a page 
+			$$pos += ($nlines - $aline);	# consider $aline!	
 			$aline=0;
 		}
 	}
 
 	elsif ($ch eq KEY_PPAGE) {				# scroll a full page up
 		# can we scroll?
-		if (($$pos-$aline) > 17) {
-			$offset -= 17;					# scroll a page = 17 lines
+		if (($$pos-$aline) > $nlines) {
+			$offset -= $nlines;					# scroll a page 
 			$$pos -= ($aline+1);				# consider $aline!	
-			$aline=16;
+			$aline=$nlines-1;
 		}
 	}
 
@@ -4035,7 +4048,7 @@ do {
 
 	elsif ($ch eq KEY_END) {	# go to last qso
 		$$pos = $count;
-		$offset = int(($count-1) / 17) * 17;
+		$offset = int(($count-1) / $nlines) * $nlines;
 		$aline = $count-1 - $offset;
 	}
 	elsif ($ch eq KEY_F(1)) {				# F1 -> Back to main menu
@@ -5504,7 +5517,7 @@ sub jumpfield {
 sub askconfirmation {
 	my $k;
 	my ($question, $regex) = @_;
-	my $win = &makewindow(1,80,23,0,6);
+	my $win = &makewindow(1,80,$main::row-1,0,6);
 
 	curs_set(0);
 
