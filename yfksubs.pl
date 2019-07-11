@@ -34,7 +34,7 @@ changemycall newlogtable oldlogtable choseeditqso geteditqso editw updateqso che
 awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
 connectdb connectrig jumpfield receive_qso tqslsign getlotwlocations 
-getlotwstartdate downloadlotw redraw);
+getlotwstartdate downloadlotw redraw create_windows);
 
 use strict;
 use POSIX;				# needed for acos in distance/direction calculation
@@ -110,7 +110,46 @@ sub redraw {
     endwin();
     initscr();
     getmaxyx($main::row, $main::col);
+    $main::row-- if ($main::row % 2);
+
+    &create_windows();
+
 }
+
+sub create_windows {
+
+    my $row = $main::row;
+
+
+    # GENERAL WINDOWS, always visible
+    $main::whead  = &makewindow(1,80,0,0,2);      # head window
+    $main::whelp  = &makewindow(1,80,$row-1,0,2);     # help window
+
+    # LOGGING MODE WINDOWS  ($status = 1)
+    $main::winput = &makewindow(3,80,1,0,1);      # Input Window
+    $main::winfo  = &makewindow(3,80,4,0,2);      # DXCC/Info Window
+
+    # depending on $screenlayout, the windows for previous QSOs and the recent
+    # logbook are either next to each other or on top of each other.
+    if ($screenlayout==0) {                     # original YFKlog style
+        $main::wlog   = &makewindow(16,30,7,0,3);     # Logbook
+        $main::wqsos  = &makewindow(16,50,7,30,4);    # prev. QSOs window
+    }
+    elsif ($screenlayout==1) {                  # more info, smaller windows
+        # 8 lines are used for other stuff, so we have ($row-8)/2 lines left for
+        # each window
+        $main::wlog   = &makewindow(($row-8)/2,80,7,0,3);     # Logbook
+        $main::wqsos  = &makewindow(($row-8)/2,80,7+($row-8)/2,0,4);      # prev. QSOs window
+    }
+
+    # EDIT / SEARCH MODE WINDOWS ($status = 10)
+    $main::wedit      = &makewindow(5,80,1,0,1);      # Edit Window
+    $main::weditlog   = &makewindow(($row-7),80,6,0,4);       # Search results
+
+    $main::wmain = &makewindow($row-2,80,1,0,4);       # Input Window
+}
+
+
 
 # We read the configuration file .yfklog.
 
@@ -1809,11 +1848,13 @@ do  {			# loop and get keyboard input
 	if (($ch eq KEY_NPAGE) && ($offset != 0)) {		# scroll down 16/8 QSOs
 		$aline = 0;						# first line
 		$offset -= $nbr;				# next 16/8 QSOs
+        flushinp();                     # avoid excessive scrolling
 	}
 
 	elsif (($ch eq KEY_PPAGE) && $callsthispage>7) {# scroll up 16/8 QSOs 
 		$aline = ($nbr-1);				# last line
 		$offset += $nbr;				# prev 8/16 QSOs
+        flushinp();                     # avoid excessive scrolling
 	}
 	
 	elsif ($ch eq KEY_F(1)) {			# go to the MAIN MENU
@@ -2591,12 +2632,14 @@ do {									# we start looping here
 	elsif (($ch eq KEY_NPAGE) && ($offset+$yh < $count)) {
 		$offset += ($yh-1);					# adjust offset
 		$aline = 0;						# Start again at the first line	
+        flushinp();
 	}
 	
 	# Same with UP. We can scroll up when $offset > 0
 	elsif (($ch eq KEY_PPAGE) && ($offset > 0)) {
 		$offset -= ($yh-1);					# adjust offset
 		$aline = ($yh-1);					# Start again at the last line	
+        flushinp();
 	}
 
 	# F1 => Back to the main menu. Return 2 for Status.
@@ -4029,6 +4072,7 @@ do {
 			$$pos += ($nlines - $aline);	# consider $aline!	
 			$aline=0;
 		}
+        flushinp();
 	}
 
 	elsif ($ch eq KEY_PPAGE) {				# scroll a full page up
@@ -4038,6 +4082,7 @@ do {
 			$$pos -= ($aline+1);				# consider $aline!	
 			$aline=$nlines-1;
 		}
+        flushinp();
 	}
 
 	elsif ($ch eq KEY_HOME) {	# go to first qso

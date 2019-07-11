@@ -209,34 +209,9 @@ init_pair(7, COLOR_BLACK, COLOR_WHITE);
 
 }
 
-# GENERAL WINDOWS, always visible
-our $whead  = &makewindow(1,80,0,0,2);		# head window
-our $whelp  = &makewindow(1,80,$row-1,0,2);		# help window
-
-# LOGGING MODE WINDOWS  ($status = 1)
-our $winput = &makewindow(3,80,1,0,1);		# Input Window
-our $winfo  = &makewindow(3,80,4,0,2);		# DXCC/Info Window
-
-# depending on $screenlayout, the windows for previous QSOs and the recent
-# logbook are either next to each other or on top of each other.
-
-our ($wlog, $wqsos);
-
-if ($screenlayout==0) {						# original YFKlog style
-	$wlog   = &makewindow(16,30,7,0,3);		# Logbook
-	$wqsos  = &makewindow(16,50,7,30,4);	# prev. QSOs window
-}
-elsif ($screenlayout==1) {					# more info, smaller windows
-    # 8 lines are used for other stuff, so we have ($row-8)/2 lines left for
-    # each window
-	$wlog   = &makewindow(($row-8)/2,80,7,0,3);		# Logbook
-	$wqsos  = &makewindow(($row-8)/2,80,7+($row-8)/2,0,4);		# prev. QSOs window
-}
-
-# EDIT / SEARCH MODE WINDOWS ($status = 10)
-our $wedit      = &makewindow(5,80,1,0,1);		# Edit Window
-our $weditlog   = &makewindow(($row-7),80,6,0,4);		# Search results
-
+our ($whead, $whelp, $winput, $winfo, $wlog, $wqsos, $wedit, $weditlog, $wmain);
+# build logging windows (see yfksubs.pl)
+&create_windows();
 
 # Inside the input-window, the input fields will also be defined as single
 # windows, so it will be easy to fill them with data. These are stored in the
@@ -275,10 +250,6 @@ $wi[23] = &makewindow(1,1,5,32,5);			# Edit  Window: QSLRL
 $wi[24] = &makewindow(1,6,5,39,5);			# Edit  Window: OPERATOR
 $wi[25] = &makewindow(1,6,5,53,5);			# Edit  Window: GRID
 my  $wi = \@wi;			# Window reference
-
-# GENERAL purpose Window all over the screen, except top and bottom lines
-my $wmain = &makewindow($row-2,80,1,0,4);		# Input Window
-
 
 ##############################################################################
 # MAIN PROGRAM LOOP
@@ -1238,6 +1209,10 @@ while (($status == 7) || ($status == 14)) {
 	$nr = &adifexport($filename, 'adif', $daterange) if ($status == 7); 
 	$nr = &adifexport($filename, 'lotw', $daterange) if ($status == 14); 
 
+    # if the user was impatient and pressed enter, he will not see the
+    # following screen, so flush the input buffer
+    flushinp();
+
 	addstr($wmain,0,0, ' ' x (80*($row-2)));			# clear main window
 	addstr($wmain,10,10,"$nr QSOs exported to $filename");
 
@@ -1293,6 +1268,7 @@ while (($status == 7) || ($status == 14)) {
     }
 
 	refresh($wmain);
+    flushinp();
 	getch();
 	
 	$status = 2;
@@ -1924,6 +1900,8 @@ while ($status == 13) {
             $status = 2;				# back to main menu
             next;
         }
+
+        flushinp();
 
     }
     else {
