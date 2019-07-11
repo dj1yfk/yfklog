@@ -21,10 +21,10 @@
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330, 
 # Boston, MA 02111-1307, USA. 
 
-use strict;   	        # No shabby code beyond this point :)
-use DBI;				# Database interface
-use Curses;	
-use Net::FTP;			# upload of online log or backup
+use strict;               # No shabby code beyond this point :)
+use DBI;                # Database interface
+use Curses;    
+use Net::FTP;            # upload of online log or backup
 
 # terminal size (will be queried later)
 our $col;
@@ -34,56 +34,56 @@ $SIG{'WINCH'} = sub {
     &redraw();
 };
 
-my $prefix="/usr";		
+my $prefix="/usr";        
 
 if (-f './yfk' && -f './yfksubs.pl' && -f 'THANKS') {
-	# we're in the source directory, source the local copy
-	require "./yfksubs.pl";	
+    # we're in the source directory, source the local copy
+    require "./yfksubs.pl";    
 } else {
-	require "$prefix/share/yfklog/yfksubs.pl";	
+    require "$prefix/share/yfklog/yfksubs.pl";    
 }
 import yfksubs;
 
-our $yfkver = '0.4.0';	# Program Version
+our $yfkver = '0.4.0';    # Program Version
 our $VERSION = '0.4.0'; # XXX
 
 
 # Here we give some variables their default values. Some of them will be
 # changed later when reading the config-file .yfklog.
 
-my $firstrun = 1;		# At first run, start in setup mode, and create DBs.	
-my $mycall='';			# will be the callsign of the active log
-my $dband="80";			# default band 80m. 3525kHz precisely :-)
+my $firstrun = 1;        # At first run, start in setup mode, and create DBs.    
+my $mycall='';            # will be the callsign of the active log
+my $dband="80";            # default band 80m. 3525kHz precisely :-)
 my $bands = '160 80 40 30 20 17 15 12 10 2';    # bands for award purposes
-my $modes = 'CW SSB';	# modes for award purposes
-my $dmode="CW";			# of course we want CW as default mode
-my $dpwr ="100";		# life is too long for QRO
-my $dqsls="Q";			# default QSL sent: Q = put in queue
-my $dqslr="N";			# default QSL recvd: N - No
-my $workcall = "";		# The station we are currently working
-my $status=15;			# status: 1: Logging 2: menu  3: QSL mode 15: setup
-my @wi;					# contains the windows inside the input-window
-						# 0 Callsign, 1  Date, 2 time on, 3 time off
-						# 4 QRG, 5 Mode, 6 QTH, 7 Name, 8 QSL-TX, 9 QSL-RX
-						# 10 RSTs, 11 RSTr, 12 Remarks, 13 PWR
-my @qso = ("","","","",	# Data of the current QSO which is read from input.
-"","","","","","","",""	# 0 Callsign, 1  Date, 2 time on, 3 time off
-,"","");				# 4 QRG, 5 Mode, 6 QTH, 7 Name, 8 QSL-TX, 9 QSL-RX
-						# 10 RSTs, 11 RSTr, 12 Remarks, 13 PWR, 14 ser. nr.
-						# (Ser. nr. is appended to RSTs field and increased
-						# only on successfully saved QSO)
-my $qso = \@qso;		# QSO reference
-my $editnr=0;			# the QSO which we are editing. 0 = no QSO is edited nw
-my $screenlayout=0;		# screen layout - 0 or 1 
+my $modes = 'CW SSB';    # modes for award purposes
+my $dmode="CW";            # of course we want CW as default mode
+my $dpwr ="100";        # life is too long for QRO
+my $dqsls="Q";            # default QSL sent: Q = put in queue
+my $dqslr="N";            # default QSL recvd: N - No
+my $workcall = "";        # The station we are currently working
+my $status=15;            # status: 1: Logging 2: menu  3: QSL mode 15: setup
+my @wi;                    # contains the windows inside the input-window
+                        # 0 Callsign, 1  Date, 2 time on, 3 time off
+                        # 4 QRG, 5 Mode, 6 QTH, 7 Name, 8 QSL-TX, 9 QSL-RX
+                        # 10 RSTs, 11 RSTr, 12 Remarks, 13 PWR
+my @qso = ("","","","",    # Data of the current QSO which is read from input.
+"","","","","","","",""    # 0 Callsign, 1  Date, 2 time on, 3 time off
+,"","");                # 4 QRG, 5 Mode, 6 QTH, 7 Name, 8 QSL-TX, 9 QSL-RX
+                        # 10 RSTs, 11 RSTr, 12 Remarks, 13 PWR, 14 ser. nr.
+                        # (Ser. nr. is appended to RSTs field and increased
+                        # only on successfully saved QSO)
+my $qso = \@qso;        # QSO reference
+my $editnr=0;            # the QSO which we are editing. 0 = no QSO is edited nw
+my $screenlayout=0;        # screen layout - 0 or 1 
 my $colors=1;
 my $dbname='';
 my $dbserver='';
 my $directory='/tmp';
-my $qsldetails=1;		# show details of QSO in Write mode?
-my $drem="";			# default remarks
-my $serial=0;			# Auto serial number for casual contesting
+my $qsldetails=1;        # show details of QSO in Write mode?
+my $drem="";            # default remarks
+my $serial=0;            # Auto serial number for casual contesting
 # Set to nonzero value to start logging with this number
-   $qso[14] = -1;		# serial number saved here; -1 means not set yet
+   $qso[14] = -1;        # serial number saved here; -1 means not set yet
 
 sub readconfig {
 
@@ -91,36 +91,36 @@ unless (-e "$ENV{HOME}/.yfklog/config") { return 0; }
 
 open CONFIG, "$ENV{HOME}/.yfklog/config" or die "Cannot open configuration file. Error: $!";
 
-while (defined (my $line = <CONFIG>)) {			# Read line into $line
-	if ($line =~ /^mycall=(.+)/) { $mycall= "\L$1"; }
-	if ($line =~ /^dband=(.+)/)  { $dband= $1; }
-	if ($line =~ /^awardbands=(.+)/)  { $bands = $1; }
-	if ($line =~ /^awardmodes=(.+)/)  { $modes = $1; }
-	if ($line =~ /^dmode=(.+)/)  { $dmode= $1; }
-	if ($line =~ /^dpwr=(.+)/)   { $dpwr= $1; }
-	if ($line =~ /^dqsls=(.+)/)   { $dqsls = $1; }
-	if ($line =~ /^dqslr=(.+)/)   { $dqslr = $1; }
-	if ($line =~ /^screenlayout=(.+)/)   { $screenlayout = $1; }
-	if ($line =~ /^dbname=(.+)/)   { $dbname= $1; }
-	if ($line =~ /^dbserver=(.+)/)   { $dbserver = $1; }
-	if ($line =~ /^directory=(.+)/)   { $directory  = $1; }
-	if ($line =~ /^colors=(.+)/)   { $colors = $1; }
-	if ($line =~ /^qsldetails=(.+)/)   { $qsldetails = $1; }
-	if ($line =~ /^drem=(.+)/)   { $drem= $1; }
-	if ($line =~ /^serial=(.+)/)   { $serial = $1; }
+while (defined (my $line = <CONFIG>)) {            # Read line into $line
+    if ($line =~ /^mycall=(.+)/) { $mycall= "\L$1"; }
+    if ($line =~ /^dband=(.+)/)  { $dband= $1; }
+    if ($line =~ /^awardbands=(.+)/)  { $bands = $1; }
+    if ($line =~ /^awardmodes=(.+)/)  { $modes = $1; }
+    if ($line =~ /^dmode=(.+)/)  { $dmode= $1; }
+    if ($line =~ /^dpwr=(.+)/)   { $dpwr= $1; }
+    if ($line =~ /^dqsls=(.+)/)   { $dqsls = $1; }
+    if ($line =~ /^dqslr=(.+)/)   { $dqslr = $1; }
+    if ($line =~ /^screenlayout=(.+)/)   { $screenlayout = $1; }
+    if ($line =~ /^dbname=(.+)/)   { $dbname= $1; }
+    if ($line =~ /^dbserver=(.+)/)   { $dbserver = $1; }
+    if ($line =~ /^directory=(.+)/)   { $directory  = $1; }
+    if ($line =~ /^colors=(.+)/)   { $colors = $1; }
+    if ($line =~ /^qsldetails=(.+)/)   { $qsldetails = $1; }
+    if ($line =~ /^drem=(.+)/)   { $drem= $1; }
+    if ($line =~ /^serial=(.+)/)   { $serial = $1; }
 }
 close CONFIG;
 
 return 1;
 }
 
-initscr;					# we go into curses mode
-noecho; 					# keyboard input will not be echoed
-keypad(1);					# enable keys like F1, F2,.. cursor keys etc.
-if (!has_colors && $colors) {	# we need colors, if not available, die
-	die "No colors"; }
-start_color if $colors;;	# got colors!
-curs_set(0);				# cursor invisible
+initscr;                    # we go into curses mode
+noecho;                     # keyboard input will not be echoed
+keypad(1);                    # enable keys like F1, F2,.. cursor keys etc.
+if (!has_colors && $colors) {    # we need colors, if not available, die
+    die "No colors"; }
+start_color if $colors;;    # got colors!
+curs_set(0);                # cursor invisible
 
 getmaxyx($row, $col);
 $row-- if ($row % 2);   # force even number of rows
@@ -129,38 +129,38 @@ printw &splashscreen($yfkver);
 
 # Check if a config-file exists. Otherwise make one.
 if (&readconfig) {
-	$firstrun = 0;
-	$status = 2;
+    $firstrun = 0;
+    $status = 2;
 }
 else {
-	printw "\n\nCouldn't find ~/.yfklog. Seems to be your first run.\n";
-	printw "Going to setup mode now, most default values should be\n";
-	printw "OK for now. You only have to set your 'mycall' and (if\n";
-	printw "MySQL instead of SQlite is used) the DB settings.\n";
-	printw "\n";
-	printw "Refer to the manual for more information.\n";
-	printw "\n";
-	printw "Press any key to continue.\n";
-	
-	# YFklog needs: db_calls.sql db_clubs.sql db_config.sql db_log.sql
-	# db_log.sqlite config
+    printw "\n\nCouldn't find ~/.yfklog. Seems to be your first run.\n";
+    printw "Going to setup mode now, most default values should be\n";
+    printw "OK for now. You only have to set your 'mycall' and (if\n";
+    printw "MySQL instead of SQlite is used) the DB settings.\n";
+    printw "\n";
+    printw "Refer to the manual for more information.\n";
+    printw "\n";
+    printw "Press any key to continue.\n";
+    
+    # YFklog needs: db_calls.sql db_clubs.sql db_config.sql db_log.sql
+    # db_log.sqlite config
 
-	if ((-e $prefix.'/share/yfklog/config') && 
-		(-e $prefix.'/share/yfklog/db_calls.sql') && 
-		(-e $prefix.'/share/yfklog/db_clubs.sql') &&
-		(-e $prefix.'/share/yfklog/db_config.sql') &&
-		(-e $prefix.'/share/yfklog/db_log.sql') &&
-		(-e $prefix.'/share/yfklog/db_log.sqlite')) {
-		mkdir "$ENV{'HOME'}/.yfklog/";
-		system("install -m 644 $prefix/share/yfklog/config $ENV{'HOME'}/.yfklog/");	
-		&readconfig;			# Read config here
-		&readsubconfig;			# and in yfksubs
-	}
-	else {
-		die "First run: Couldn't find the files needed in $prefix/share/yfklog\n".
-		"db_calls.sql db_clubs.sql db_config.sql db_log.sql db_log.sqlite config!\n"; 
-	}
-	
+    if ((-e $prefix.'/share/yfklog/config') && 
+        (-e $prefix.'/share/yfklog/db_calls.sql') && 
+        (-e $prefix.'/share/yfklog/db_clubs.sql') &&
+        (-e $prefix.'/share/yfklog/db_config.sql') &&
+        (-e $prefix.'/share/yfklog/db_log.sql') &&
+        (-e $prefix.'/share/yfklog/db_log.sqlite')) {
+        mkdir "$ENV{'HOME'}/.yfklog/";
+        system("install -m 644 $prefix/share/yfklog/config $ENV{'HOME'}/.yfklog/");    
+        &readconfig;            # Read config here
+        &readsubconfig;            # and in yfksubs
+    }
+    else {
+        die "First run: Couldn't find the files needed in $prefix/share/yfklog\n".
+        "db_calls.sql db_clubs.sql db_config.sql db_log.sql db_log.sqlite config!\n"; 
+    }
+    
 }
 
 # if needed, update the database to the current version, create log tables,
@@ -222,34 +222,34 @@ our ($whead, $whelp, $winput, $winfo, $wlog, $wqsos, $wedit, $weditlog, $wmain);
 # not possible in the normal QSO entry mask (because it's hardly needed and
 # only eats up screen space).
 
-$wi[0] = &makewindow(1,12,1,6,5);			# Input Window: Call
-$wi[1] = &makewindow(1,8,1,26,5);			# Input Window: Date
-$wi[2] = &makewindow(1,4,1,41,5);			# Input Window: T on
-$wi[3] = &makewindow(1,4,1,53,5);			# Input Window: T off
-$wi[4] = &makewindow(1,4,1,64,5);			# Input Window: Band
-$wi[5] = &makewindow(1,5,1,75,5);			# Input Window: Mode
-$wi[6] = &makewindow(1,13,2,5,5);			# Input Window: QTH
-$wi[7] = &makewindow(1,8,2,26,5);			# Input Window: Name
-$wi[8] = &makewindow(1,1,2,42,5);			# Input Window: QSLs
-$wi[9] = &makewindow(1,1,2,50,5);			# Input Window: QSLr
-$wi[10] = &makewindow(1,7,2,58,5);			# Input Window: RSTs 
-$wi[11] = &makewindow(1,7,2,72,5);			# Input Window: RSTr 
-$wi[12] = &makewindow(1,56,3,9,5);			# Input Window: Remarks
-$wi[13] = &makewindow(1,4,3,72,5);			# Input Window: Power
+$wi[0] = &makewindow(1,12,1,6,5);            # Input Window: Call
+$wi[1] = &makewindow(1,8,1,26,5);            # Input Window: Date
+$wi[2] = &makewindow(1,4,1,41,5);            # Input Window: T on
+$wi[3] = &makewindow(1,4,1,53,5);            # Input Window: T off
+$wi[4] = &makewindow(1,4,1,64,5);            # Input Window: Band
+$wi[5] = &makewindow(1,5,1,75,5);            # Input Window: Mode
+$wi[6] = &makewindow(1,13,2,5,5);            # Input Window: QTH
+$wi[7] = &makewindow(1,8,2,26,5);            # Input Window: Name
+$wi[8] = &makewindow(1,1,2,42,5);            # Input Window: QSLs
+$wi[9] = &makewindow(1,1,2,50,5);            # Input Window: QSLr
+$wi[10] = &makewindow(1,7,2,58,5);            # Input Window: RSTs 
+$wi[11] = &makewindow(1,7,2,72,5);            # Input Window: RSTr 
+$wi[12] = &makewindow(1,56,3,9,5);            # Input Window: Remarks
+$wi[13] = &makewindow(1,4,3,72,5);            # Input Window: Power
 
-$wi[14] = &makewindow(1,4,4,6,5);			# Edit  Window: DXCC
-$wi[15] = &makewindow(1,8,4,17,5);			# Edit  Window: PFX
-$wi[16] = &makewindow(1,2,4,33,5);			# Edit  Window: CONT
-$wi[17] = &makewindow(1,2,4,43,5);			# Edit  Window: ITUZ
-$wi[18] = &makewindow(1,2,4,51,5);			# Edit  Window: CQZ
-$wi[19] = &makewindow(1,8,4,64,5);			# Edit  Window: QSLINFO
-$wi[20] = &makewindow(1,6,5,6,5);			# Edit  Window: IOTA
-$wi[21] = &makewindow(1,2,5,21,5);			# Edit  Window: STATE
-$wi[22] = &makewindow(1,7,5,72,5);			# Window: NR of QSO
-$wi[23] = &makewindow(1,1,5,32,5);			# Edit  Window: QSLRL
-$wi[24] = &makewindow(1,6,5,39,5);			# Edit  Window: OPERATOR
-$wi[25] = &makewindow(1,6,5,53,5);			# Edit  Window: GRID
-my  $wi = \@wi;			# Window reference
+$wi[14] = &makewindow(1,4,4,6,5);            # Edit  Window: DXCC
+$wi[15] = &makewindow(1,8,4,17,5);            # Edit  Window: PFX
+$wi[16] = &makewindow(1,2,4,33,5);            # Edit  Window: CONT
+$wi[17] = &makewindow(1,2,4,43,5);            # Edit  Window: ITUZ
+$wi[18] = &makewindow(1,2,4,51,5);            # Edit  Window: CQZ
+$wi[19] = &makewindow(1,8,4,64,5);            # Edit  Window: QSLINFO
+$wi[20] = &makewindow(1,6,5,6,5);            # Edit  Window: IOTA
+$wi[21] = &makewindow(1,2,5,21,5);            # Edit  Window: STATE
+$wi[22] = &makewindow(1,7,5,72,5);            # Window: NR of QSO
+$wi[23] = &makewindow(1,1,5,32,5);            # Edit  Window: QSLRL
+$wi[24] = &makewindow(1,6,5,39,5);            # Edit  Window: OPERATOR
+$wi[25] = &makewindow(1,6,5,53,5);            # Edit  Window: GRID
+my  $wi = \@wi;            # Window reference
 
 ##############################################################################
 # MAIN PROGRAM LOOP
@@ -258,7 +258,7 @@ my  $wi = \@wi;			# Window reference
 # ($status = 3) ...
 ##############################################################################
 
-while (1) {				# Loop infinitely;  most outer loop.
+while (1) {                # Loop infinitely;  most outer loop.
 
 
 ##############################################################################
@@ -268,24 +268,24 @@ while (1) {				# Loop infinitely;  most outer loop.
 # starts.
 ##############################################################################
 
-while ($status == 1) {	
-my $aw=1;				# Active Window during main logging loop. 1 = $winput, 
-						# 2 = $wlog, 3 = $wqsos
-my $af=1;				# Active field within $winput (Call, Date...)
-						
+while ($status == 1) {    
+my $aw=1;                # Active Window during main logging loop. 1 = $winput, 
+                        # 2 = $wlog, 3 = $wqsos
+my $af=1;                # Active field within $winput (Call, Date...)
+                        
 # The text which does not change during the log-session is written:
 addstr($whead, 0,0, "YFKlog v$yfkver - Logging Mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver");
-addstr($winput, 0,0, &entrymask(0));			# creates the input entry mask
+       "\U$mycall"." - DB: $dbname @ $dbserver");
+addstr($winput, 0,0, &entrymask(0));            # creates the input entry mask
 addstr($winput, 1,0, &entrymask(1));
 addstr($winput, 2,0, &entrymask(2));
-addstr($whelp, 0,0, &fkeyline());				# help line (F-keys)
-addstr($winfo, 0,0, &winfomask(0));				# Country: ITU: CQZ: etc.
+addstr($whelp, 0,0, &fkeyline());                # help line (F-keys)
+addstr($winfo, 0,0, &winfomask(0));                # Country: ITU: CQZ: etc.
 addstr($winfo, 1,0, &winfomask(1));
 addstr($winfo, 2,0, " "x80);
-addstr($wqsos, 0,0, " "x($row*80));					# prev qsos window delete
+addstr($wqsos, 0,0, " "x($row*80));                    # prev qsos window delete
 
-&lastqsos(\$wlog);					# Print last QSOs into $wlog window
+&lastqsos(\$wlog);                    # Print last QSOs into $wlog window
 
 refresh($winfo);
 refresh($whead);
@@ -298,269 +298,269 @@ refresh($wqsos);
 # to $wqsos (3) (previous QSOs). $aw is the active window. 
 ##############################################################################
 
-&qsotofields($qso,$wi,1);				# fills 14 input field with QSO array
+&qsotofields($qso,$wi,1);                # fills 14 input field with QSO array
 
-# Now we loop infinitely until we get out of logging mode ($status==1)	
+# Now we loop infinitely until we get out of logging mode ($status==1)    
 while (1) {
 
 ##############################################################################
 # LOGGING INPUT  WINDOW    $aw = 1
 ##############################################################################
 
-				
-$af = 1;								# start in 1st field (call)
+                
+$af = 1;                                # start in 1st field (call)
 
-while ($aw == 1) {						# We are in the logging Window
-	curs_set(1);
-	$workcall = $qso[0];				# The call we are working right now,
-										# so we can change DXCC etc if it
-										# changes
+while ($aw == 1) {                        # We are in the logging Window
+    curs_set(1);
+    $workcall = $qso[0];                # The call we are working right now,
+                                        # so we can change DXCC etc if it
+                                        # changes
 
-if ($af == 1) {							# READ CALLSIGN FIELD
-	$aw = &readw($wi,0,0,$qso,\$wlog,	# Read callsign. See details in sub.
-			\$editnr, 0, 12);
-	if ($aw == 1) {						# All OK, next field
-		$af = &jumpfield(1, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK, stay in $aw=1
-		$af = &jumpfield(1, 'p');
-		$aw = 1;
-	}
-	# When a new callsign is entered, the DATE, TIME ON, Band, Mode, QSL and
-	# PWR fields are automatically filled like specified in the config file
-	if ($qso[0] ne $workcall) {			# callsign has been changed!
-		if ($qso[1] eq "") {				# No date yet entered?
-			$qso[1] = &getdate;				# set $qso[1] to current date 
-		}
-		if ($qso[2] eq "") {				# No time entered so far
-			$qso[2] = &gettime;				# set $qso[2] to current GMT
-			addstr($wi[2],0,0,$qso[2]);		# write into window
-			refresh($wi[2]);				# display changes
-		}
-		if ($qso[4] eq "") {$qso[4] = $dband};	# initialize default band
-		if ($qso[5] eq "") {$qso[5] = $dmode};	# initialize default mode
-		if ($qso[8] eq "") { 				# QSL sent, default Q = Queue
-			$qso[8] = $dqsls; }				# but to make QSL-writing/printing 
-											# mode correct, use "Y" for Yes,
-											# (sent) "Q" for "put in Queue" 
-											# and "N" for no.
-		if ($qso[9] eq "") { $qso[9] = $dqslr; }	# QSL received, default N
-		if ($qso[10] eq "") { 				# RST sent to 59(9)
-				if ($dmode =~ /CW|RTTY|PSK/) {$qso[10] = "599";}
-				else {$qso[10] = "59"; }
-				if ($serial) {
-					if ($qso[14] == -1) {
-						$qso[14] = $serial;
-					}
-					$qso[10] .= sprintf("%03d", $qso[14]);
-				}
-		}
-		if ($qso[11] eq "") { 				# RST rcvd to 59(9)
-				if ($dmode =~ /CW|RTTY|PSK/) {$qso[11] = "599";}
-				else {$qso[11] = "59";}
-		}
-		if ($qso[12] eq '') {
-			$qso[12] = $drem;
-		}
-		if ($qso[13] eq "") {$qso[13] = $dpwr; }	
-		for(my $c=0;$c < 14;$c++) { 					# Refresh all windows
-			addstr($wi[$c],0,0,$qso[$c]);
-			refresh($wi[$c]) 
-		}
-		&callinfo($qso,$winfo,$wi,$wqsos, $editnr);	# print name, dxcc, prev QSOs... 
-	} # new call ends here
+if ($af == 1) {                            # READ CALLSIGN FIELD
+    $aw = &readw($wi,0,0,$qso,\$wlog,    # Read callsign. See details in sub.
+            \$editnr, 0, 12);
+    if ($aw == 1) {                        # All OK, next field
+        $af = &jumpfield(1, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK, stay in $aw=1
+        $af = &jumpfield(1, 'p');
+        $aw = 1;
+    }
+    # When a new callsign is entered, the DATE, TIME ON, Band, Mode, QSL and
+    # PWR fields are automatically filled like specified in the config file
+    if ($qso[0] ne $workcall) {            # callsign has been changed!
+        if ($qso[1] eq "") {                # No date yet entered?
+            $qso[1] = &getdate;                # set $qso[1] to current date 
+        }
+        if ($qso[2] eq "") {                # No time entered so far
+            $qso[2] = &gettime;                # set $qso[2] to current GMT
+            addstr($wi[2],0,0,$qso[2]);        # write into window
+            refresh($wi[2]);                # display changes
+        }
+        if ($qso[4] eq "") {$qso[4] = $dband};    # initialize default band
+        if ($qso[5] eq "") {$qso[5] = $dmode};    # initialize default mode
+        if ($qso[8] eq "") {                 # QSL sent, default Q = Queue
+            $qso[8] = $dqsls; }                # but to make QSL-writing/printing 
+                                            # mode correct, use "Y" for Yes,
+                                            # (sent) "Q" for "put in Queue" 
+                                            # and "N" for no.
+        if ($qso[9] eq "") { $qso[9] = $dqslr; }    # QSL received, default N
+        if ($qso[10] eq "") {                 # RST sent to 59(9)
+                if ($dmode =~ /CW|RTTY|PSK/) {$qso[10] = "599";}
+                else {$qso[10] = "59"; }
+                if ($serial) {
+                    if ($qso[14] == -1) {
+                        $qso[14] = $serial;
+                    }
+                    $qso[10] .= sprintf("%03d", $qso[14]);
+                }
+        }
+        if ($qso[11] eq "") {                 # RST rcvd to 59(9)
+                if ($dmode =~ /CW|RTTY|PSK/) {$qso[11] = "599";}
+                else {$qso[11] = "59";}
+        }
+        if ($qso[12] eq '') {
+            $qso[12] = $drem;
+        }
+        if ($qso[13] eq "") {$qso[13] = $dpwr; }    
+        for(my $c=0;$c < 14;$c++) {                     # Refresh all windows
+            addstr($wi[$c],0,0,$qso[$c]);
+            refresh($wi[$c]) 
+        }
+        &callinfo($qso,$winfo,$wi,$wqsos, $editnr);    # print name, dxcc, prev QSOs... 
+    } # new call ends here
 } # end of $af = 1
 elsif ($af == 2) {
-	$aw = &readw($wi,1,1,$qso,\$wlog,	# Read Date ($_[1] -> only numbers)
-			\$editnr, 1, 8);
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$af = &jumpfield($af, 'p');
-		$aw=1;
-	}
+    $aw = &readw($wi,1,1,$qso,\$wlog,    # Read Date ($_[1] -> only numbers)
+            \$editnr, 1, 8);
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $af = &jumpfield($af, 'p');
+        $aw=1;
+    }
 } # end of $af=2
 elsif ($af == 3) {
-	$aw=&readw($wi,1,2,$qso,\$wlog, 	# Read Time On ($_[1] -> only numbers)
-			\$editnr, 1, 4);
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,1,2,$qso,\$wlog,     # Read Time On ($_[1] -> only numbers)
+            \$editnr, 1, 4);
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=3
 elsif ($af == 4) {
-	$aw = &readw($wi,1,3,$qso,\$wlog, 	# Read T off ($_[1] -> only numbers)
-			\$editnr, 1, 4);
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw = &readw($wi,1,3,$qso,\$wlog,     # Read T off ($_[1] -> only numbers)
+            \$editnr, 1, 4);
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=4
 elsif ($af == 5) {
-	$aw=&readw($wi,4,4,$qso,\$wlog, 	# Read band ($_[1] -> numbers and .)
-			\$editnr, 1, 4);
-	$dband=$qso[4] if $qso[4] ne "";	# next QSO will be on same band
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,4,4,$qso,\$wlog,     # Read band ($_[1] -> numbers and .)
+            \$editnr, 1, 4);
+    $dband=$qso[4] if $qso[4] ne "";    # next QSO will be on same band
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=5
 elsif ($af == 6) {
-	$aw=&readw($wi,0,5,$qso,\$wlog, 	# Read mode
-			\$editnr, 1, 5);
-	$dmode=$qso[5] if $qso[5] ne "";	# next QSO will be on same mode
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,0,5,$qso,\$wlog,     # Read mode
+            \$editnr, 1, 5);
+    $dmode=$qso[5] if $qso[5] ne "";    # next QSO will be on same mode
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=6
 elsif ($af == 7) {
-	$aw=&readw($wi,3,6,$qso,\$wlog, 	# read QTH
-			\$editnr, 0, 13);
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,3,6,$qso,\$wlog,     # read QTH
+            \$editnr, 0, 13);
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=7
 elsif ($af == 8) {
-	$aw=&readw($wi,3,7,$qso,\$wlog, 	# read Name
-			\$editnr, 0, 8);
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,3,7,$qso,\$wlog,     # read Name
+            \$editnr, 0, 8);
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=8
 elsif ($af == 9) {
-	$aw=&readw($wi,2,8,$qso,\$wlog, 	# read QSLsent. All letters allowed,
-			\$editnr, 1, 1);
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,2,8,$qso,\$wlog,     # read QSLsent. All letters allowed,
+            \$editnr, 1, 1);
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=9
 
 elsif ($af == 10) {
-	$aw=&readw($wi,2,9,$qso,\$wlog,		# QSL received
-		\$editnr, 1, 1);
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,2,9,$qso,\$wlog,        # QSL received
+        \$editnr, 1, 1);
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=10
 
 elsif ($af == 11) {
-	$aw=&readw($wi,1,10,$qso,\$wlog, 	# rst sent (and optional serial)
-		\$editnr, 1, 7);
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,1,10,$qso,\$wlog,     # rst sent (and optional serial)
+        \$editnr, 1, 7);
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=11
 
 elsif ($af == 12) {
-	$aw=&readw($wi,1,11,$qso,\$wlog, 	# rst received
-		\$editnr, 1, 7);
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,1,11,$qso,\$wlog,     # rst received
+        \$editnr, 1, 7);
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=12
 elsif ($af == 13) {
-	$aw=&readw($wi,3,12,$qso,\$wlog, 	# Remarks
-			\$editnr, 0, 56);
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,3,12,$qso,\$wlog,     # Remarks
+            \$editnr, 0, 56);
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=13
 
 elsif ($af == 14) {
-	$aw=&readw($wi,1,13,$qso,\$wlog, 	# Power
-			\$editnr, 1, 4);
-	$dpwr=$qso[13] if ($qso[13] ne '');		# next QSO will be with same PWR
-	if ($aw == 1) {						# Normal exit. next field!
-		$af = &jumpfield($af, 'n');
-	}
-	elsif ($aw < 7) {					# to another window or restart in $aw=1
-		next;							# (when $aw=4)
-	}
-	elsif ($aw == 7) {					# One window BACK
-		$aw=1;
-		$af = &jumpfield($af, 'p');
-	}
+    $aw=&readw($wi,1,13,$qso,\$wlog,     # Power
+            \$editnr, 1, 4);
+    $dpwr=$qso[13] if ($qso[13] ne '');        # next QSO will be with same PWR
+    if ($aw == 1) {                        # Normal exit. next field!
+        $af = &jumpfield($af, 'n');
+    }
+    elsif ($aw < 7) {                    # to another window or restart in $aw=1
+        next;                            # (when $aw=4)
+    }
+    elsif ($aw == 7) {                    # One window BACK
+        $aw=1;
+        $af = &jumpfield($af, 'p');
+    }
 } # end of $af=14
 } # end of loop for input mode ($aw = 1)
 
@@ -569,42 +569,42 @@ elsif ($af == 14) {
 ##############################################################################
 
 while ($aw == 2) {
-	curs_set(0);						# Make the cursor invisible
+    curs_set(0);                        # Make the cursor invisible
 
-	# choseqso lets the OP scroll in the log and select a QSO. The return value
-	# is the number of the QSO as in the NR column in the database
-	$editnr = &choseqso(\$wlog);
+    # choseqso lets the OP scroll in the log and select a QSO. The return value
+    # is the number of the QSO as in the NR column in the database
+    $editnr = &choseqso(\$wlog);
 
-	# $nr contains either the number of the QSO to fetch OR a "i" or "q" to
-	# indicate the next window:
+    # $nr contains either the number of the QSO to fetch OR a "i" or "q" to
+    # indicate the next window:
 
-	if ($editnr eq "i")	{				# back to input window
-		$aw = 1;						# $active window = 1, input window
-		$editnr = 0;					# we don't edit anything
-	} 
-	elsif ($editnr eq "q"){				# previous QSO window
-		$aw = 3;
-		$editnr = 0;					# we don't edit anything
-	}
-	elsif ($editnr eq "m"){				# go to MAIN MENU
-		$aw = 5;
-		$editnr = 0;					# we don't edit anything
-	}
-	else {							# if we get here, we have a QSO number
-	
-	# now we fetch the info for the selected QSO from the database and save it
-	# into the @qso-array. when we save the QSO
-	# again in $aw = 1, it will not be saved as a new QSO but it will alter the
-	# existing QSO because &saveqso; checks for an existing $editnr
+    if ($editnr eq "i")    {                # back to input window
+        $aw = 1;                        # $active window = 1, input window
+        $editnr = 0;                    # we don't edit anything
+    } 
+    elsif ($editnr eq "q"){                # previous QSO window
+        $aw = 3;
+        $editnr = 0;                    # we don't edit anything
+    }
+    elsif ($editnr eq "m"){                # go to MAIN MENU
+        $aw = 5;
+        $editnr = 0;                    # we don't edit anything
+    }
+    else {                            # if we get here, we have a QSO number
+    
+    # now we fetch the info for the selected QSO from the database and save it
+    # into the @qso-array. when we save the QSO
+    # again in $aw = 1, it will not be saved as a new QSO but it will alter the
+    # existing QSO because &saveqso; checks for an existing $editnr
 
-	&clearinputfields($wi,1);				# deletes all input fields
-	my $snr = $qso[14];						# remember sent serial
-	@qso = &getqso($editnr,$wi);
-	$qso[14] = $snr;
-	&callinfo($qso,$winfo,$wi,$wqsos, $editnr);
-	$aw = 1;
-	}
-}	# end of loop for log-window ($wlog, $aw = 2)
+    &clearinputfields($wi,1);                # deletes all input fields
+    my $snr = $qso[14];                        # remember sent serial
+    @qso = &getqso($editnr,$wi);
+    $qso[14] = $snr;
+    &callinfo($qso,$winfo,$wi,$wqsos, $editnr);
+    $aw = 1;
+    }
+}    # end of loop for log-window ($wlog, $aw = 2)
 
 
 ##############################################################################
@@ -612,41 +612,41 @@ while ($aw == 2) {
 ##############################################################################
 
 while ($aw == 3) {
-	curs_set(0);						# Make the cursor invisible
-	$editnr = &chosepqso(\$wqsos,$qso[0]);
+    curs_set(0);                        # Make the cursor invisible
+    $editnr = &chosepqso(\$wqsos,$qso[0]);
 
-	if ($editnr eq "i")	{				# back to input window
-		$aw = 1;						# $active window = 1, input window
-		$editnr = 0;					# we don't edit anything
-	} 
-	elsif ($editnr eq "l"){				# log window
-		$aw = 2;
-		$editnr = 0;					# we don't edit anything
-	}
-	elsif ($editnr eq "m")	{			# back to the main menu
-		$aw = 5;						# $active window = 5, -> MAIN MENU
-		$editnr = 0;					# we don't edit anything
-	} 
-	else {								# we have a QSO number now!
-	
-	# proceed like before.
-	
-	&clearinputfields($wi,1);				# deletes all input fields
-	my $snr = $qso[14];						# remember sent serial
-	@qso = &getqso($editnr,$wi);			# put QSO number $editnr in @qso
-	$qso[14] = $snr;
-	&callinfo($qso,$winfo,$wi,$wqsos,$editnr);		# show callinfo
-	$aw = 1;								# go to edit window
-	}
+    if ($editnr eq "i")    {                # back to input window
+        $aw = 1;                        # $active window = 1, input window
+        $editnr = 0;                    # we don't edit anything
+    } 
+    elsif ($editnr eq "l"){                # log window
+        $aw = 2;
+        $editnr = 0;                    # we don't edit anything
+    }
+    elsif ($editnr eq "m")    {            # back to the main menu
+        $aw = 5;                        # $active window = 5, -> MAIN MENU
+        $editnr = 0;                    # we don't edit anything
+    } 
+    else {                                # we have a QSO number now!
+    
+    # proceed like before.
+    
+    &clearinputfields($wi,1);                # deletes all input fields
+    my $snr = $qso[14];                        # remember sent serial
+    @qso = &getqso($editnr,$wi);            # put QSO number $editnr in @qso
+    $qso[14] = $snr;
+    &callinfo($qso,$winfo,$wi,$wqsos,$editnr);        # show callinfo
+    $aw = 1;                                # go to edit window
+    }
 } # end of $aw == 3
 
 
-if ($aw == 4) {	$aw = 1; }				# we restarted the input window, F3
+if ($aw == 4) {    $aw = 1; }                # we restarted the input window, F3
 
-if ($aw == 5) {							# we leave logging mode and go to menu!
-	$aw = 1;							# for the next time when we come here
-	$status = 2;						# we go to the menu!
-	last;								# leave this loop.
+if ($aw == 5) {                            # we leave logging mode and go to menu!
+    $aw = 1;                            # for the next time when we come here
+    $status = 2;                        # we go to the menu!
+    last;                                # leave this loop.
 }
 
 # F7 -> Check for QSO from fldigi; either until a QSO was received, or F7 was
@@ -654,29 +654,29 @@ if ($aw == 5) {							# we leave logging mode and go to menu!
 
 addstr($wqsos, 0, 0, ' 'x500);
 while ($aw == 6) {
-	curs_set(0);
-	halfdelay(10);
+    curs_set(0);
+    halfdelay(10);
 
-	addstr($wqsos, 0, 0, "Remote Log Mode. Listening for QSOs from fldigi.");
-	addstr($wqsos, 1, 0, "Press F7 again to return to interactive mode.");
-	refresh($wqsos);
+    addstr($wqsos, 0, 0, "Remote Log Mode. Listening for QSOs from fldigi.");
+    addstr($wqsos, 1, 0, "Press F7 again to return to interactive mode.");
+    refresh($wqsos);
 
-	my $c = getch();
-	my $ret = &receive_qso();
-	&lastqsos(\$wlog);
+    my $c = getch();
+    my $ret = &receive_qso();
+    &lastqsos(\$wlog);
 
-	if ($ret) {
-		addstr($wqsos, 4, 0, "Received QSO: $ret ");
-	}
-	refresh($wqsos);
+    if ($ret) {
+        addstr($wqsos, 4, 0, "Received QSO: $ret ");
+    }
+    refresh($wqsos);
 
-	if ($c eq KEY_F(7)) {
-		addstr($wqsos, 0, 0, " "x500);
-		refresh($wqsos);
-		cbreak();
-		$aw = 1;
-		next;
-	}
+    if ($c eq KEY_F(7)) {
+        addstr($wqsos, 0, 0, " "x500);
+        refresh($wqsos);
+        cbreak();
+        $aw = 1;
+        next;
+    }
 }
 
 
@@ -688,20 +688,20 @@ while ($aw == 6) {
 # MAIN MENU MODE $status = 2
 ##############################################################################
 
-while ($status == 2) {	
+while ($status == 2) {    
     attron($wmain, COLOR_PAIR(4));
-	curs_set(0);
-	my $choice;							# Choice from the main menu
+    curs_set(0);
+    my $choice;                            # Choice from the main menu
 
-	# These are the menu items to chose from in the main menu.
-	my @menuitems = ("Logging Mode      - Enter QSOs here", 
+    # These are the menu items to chose from in the main menu.
+    my @menuitems = ("Logging Mode      - Enter QSOs here", 
     "Search and Edit   - Searching and Editing QSOs.",
     "QSL write mode    - Displays a list of queued QSL cards to write",
     "QSL print mode    - Prints queued QSL cards into a pdf-File",
     "QSL enter mode    - Quickly mark QSOs as 'QSL-received'",
     "ADIF Import       - Import QSOs to current logbook",
     "ADIF Export       - Export QSOs in ADIF Format",
-	"Update Onlinelog  - Update the online searchable log",
+    "Update Onlinelog  - Update the online searchable log",
     "Select Logbook    - Change active Logbook or create/delete new one",
     "Awards/Statistics - DXCC, WAZ, WPX, IOTA etc. plus statistics",
     "Edit Name/QTH DB  - Edit the database used to save Names and QTHs",
@@ -709,67 +709,67 @@ while ($status == 2) {
     "Export to LoTW    - Generate ADIF file of QSOs not uploaded yet",
     "Setup YFKlog      - Most logbook settings can be changed here"
     );
-		
-	addstr($whead, 0,0, "YFKlog v$yfkver - Main Menu - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver"." "x30);
-	addstr($whelp, 0,0, "Use the cursor keys to choose. F12 exits."." " x 70);
-	refresh($whead);						
-	refresh($whelp);						
-	addstr($wmain, 0,0, " " x (80*($row-2)));			# empty
-	refresh($wmain);
+        
+    addstr($whead, 0,0, "YFKlog v$yfkver - Main Menu - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver"." "x30);
+    addstr($whelp, 0,0, "Use the cursor keys to choose. F12 exits."." " x 70);
+    refresh($whead);                        
+    refresh($whelp);                        
+    addstr($wmain, 0,0, " " x (80*($row-2)));            # empty
+    refresh($wmain);
 
-	# A (scrollable) list appears, where you can select any menu item. It
-	# returns the number of the item.
-	$choice = &selectlist(\$wmain, 2, 5, 20, 70, \@menuitems);
+    # A (scrollable) list appears, where you can select any menu item. It
+    # returns the number of the item.
+    $choice = &selectlist(\$wmain, 2, 5, 20, 70, \@menuitems);
 
-	# This is a bit chaotic. Every Menu item has a correspondent main program
-	# status ($status), but there is no relation between their numbers.
+    # This is a bit chaotic. Every Menu item has a correspondent main program
+    # status ($status), but there is no relation between their numbers.
 
-	if ($choice eq "m") {			# F1 - > stay in menu
-	}								# do nothing
-	elsif ($choice == 0) {			# To logging mode
-		$status = 1;				# Set main status
-	}
-	elsif ($choice == 4) {			# QSL receive mode
-		$status = 3;				# main status 3
-	}
-	elsif ($choice == 7) {			# Update Online Log
-		$status = 4;				# main status 4
-	}
-	elsif ($choice == 2) {			# QSL write mode
-		$status = 5;				# main status 5
-	}
-	elsif ($choice == 3) {			# QSL Print mode
-		$status = 6;				# main status 6
-	}
-	elsif ($choice == 6) {			# ADIF export
-		$status = 7;				# main status 7
-	}
-	elsif ($choice == 1) {			# Search and Edit Mode
-		$status = 8;
-	}
-	elsif ($choice == 5) {			# ADIF IMPORT
-		$status = 9;
-	}
-	elsif ($choice == 8) {			# Select log
-		$status = 10;
-	}
-	elsif ($choice == 9) {			# AWARD mode
-		$status = 11;
-	}
-	elsif ($choice == 10) {			# Name/QTH editor
-		$status = 12;
-	}
-	elsif ($choice == 11) {			# LoTW  import
-		$status = 13;
-	}
-	elsif ($choice == 12) {			# LoTW export
-		$status = 14;
-	}
-	elsif ($choice == 13) {			# Setup mode
-		$status = 15;
-	}
-	
+    if ($choice eq "m") {            # F1 - > stay in menu
+    }                                # do nothing
+    elsif ($choice == 0) {            # To logging mode
+        $status = 1;                # Set main status
+    }
+    elsif ($choice == 4) {            # QSL receive mode
+        $status = 3;                # main status 3
+    }
+    elsif ($choice == 7) {            # Update Online Log
+        $status = 4;                # main status 4
+    }
+    elsif ($choice == 2) {            # QSL write mode
+        $status = 5;                # main status 5
+    }
+    elsif ($choice == 3) {            # QSL Print mode
+        $status = 6;                # main status 6
+    }
+    elsif ($choice == 6) {            # ADIF export
+        $status = 7;                # main status 7
+    }
+    elsif ($choice == 1) {            # Search and Edit Mode
+        $status = 8;
+    }
+    elsif ($choice == 5) {            # ADIF IMPORT
+        $status = 9;
+    }
+    elsif ($choice == 8) {            # Select log
+        $status = 10;
+    }
+    elsif ($choice == 9) {            # AWARD mode
+        $status = 11;
+    }
+    elsif ($choice == 10) {            # Name/QTH editor
+        $status = 12;
+    }
+    elsif ($choice == 11) {            # LoTW  import
+        $status = 13;
+    }
+    elsif ($choice == 12) {            # LoTW export
+        $status = 14;
+    }
+    elsif ($choice == 13) {            # Setup mode
+        $status = 15;
+    }
+    
 } # end of $status == 2, Main menu
 
 
@@ -781,48 +781,48 @@ while ($status == 2) {
 # and F12 exits
 ##############################################################################
 
-while ($status == 3) {	
-	my $qslcall= "";					# The callsign from which we got a QSL
-	my $validc = "[a-zA-Z0-9\/]";		# valid characters for the callsign
-	attron($wmain, COLOR_PAIR(4));
-	curs_set(1);
-	addstr($whead, 0,0, "YFKlog v$yfkver - QSL receive mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver");
-	addstr($whelp, 0,0, "Enter a call and select QSOs. F1 Main menu  F2 Save  F3 Cancel  F12 Exit"." " x 70);
-	refresh($whead);						
-	refresh($whelp);						
-	addstr($wmain, 0,0, " " x (80*($row-2)));			# empty
-	refresh($wmain);
+while ($status == 3) {    
+    my $qslcall= "";                    # The callsign from which we got a QSL
+    my $validc = "[a-zA-Z0-9\/]";        # valid characters for the callsign
+    attron($wmain, COLOR_PAIR(4));
+    curs_set(1);
+    addstr($whead, 0,0, "YFKlog v$yfkver - QSL receive mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver");
+    addstr($whelp, 0,0, "Enter a call and select QSOs. F1 Main menu  F2 Save  F3 Cancel  F12 Exit"." " x 70);
+    refresh($whead);                        
+    refresh($whelp);                        
+    addstr($wmain, 0,0, " " x (80*($row-2)));            # empty
+    refresh($wmain);
 
-	# We now ask for the callsign to search for...
-	$qslcall = &askbox(10,20,4,40,$validc,"Enter a callsign (3+ letters)", '');
+    # We now ask for the callsign to search for...
+    $qslcall = &askbox(10,20,4,40,$validc,"Enter a callsign (3+ letters)", '');
 
-	# $qslcall now has the callsign to search for. 
-	# if the value is "m" (produced by F1) or it's empty, we go back to the
-	# main menu.
-	
-	if (($qslcall eq "m") or ($qslcall eq "")) {
-			$status = 2;					# status = 2 -> Menu
-	}
-	# We check if at least 3 letters were entered. There are no calls shorter
-	# than this, and 2 or 1 call would return too many QSOs. 
-	elsif (length($qslcall) > 2)  {			
-		addstr($wmain, 0,0, " " x (80*$row));				# wipe out window
-	
-		# Now we are ready to call &toggleqsl which will query the database for
-		# the callsign(fragment) entered and let the user toggle the
-		# QSL-received status of the QSOs.
-		# The return value says what we do next: If F1 is pressed, back to the
-		# main Menu (return 2), else stay in the QSL receive mode (return 3).
-	
-		addstr($whelp, 0,0, "F1: Menu  F2: Save  F3: Cancel  SPACE: Toggle QSL-R S: Toggle QSL-S "." " x 70);
-		refresh($whelp);
+    # $qslcall now has the callsign to search for. 
+    # if the value is "m" (produced by F1) or it's empty, we go back to the
+    # main menu.
+    
+    if (($qslcall eq "m") or ($qslcall eq "")) {
+            $status = 2;                    # status = 2 -> Menu
+    }
+    # We check if at least 3 letters were entered. There are no calls shorter
+    # than this, and 2 or 1 call would return too many QSOs. 
+    elsif (length($qslcall) > 2)  {            
+        addstr($wmain, 0,0, " " x (80*$row));                # wipe out window
+    
+        # Now we are ready to call &toggleqsl which will query the database for
+        # the callsign(fragment) entered and let the user toggle the
+        # QSL-received status of the QSOs.
+        # The return value says what we do next: If F1 is pressed, back to the
+        # main Menu (return 2), else stay in the QSL receive mode (return 3).
+    
+        addstr($whelp, 0,0, "F1: Menu  F2: Save  F3: Cancel  SPACE: Toggle QSL-R S: Toggle QSL-S "." " x 70);
+        refresh($whelp);
 
-		$status = &toggleqsl(\$wmain, $qslcall, 0);
-	
-		refresh($wmain);
-	}
-	
+        $status = &toggleqsl(\$wmain, $qslcall, 0);
+    
+        refresh($wmain);
+    }
+    
 } # end of $status = 3, QSL receiving mode
 
 
@@ -834,50 +834,50 @@ while ($status == 3) {
 # "onlinedata".
 ##############################################################################
 
-while ($status == 4) {	
-	my $nr;								# Number of QSOs exported.
-	my $choice;							# choice where to save the log.
-	my $ftp;							# return value of &ftpupload
-	my @menuitems =	 
-	("FTP         - Upload via FTP to the machine specified in the config file",
-	 "local       - Save it in $mycall.log");
-	
-	attron($wmain, COLOR_PAIR(4));
-	curs_set(0);
-	addstr($whead, 0,0, "YFKlog v$yfkver - Updating Online Log - Active Logbook: \U$mycall"." " x 30);
-	addstr($whelp, 0,0, "Update in progress ..."." " x 70);
-	refresh($whead);						
-	refresh($whelp);						
-	addstr($wmain, 0,0, " " x (80*($row-2)));			# empty
-	refresh($wmain);
+while ($status == 4) {    
+    my $nr;                                # Number of QSOs exported.
+    my $choice;                            # choice where to save the log.
+    my $ftp;                            # return value of &ftpupload
+    my @menuitems =     
+    ("FTP         - Upload via FTP to the machine specified in the config file",
+     "local       - Save it in $mycall.log");
+    
+    attron($wmain, COLOR_PAIR(4));
+    curs_set(0);
+    addstr($whead, 0,0, "YFKlog v$yfkver - Updating Online Log - Active Logbook: \U$mycall"." " x 30);
+    addstr($whelp, 0,0, "Update in progress ..."." " x 70);
+    refresh($whead);                        
+    refresh($whelp);                        
+    addstr($wmain, 0,0, " " x (80*($row-2)));            # empty
+    refresh($wmain);
 
-	$nr = &onlinelog();
+    $nr = &onlinelog();
 
-	addstr($wmain, 5, 5, "$nr QSOs exported to the online log");
-	addstr($wmain, 6, 5, "Please select where to store the online-log file.");
-	refresh($wmain);
+    addstr($wmain, 5, 5, "$nr QSOs exported to the online log");
+    addstr($wmain, 6, 5, "Please select where to store the online-log file.");
+    refresh($wmain);
 
-	$choice = &selectlist(\$wmain, 8, 3, 20, 74, \@menuitems);
+    $choice = &selectlist(\$wmain, 8, 3, 20, 74, \@menuitems);
 
-	if ($choice eq "m") {			# User pressed F1->back to menu
-		$status = 2;				# Menu status
-		last;						# leave while loop
-	}
-	elsif ($choice == 0) {			# Save FTP
-		$ftp = &ftpupload;			# upload log. return success or error msg
-		attron($wmain, COLOR_PAIR(4));				# fucked up by selectlist
-		addstr($wmain, 0,0, " " x (80*($row-2)));			# empty
-		addstr($wmain, 10,20, $ftp);				# show what ftpupload ret
-		refresh($wmain);
-	}
+    if ($choice eq "m") {            # User pressed F1->back to menu
+        $status = 2;                # Menu status
+        last;                        # leave while loop
+    }
+    elsif ($choice == 0) {            # Save FTP
+        $ftp = &ftpupload;            # upload log. return success or error msg
+        attron($wmain, COLOR_PAIR(4));                # fucked up by selectlist
+        addstr($wmain, 0,0, " " x (80*($row-2)));            # empty
+        addstr($wmain, 10,20, $ftp);                # show what ftpupload ret
+        refresh($wmain);
+    }
 
-	$status = 2;
-	
-	getch();	
+    $status = 2;
+    
+    getch();    
 
-	
+    
 } # end of $status = 4, update of online log
-	
+    
 ##############################################################################
 # QSL WRITE MODE  $status = 5
 # A list of all QSOs where the QSL-Sent flag is "Q" = Queued is shown.
@@ -887,21 +887,21 @@ while ($status == 4) {
 ##############################################################################
 
 while ($status == 5) {
-	attron($wmain, COLOR_PAIR(4));
-	curs_set(1);
-	
-	# change text in head and help lines ...
-	addstr($whead, 0,0, "YFKlog v$yfkver - QSL write mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' 'x30);
-	addstr($whelp, 0,0, "F1: Main Menu  F2: Save  F3: Cancel  SPACE: Toggle QSL status"." " x 70);
-	refresh($whelp);
-	refresh($whead);
+    attron($wmain, COLOR_PAIR(4));
+    curs_set(1);
+    
+    # change text in head and help lines ...
+    addstr($whead, 0,0, "YFKlog v$yfkver - QSL write mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' 'x30);
+    addstr($whelp, 0,0, "F1: Main Menu  F2: Save  F3: Cancel  SPACE: Toggle QSL status"." " x 70);
+    refresh($whelp);
+    refresh($whead);
 
-	# In toggleqsl all the work is done. It displays all queued QSOs and lets
-	# you toggle them. It returns the status, which should be 2 for the main
-	# menu.
+    # In toggleqsl all the work is done. It displays all queued QSOs and lets
+    # you toggle them. It returns the status, which should be 2 for the main
+    # menu.
 
-	$status = &toggleqsl(\$wmain, "W", $qsldetails);
+    $status = &toggleqsl(\$wmain, "W", $qsldetails);
 } # end of QSL write mode, $status==5
 
 ##############################################################################
@@ -911,197 +911,197 @@ while ($status == 5) {
 ##############################################################################
 
 while ($status == 6) {
-	my $labeltype;				# Saves filename of the label type we use.
-	my @menuitems;				# Label sizes to chose from
-	my %printlabels;			# will store all the labels to be printed
-	my $tex;					# will store the full LaTeX document
-	my $filename;				# file name where the QSLs will be saved
-	my $startlabel;				# number of label where we start...
-	my ($date1, $date2, $daterange) = ('','','1');
-	
-	attron($wmain, COLOR_PAIR(4));
-	curs_set(0);						# Make the cursor invisble
-	# change text in head and help lines ...
-	addstr($whead, 0,0, "YFKlog v$yfkver - QSL print mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+    my $labeltype;                # Saves filename of the label type we use.
+    my @menuitems;                # Label sizes to chose from
+    my %printlabels;            # will store all the labels to be printed
+    my $tex;                    # will store the full LaTeX document
+    my $filename;                # file name where the QSLs will be saved
+    my $startlabel;                # number of label where we start...
+    my ($date1, $date2, $daterange) = ('','','1');
+    
+    attron($wmain, COLOR_PAIR(4));
+    curs_set(0);                        # Make the cursor invisble
+    # change text in head and help lines ...
+    addstr($whead, 0,0, "YFKlog v$yfkver - QSL print mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
 
-	addstr($wmain,0,0," "x(80*($row-2)));			# clear main window
-	
-	# Ask for a date range...
-	addstr($wmain, 1,15, 'If you like to specify a date-range, or only print');
-	addstr($wmain, 2,16, 'QSLs after a certain QSO number, enter the start');
-	addstr($wmain, 3,15,'number or date now. Otherwise leave the field empty.');
-	addstr($whelp, 0,0, 'Specify an export range ..'.' 'x50);
-	refresh($wmain);
-	refresh($whelp);
-   	
-	curs_set(1);						# cursor visible	
-	$date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
-							"Specify start date (YYYY-MM-DD) or number:", '');
+    addstr($wmain,0,0," "x(80*($row-2)));            # clear main window
+    
+    # Ask for a date range...
+    addstr($wmain, 1,15, 'If you like to specify a date-range, or only print');
+    addstr($wmain, 2,16, 'QSLs after a certain QSO number, enter the start');
+    addstr($wmain, 3,15,'number or date now. Otherwise leave the field empty.');
+    addstr($whelp, 0,0, 'Specify an export range ..'.' 'x50);
+    refresh($wmain);
+    refresh($whelp);
+       
+    curs_set(1);                        # cursor visible    
+    $date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
+                            "Specify start date (YYYY-MM-DD) or number:", '');
 
-	if ($date1 ne '') {		 # We have a start date, or number
-		my $type=0;
+    if ($date1 ne '') {         # We have a start date, or number
+        my $type=0;
 
-		if ($date1 =~ /^[0-9]+$/) {			# nr range
-			$date2 = &askbox(12, 15, 4, 50, '[0-9]', 
-								"Specify stop number (empty = end):", '');
-			$type = 'nr';
-		}
-		else {
-			$date2 = &askbox(12, 15, 4, 50, '[0-9-]', 
-								"Specify stop date (YYYY-MM-DD):", '');
-			$type = 'date';
-		}
+        if ($date1 =~ /^[0-9]+$/) {            # nr range
+            $date2 = &askbox(12, 15, 4, 50, '[0-9]', 
+                                "Specify stop number (empty = end):", '');
+            $type = 'nr';
+        }
+        else {
+            $date2 = &askbox(12, 15, 4, 50, '[0-9-]', 
+                                "Specify stop date (YYYY-MM-DD):", '');
+            $type = 'date';
+        }
 
-		if ($type eq 'date') {
-			# Verify that the dates are valid. If not, back to main menu.
-			unless (&checkdate($date1) && &checkdate($date2)) {
-				addstr($wmain, 18,29, 'Sorry, invalid date(s)!');
-				addstr($whelp,0,0,'Press any key to go back to the menu.'.' 'x50);
-				refresh($wmain);
-				refresh($whelp);
-				$status = 2;
-				getch();
-				last;
-			}
-			# if the dates are valid, build a SQL String to put into the
-			# database-query.
-			else {
-				$daterange = "DATE >= '$date1' AND DATE <= '$date2'";
-			}
-		}
-		else {
-			$daterange = " NR >= '$date1' ";
-			if ($date2) {
-				$daterange .= " AND NR <= '$date2' ";
-			}
-		}
-	}
+        if ($type eq 'date') {
+            # Verify that the dates are valid. If not, back to main menu.
+            unless (&checkdate($date1) && &checkdate($date2)) {
+                addstr($wmain, 18,29, 'Sorry, invalid date(s)!');
+                addstr($whelp,0,0,'Press any key to go back to the menu.'.' 'x50);
+                refresh($wmain);
+                refresh($whelp);
+                $status = 2;
+                getch();
+                last;
+            }
+            # if the dates are valid, build a SQL String to put into the
+            # database-query.
+            else {
+                $daterange = "DATE >= '$date1' AND DATE <= '$date2'";
+            }
+        }
+        else {
+            $daterange = " NR >= '$date1' ";
+            if ($date2) {
+                $daterange .= " AND NR <= '$date2' ";
+            }
+        }
+    }
 
-	addstr($wmain, 0,0, " "x(80*($row-2)));
-	addstr($wmain, 3,5, "All QSLs marked as queued in date range will be printed.");
-	addstr($wmain, 4,5, "Please select a label size.");
-	refresh($whelp);
-	refresh($wmain);
-	refresh($whead);
+    addstr($wmain, 0,0, " "x(80*($row-2)));
+    addstr($wmain, 3,5, "All QSLs marked as queued in date range will be printed.");
+    addstr($wmain, 4,5, "Please select a label size.");
+    refresh($whelp);
+    refresh($wmain);
+    refresh($whead);
 
-	# Now looking in the current directory for label files (.lab). Those will
-	# be stored in an array
-	
-	my @labeltypes = <$prefix/share/yfklog/labels/*.lab>;
+    # Now looking in the current directory for label files (.lab). Those will
+    # be stored in an array
+    
+    my @labeltypes = <$prefix/share/yfklog/labels/*.lab>;
 
-	# Every label-file is opened and the first line which contains the
-	# description is read. The descriptions are stored into the @menuitems
-	# array, plus the filename.
-	
-	my $a = 0;									# counter
-	foreach my $lab (@labeltypes) {				# go through all label files
-		open LAB, "$lab";
-		my $labeldescription = <LAB>;			# first line contains descr
-		$labeldescription =~ /^% (.+)$/;		# get the description.
-		$labeldescription = $1;
-		$menuitems[$a] = "$labeldescription ($lab)";
-		close LAB;
-		$a++;
-	}
-	
-	# Show a selectable list of the menu items and let the user select one
-	$labeltype = &selectlist(\$wmain, 10,5 ,$a+1,70, \@menuitems);
-	attron($wmain, COLOR_PAIR(4));		# selectlist leaves attribs changed
+    # Every label-file is opened and the first line which contains the
+    # description is read. The descriptions are stored into the @menuitems
+    # array, plus the filename.
+    
+    my $a = 0;                                    # counter
+    foreach my $lab (@labeltypes) {                # go through all label files
+        open LAB, "$lab";
+        my $labeldescription = <LAB>;            # first line contains descr
+        $labeldescription =~ /^% (.+)$/;        # get the description.
+        $labeldescription = $1;
+        $menuitems[$a] = "$labeldescription ($lab)";
+        close LAB;
+        $a++;
+    }
+    
+    # Show a selectable list of the menu items and let the user select one
+    $labeltype = &selectlist(\$wmain, 10,5 ,$a+1,70, \@menuitems);
+    attron($wmain, COLOR_PAIR(4));        # selectlist leaves attribs changed
 
-	if ($labeltype eq "m") {			# User pressed F1 -> back to main menu!
-		$status = 2;					# Set $status = 2 -> Menu
-		last;							# exit while loop
-	}
-	
-	# We don't want a number but the filename of the style file, so we select
-	# it from the menuitems string, which looks like:
-	# "Label description (filename.lab)" - we only need the filename 
+    if ($labeltype eq "m") {            # User pressed F1 -> back to main menu!
+        $status = 2;                    # Set $status = 2 -> Menu
+        last;                            # exit while loop
+    }
+    
+    # We don't want a number but the filename of the style file, so we select
+    # it from the menuitems string, which looks like:
+    # "Label description (filename.lab)" - we only need the filename 
 
-	$menuitems[$labeltype] =~ /.+\((.+)\)/;
-	$labeltype = $1; 
+    $menuitems[$labeltype] =~ /.+\((.+)\)/;
+    $labeltype = $1; 
 
-	# Now ask the user at which label to start. If you printed a few labels on
-	# a sheet before, it would be a pity to throw the remaining labels away. 
-	# If a value larger than the number of labels on one page is entered, it's
-	# disregarded.
-	# TODO maybe save the value of the last printed label, then next time when
-	# printing automatically continue from that position.
-	
-	$startlabel =
-			&askbox(10,10,5,60,"\\d","Enter start label! (Default is 1)", '');
+    # Now ask the user at which label to start. If you printed a few labels on
+    # a sheet before, it would be a pity to throw the remaining labels away. 
+    # If a value larger than the number of labels on one page is entered, it's
+    # disregarded.
+    # TODO maybe save the value of the last printed label, then next time when
+    # printing automatically continue from that position.
+    
+    $startlabel =
+            &askbox(10,10,5,60,"\\d","Enter start label! (Default is 1)", '');
 
-	if ($startlabel eq "m") {			# back to the menu...
-		$status = 2;
-		last;
-	}
-	elsif ($startlabel eq '') {			# default start at 1 (= 1st label)
-		$startlabel = 1;
-	}
+    if ($startlabel eq "m") {            # back to the menu...
+        $status = 2;
+        last;
+    }
+    elsif ($startlabel eq '') {            # default start at 1 (= 1st label)
+        $startlabel = 1;
+    }
 
-	# &preparelabels returns a hash with the LaTeX sourcecode for all labels to
-	# be printed (QSLS=Q). 
+    # &preparelabels returns a hash with the LaTeX sourcecode for all labels to
+    # be printed (QSLS=Q). 
 
-	%printlabels = &preparelabels($labeltype, $daterange);
+    %printlabels = &preparelabels($labeltype, $daterange);
 
-	unless (%printlabels) {						# If there are no QSOs to print
-		addstr($wmain, 0,0, " "x(80*($row-2)));
-		addstr($wmain, 10,28, "No QSL Cards in queue!");
-		refresh($wmain);
-		getch();
-		$status = 2;							# back to main menu
-		last;									 
-	}
-	
-	# All labels are in %printlabels, in alphabetical order. The next step is
-	# to put them together in a LaTeX document, it is done by &makelabels.
-	# You can specify a start-label number for the first page, which is
-	# useful to use up pages where only the first few labels have been printed
+    unless (%printlabels) {                        # If there are no QSOs to print
+        addstr($wmain, 0,0, " "x(80*($row-2)));
+        addstr($wmain, 10,28, "No QSL Cards in queue!");
+        refresh($wmain);
+        getch();
+        $status = 2;                            # back to main menu
+        last;                                     
+    }
+    
+    # All labels are in %printlabels, in alphabetical order. The next step is
+    # to put them together in a LaTeX document, it is done by &makelabels.
+    # You can specify a start-label number for the first page, which is
+    # useful to use up pages where only the first few labels have been printed
 
     $tex = &labeltex(\%printlabels, $labeltype, $startlabel);
 
-	# the number of exported labels and pages will be shown
+    # the number of exported labels and pages will be shown
 
-	addstr($wmain, 0,0, " " x (80*($row-2)));			# delete window
-	
-	$tex =~ /(\d+) (\d+)$/;
-	
-	addstr($wmain, 5,23, "Generated $1 labels on $2 pages(s).");
+    addstr($wmain, 0,0, " " x (80*($row-2)));            # delete window
+    
+    $tex =~ /(\d+) (\d+)$/;
+    
+    addstr($wmain, 5,23, "Generated $1 labels on $2 pages(s).");
 
-	$filename = "qsl-$mycall-".&getdate;		# assemble filename for labels
-	
-	open TEX, ">/tmp/$filename.tex";			# save the LaTeX document
- 		print TEX $tex;
- 	close TEX;
-	
-	addstr($wmain, 6,15, "Written to /tmp/$filename.tex, now compiling..");
-	refresh($wmain);
-	
-	system("cd /tmp/ ; pdflatex /tmp/$filename.tex > /dev/null");
-	system("mv /tmp/$filename.pdf $directory");
-	addstr($wmain, 8,16, "Done! You can now open the file");
-	addstr($wmain, 9,25, "$directory/$filename.pdf");
-	addstr($wmain, 10,16, "in your favourite PDF Viewer and print it.");
-	addstr($wmain, 11,16, "If you're happy with the results, choose OK, then ");
-	addstr($wmain, 12,16, "the QSL status of the processed QSOs will be");
-	addstr($wmain, 13,16, "set to \"Y\".");
-	refresh($wmain);
+    $filename = "qsl-$mycall-".&getdate;        # assemble filename for labels
+    
+    open TEX, ">/tmp/$filename.tex";            # save the LaTeX document
+         print TEX $tex;
+     close TEX;
+    
+    addstr($wmain, 6,15, "Written to /tmp/$filename.tex, now compiling..");
+    refresh($wmain);
+    
+    system("cd /tmp/ ; pdflatex /tmp/$filename.tex > /dev/null");
+    system("mv /tmp/$filename.pdf $directory");
+    addstr($wmain, 8,16, "Done! You can now open the file");
+    addstr($wmain, 9,25, "$directory/$filename.pdf");
+    addstr($wmain, 10,16, "in your favourite PDF Viewer and print it.");
+    addstr($wmain, 11,16, "If you're happy with the results, choose OK, then ");
+    addstr($wmain, 12,16, "the QSL status of the processed QSOs will be");
+    addstr($wmain, 13,16, "set to \"Y\".");
+    refresh($wmain);
 
-	my @items = ("  OK", "Cancel");			# Items for selection
-	my $choice;								# Choice variable...
-	
-	$choice = &selectlist(\$wmain, 15,37,2,6, \@items);
+    my @items = ("  OK", "Cancel");            # Items for selection
+    my $choice;                                # Choice variable...
+    
+    $choice = &selectlist(\$wmain, 15,37,2,6, \@items);
 
-	if ($choice eq "0") {					# OK, update log!
-		# update QSLS=Q to QSLS=Y...
-		my $nr = &emptyqslqueue;			# returns nr of QSOs..
-		addstr($wmain, 19,16, "$nr QSOs updated. Press any key to continue!");
-		refresh($wmain);
-		getch();
-	}
+    if ($choice eq "0") {                    # OK, update log!
+        # update QSLS=Q to QSLS=Y...
+        my $nr = &emptyqslqueue;            # returns nr of QSOs..
+        addstr($wmain, 19,16, "$nr QSOs updated. Press any key to continue!");
+        refresh($wmain);
+        getch();
+    }
 
-	$status = 2;							# back to the main menu	
-		
+    $status = 2;                            # back to the main menu    
+        
 } # end of QSL Printing mode, $status==6
 
 ##############################################################################
@@ -1110,139 +1110,139 @@ while ($status == 6) {
 ##############################################################################
 
 while (($status == 7) || ($status == 14)) {
-	my $filename;				# filename for the adif/lotw file
-	my $nr;						# number of exported QSOs	
-	my ($date1, $date2, $daterange) = ('','','1');
+    my $filename;                # filename for the adif/lotw file
+    my $nr;                        # number of exported QSOs    
+    my ($date1, $date2, $daterange) = ('','','1');
 
-	attron($wmain, COLOR_PAIR(4));
-	curs_set(1);						# Make the cursor visble
-	
-	# change text in head and help lines ...
-	
-	addstr($whead, 0,0, "YFKlog v$yfkver - ADIF export mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 7);
+    attron($wmain, COLOR_PAIR(4));
+    curs_set(1);                        # Make the cursor visble
+    
+    # change text in head and help lines ...
+    
+    addstr($whead, 0,0, "YFKlog v$yfkver - ADIF export mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 7);
 
-	addstr($whead, 0,0, "YFKlog v$yfkver - LoTW export mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 14);
+    addstr($whead, 0,0, "YFKlog v$yfkver - LoTW export mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 14);
 
-	addstr($whelp, 0,0, "Enter a filename to export. F1: Main Menu  F12: Exit"." " x 70);
-	addstr($wmain,0,0," "x(80*($row-2)));			# clear main window
-	refresh($whelp);
-	refresh($wmain);
-	refresh($whead);
+    addstr($whelp, 0,0, "Enter a filename to export. F1: Main Menu  F12: Exit"." " x 70);
+    addstr($wmain,0,0," "x(80*($row-2)));            # clear main window
+    refresh($whelp);
+    refresh($wmain);
+    refresh($whead);
 
-	$filename = $directory."/".$mycall.".adi";
+    $filename = $directory."/".$mycall.".adi";
 
-	# Now ask the user for the name of the file. Allow all \w characters.
-	$filename= 
-	&askbox(10, 15,4,50, 'filename', "Enter a filename (default $mycall.adi).",
-			$filename);
-	curs_set(0);
-	
-	if ($filename eq 'm') {				# go back to the menu
-		$status = 2;
-		last;							# go out of while loop
-	}
-	elsif ($filename eq "") {			# no filename -> default
-		$filename = $directory.'/'.$mycall.'.adi';
-	}
-	elsif (!($filename =~ /[.]adi/i)) {	# add extension if needed.
-		$filename .= '.adi';
-	}
+    # Now ask the user for the name of the file. Allow all \w characters.
+    $filename= 
+    &askbox(10, 15,4,50, 'filename', "Enter a filename (default $mycall.adi).",
+            $filename);
+    curs_set(0);
+    
+    if ($filename eq 'm') {                # go back to the menu
+        $status = 2;
+        last;                            # go out of while loop
+    }
+    elsif ($filename eq "") {            # no filename -> default
+        $filename = $directory.'/'.$mycall.'.adi';
+    }
+    elsif (!($filename =~ /[.]adi/i)) {    # add extension if needed.
+        $filename .= '.adi';
+    }
 
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));
 
-	# Ask for a date range...
-	addstr($wmain, 1,15, 'If you like to specify a date-range, or only export');
-	addstr($wmain, 2,16, 'QSOs after a certain QSO number, enter the start');
-	addstr($wmain, 3,15,'number or date now. Otherwise leave the field empty.');
-	addstr($whelp, 0,0, 'Specify an export range ..'.' 'x50);
-	refresh($wmain);
-	refresh($whelp);
-   	
-	curs_set(1);						# cursor visible	
-	$date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
-							"Specify start date (YYYY-MM-DD) or number:", '');
+    # Ask for a date range...
+    addstr($wmain, 1,15, 'If you like to specify a date-range, or only export');
+    addstr($wmain, 2,16, 'QSOs after a certain QSO number, enter the start');
+    addstr($wmain, 3,15,'number or date now. Otherwise leave the field empty.');
+    addstr($whelp, 0,0, 'Specify an export range ..'.' 'x50);
+    refresh($wmain);
+    refresh($whelp);
+       
+    curs_set(1);                        # cursor visible    
+    $date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
+                            "Specify start date (YYYY-MM-DD) or number:", '');
 
-	if ($date1 ne '') {		 # We have a start date, or number
-		my $type=0;
+    if ($date1 ne '') {         # We have a start date, or number
+        my $type=0;
 
-		if ($date1 =~ /^[0-9]+$/) {			# nr range
-			$date2 = &askbox(12, 15, 4, 50, '[0-9]', 
-								"Specify stop number (empty = end):", '');
-			$type = 'nr';
-		}
-		else {
-			$date2 = &askbox(12, 15, 4, 50, '[0-9-]', 
-								"Specify stop date (YYYY-MM-DD):", '');
-			$type = 'date';
-		}
+        if ($date1 =~ /^[0-9]+$/) {            # nr range
+            $date2 = &askbox(12, 15, 4, 50, '[0-9]', 
+                                "Specify stop number (empty = end):", '');
+            $type = 'nr';
+        }
+        else {
+            $date2 = &askbox(12, 15, 4, 50, '[0-9-]', 
+                                "Specify stop date (YYYY-MM-DD):", '');
+            $type = 'date';
+        }
 
-		if ($type eq 'date') {
-			# Verify that the dates are valid. If not, back to main menu.
-			unless (&checkdate($date1) && &checkdate($date2)) {
-				addstr($wmain, 18,29, 'Sorry, invalid date(s)!');
-				addstr($whelp,0,0,'Press any key to go back to the menu.'.' 'x50);
-				refresh($wmain);
-				refresh($whelp);
-				$status = 2;
-				getch();
-				last;
-			}
-			# if the dates are valid, build a SQL String to put into the
-			# database-query.
-			else {
-				$daterange = "DATE >= '$date1' AND DATE <= '$date2'";
-			}
-		}
-		else {
-			$daterange = " NR >= '$date1' ";
-			if ($date2) {
-				$daterange .= " AND NR <= '$date2' ";
-			}
-		}
-	}
-		
+        if ($type eq 'date') {
+            # Verify that the dates are valid. If not, back to main menu.
+            unless (&checkdate($date1) && &checkdate($date2)) {
+                addstr($wmain, 18,29, 'Sorry, invalid date(s)!');
+                addstr($whelp,0,0,'Press any key to go back to the menu.'.' 'x50);
+                refresh($wmain);
+                refresh($whelp);
+                $status = 2;
+                getch();
+                last;
+            }
+            # if the dates are valid, build a SQL String to put into the
+            # database-query.
+            else {
+                $daterange = "DATE >= '$date1' AND DATE <= '$date2'";
+            }
+        }
+        else {
+            $daterange = " NR >= '$date1' ";
+            if ($date2) {
+                $daterange .= " AND NR <= '$date2' ";
+            }
+        }
+    }
+        
 
-	# Export the log to $filename
-	$nr = &adifexport($filename, 'adif', $daterange) if ($status == 7); 
-	$nr = &adifexport($filename, 'lotw', $daterange) if ($status == 14); 
+    # Export the log to $filename
+    $nr = &adifexport($filename, 'adif', $daterange) if ($status == 7); 
+    $nr = &adifexport($filename, 'lotw', $daterange) if ($status == 14); 
 
     # if the user was impatient and pressed enter, he will not see the
     # following screen, so flush the input buffer
     flushinp();
 
-	addstr($wmain,0,0, ' ' x (80*($row-2)));			# clear main window
-	addstr($wmain,10,10,"$nr QSOs exported to $filename");
+    addstr($wmain,0,0, ' ' x (80*($row-2)));            # clear main window
+    addstr($wmain,10,10,"$nr QSOs exported to $filename");
 
     if ($status == 14) {    # LoTW
-	    addstr($wmain,11,22,"LoTW status updated to 'Requested'.");
+        addstr($wmain,11,22,"LoTW status updated to 'Requested'.");
 
         # check if there are any station locations set for $mycall
 
         my @lotwlocations = &getlotwlocations();
 
         if ($#lotwlocations) {
-	        addstr($whelp, 0,0, 'LoTW upload...'.' 'x50);
+            addstr($whelp, 0,0, 'LoTW upload...'.' 'x50);
             refresh($whelp);
-	        addstr($wmain,12,17,"Select station location for signing with tqsl!");
+            addstr($wmain,12,17,"Select station location for signing with tqsl!");
             refresh($wmain);
-    	    curs_set(0);
+            curs_set(0);
             unshift (@lotwlocations, "  Cancel  ");
-	        my $choice = &selectlist(\$wmain, 14,30,6,22, \@lotwlocations);
-		    attron($wmain, COLOR_PAIR(4));
-	        curs_set(0);
+            my $choice = &selectlist(\$wmain, 14,30,6,22, \@lotwlocations);
+            attron($wmain, COLOR_PAIR(4));
+            curs_set(0);
             if ($choice ne "m" and $choice > 0) {
-	            addstr($wmain,0,0," "x(80*($row-2)));			# clear main window
+                addstr($wmain,0,0," "x(80*($row-2)));            # clear main window
                 my @ret = &tqslsign($filename, $lotwlocations[$choice]);
                 if ($ret[0] == 0) {
                     addstr($wmain,5,18, "Upload successful! LoTW output below:");
                 }
                 else {
-		            attron($wmain, COLOR_PAIR(6));
+                    attron($wmain, COLOR_PAIR(6));
                     addstr($wmain,5, 5, "Upload failed.");
-        		    attron($wmain, COLOR_PAIR(4));
+                    attron($wmain, COLOR_PAIR(4));
                     addstr($wmain,6, 5, "You should upload this file ($filename) manually since");
                     addstr($wmain,7, 5, "the QSOs are flagged as 'Sent' already.");
                 }
@@ -1257,21 +1257,21 @@ while (($status == 7) || ($status == 14)) {
                 refresh($wmain);
             }
             else {
-	            addstr($wmain,12,17,"Sign $filename with tqsl and upload to LoTW!");
+                addstr($wmain,12,17,"Sign $filename with tqsl and upload to LoTW!");
                 refresh($wmain);
             }
         } # no lotwlocations found
         else {
-	        addstr($wmain,12,17,"Sign $filename with tqsl and upload to LoTW!");
+            addstr($wmain,12,17,"Sign $filename with tqsl and upload to LoTW!");
             refresh($wmain);
         }
     }
 
-	refresh($wmain);
+    refresh($wmain);
     flushinp();
-	getch();
-	
-	$status = 2;
+    getch();
+    
+    $status = 2;
 } # end ADIF export mode, $status==7
 
 ##############################################################################
@@ -1279,111 +1279,111 @@ while (($status == 7) || ($status == 14)) {
 ##############################################################################
 
 while ($status == 8) {
-	my @qso;			# This array will store a QSO while editing...
-	my @sqso;			# This array will store the search criteria in the same
-						# format as a @qso.
-	for (0 .. 25) {		# initialize the array, so it is not undef
-		$qso[$_] = '';
-	}
+    my @qso;            # This array will store a QSO while editing...
+    my @sqso;            # This array will store the search criteria in the same
+                        # format as a @qso.
+    for (0 .. 25) {        # initialize the array, so it is not undef
+        $qso[$_] = '';
+    }
 
 # The @qso-array: 0=call 1=date 2=t_on 3=t_off 4=band 5=mode 6=QTH 7=name
 # 8=QSLS 9=QSLR 10=RSTS 11=RSTR 12=REMarks 13=PWR 14=DXCC 15=PFX 16=CONT
 # 17=ITUZ 18=CQZ 19=QSLINFO 20=IOTA 21=STATE 22=NR 23=QSLRL, 24=OP, 25=GRID
-	
-	my $aw=1;			# The ActiveWindow. This can be 1 = $wedit or 2 =
-						# $weditlog
-	my $editnr=0;		# the number of the QSO which is currently edited.
-	my $posnr=1;		# cursor position of last edited qso
-	
-	attron($wmain, COLOR_PAIR(4));
-	addstr($whead, 0,0, "YFKlog v$yfkver - Search & Edit mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
-	erase($wedit);
-	addstr($wedit,0,0, ' 'x(80*5));
-	addstr($wedit, 0,0, &entrymask(0));		# creates the input entry mask
-	addstr($wedit, 1,0, &entrymask(1));
-	addstr($wedit, 2,0, &entrymask(2));
-	addstr($wedit, 3,0, &entrymask(3));
-	addstr($wedit, 4,0, &entrymask(4));
-	erase($weditlog);
-	addstr($weditlog,0,0, ' 'x(80*($row-2)));
-	refresh($weditlog);
-	refresh($whelp);
-	refresh($wedit);
-	&clearinputfields($wi, 2);
+    
+    my $aw=1;            # The ActiveWindow. This can be 1 = $wedit or 2 =
+                        # $weditlog
+    my $editnr=0;        # the number of the QSO which is currently edited.
+    my $posnr=1;        # cursor position of last edited qso
+    
+    attron($wmain, COLOR_PAIR(4));
+    addstr($whead, 0,0, "YFKlog v$yfkver - Search & Edit mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+    erase($wedit);
+    addstr($wedit,0,0, ' 'x(80*5));
+    addstr($wedit, 0,0, &entrymask(0));        # creates the input entry mask
+    addstr($wedit, 1,0, &entrymask(1));
+    addstr($wedit, 2,0, &entrymask(2));
+    addstr($wedit, 3,0, &entrymask(3));
+    addstr($wedit, 4,0, &entrymask(4));
+    erase($weditlog);
+    addstr($weditlog,0,0, ' 'x(80*($row-2)));
+    refresh($weditlog);
+    refresh($whelp);
+    refresh($wedit);
+    &clearinputfields($wi, 2);
 
-while (1) {		# outer loop around  while ($aw = x) 
-		
+while (1) {        # outer loop around  while ($aw = x) 
+        
 ##############################################################################
 # $aw = 1  --  Editing the @qso-array in the $wi-windows.
 ##############################################################################
 
 while ($aw == 1) {
-	curs_set(1);
-	touchwin($weditlog);
-	refresh($weditlog);
-	addstr($whelp, 0,0, 'F1: Menu  F2: Save changes  F3: Cancel  F4: Delete QSO  F5: Search'.' 'x30);
-	refresh($whelp);
+    curs_set(1);
+    touchwin($weditlog);
+    refresh($weditlog);
+    addstr($whelp, 0,0, 'F1: Menu  F2: Save changes  F3: Cancel  F4: Delete QSO  F5: Search'.' 'x30);
+    refresh($whelp);
 
-	$aw = &editw($wi,0,0,\@qso, 0, 12); 	# Edit call
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,1,1,\@qso, 1, 8); 	# edit date 
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,1,2,\@qso, 1, 4); 	# edit time_on 
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,1,3,\@qso, 1, 4); 	# edit time_off 
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,4,4,\@qso, 1, 4); 	# edit band
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,0,5,\@qso, 1, 5); 	# edit mode
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,3,6,\@qso, 0, 13); 	# edit qth
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,3,7,\@qso, 0, 8); 	# edit name
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,2,8,\@qso, 1, 1); 	# edit QSLs
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,2,9,\@qso, 1, 1); 	# edit QSLr
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,1,10,\@qso, 1, 7); 	# edit RSTs
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,1,11,\@qso, 1, 7); 	# edit RSTr
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,3,12,\@qso, 0, 55); 	# edit Remarks
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,1,13,\@qso, 1, 4); 	# edit PWR
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,0,14,\@qso, 0, 4); 	# edit DXCC
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,0,15,\@qso, 0, 8); 	# edit PFX
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,0,16,\@qso, 0, 2); 	# edit CONT
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,1,17,\@qso, 0, 2); 	# edit ITUZ
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,1,18,\@qso, 0, 2); 	# edit CQZ
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,0,19,\@qso, 0, 8); 	# edit QSLINFO
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,3,20,\@qso, 0, 6); 	# edit IOTA
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,0,21,\@qso, 0, 2); 	# edit STATE
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,0,23,\@qso, 1, 1); 	# edit QSLRL
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,0,24,\@qso, 0, 6); 	# edit OPERATOR
-	if ($aw ne '1' ) { last; }
-	$aw = &editw($wi,0,25,\@qso, 0, 6); 	# edit GRID
-	if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,0,0,\@qso, 0, 12);     # Edit call
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,1,1,\@qso, 1, 8);     # edit date 
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,1,2,\@qso, 1, 4);     # edit time_on 
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,1,3,\@qso, 1, 4);     # edit time_off 
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,4,4,\@qso, 1, 4);     # edit band
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,0,5,\@qso, 1, 5);     # edit mode
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,3,6,\@qso, 0, 13);     # edit qth
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,3,7,\@qso, 0, 8);     # edit name
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,2,8,\@qso, 1, 1);     # edit QSLs
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,2,9,\@qso, 1, 1);     # edit QSLr
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,1,10,\@qso, 1, 7);     # edit RSTs
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,1,11,\@qso, 1, 7);     # edit RSTr
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,3,12,\@qso, 0, 55);     # edit Remarks
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,1,13,\@qso, 1, 4);     # edit PWR
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,0,14,\@qso, 0, 4);     # edit DXCC
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,0,15,\@qso, 0, 8);     # edit PFX
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,0,16,\@qso, 0, 2);     # edit CONT
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,1,17,\@qso, 0, 2);     # edit ITUZ
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,1,18,\@qso, 0, 2);     # edit CQZ
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,0,19,\@qso, 0, 8);     # edit QSLINFO
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,3,20,\@qso, 0, 6);     # edit IOTA
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,0,21,\@qso, 0, 2);     # edit STATE
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,0,23,\@qso, 1, 1);     # edit QSLRL
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,0,24,\@qso, 0, 6);     # edit OPERATOR
+    if ($aw ne '1' ) { last; }
+    $aw = &editw($wi,0,25,\@qso, 0, 6);     # edit GRID
+    if ($aw ne '1' ) { last; }
 }
 
-if ($aw eq 'm') {						# back to menu
-	$status = 2;
-	last;								# break out from while (1) loop
+if ($aw eq 'm') {                        # back to menu
+    $status = 2;
+    last;                                # break out from while (1) loop
 }
-elsif ($aw == 0) {						# back to QSO list
-	$editnr = 0;
-	$aw = 2;
+elsif ($aw == 0) {                        # back to QSO list
+    $editnr = 0;
+    $aw = 2;
 }
 
 ##############################################################################
@@ -1392,41 +1392,41 @@ elsif ($aw == 0) {						# back to QSO list
 ##############################################################################
 
 while ($aw == 2) {
-	curs_set(0);						# Make the cursor invisble
-	addstr($whelp, 0,0, 'F3: Cancel, new Search  SPACE/ENTER: Edit QSO'.' 'x30);
-	refresh($whelp);
+    curs_set(0);                        # Make the cursor invisble
+    addstr($whelp, 0,0, 'F3: Cancel, new Search  SPACE/ENTER: Edit QSO'.' 'x30);
+    refresh($whelp);
 
-	@sqso = @qso unless @sqso;
+    @sqso = @qso unless @sqso;
 
-	# We have selected search criteria in the QSO-array. Now display a
-	# scrollable list with only the matching QSOs. The user selects one QSO,
-	# the number of the QSO (as in the NR field in the database) is returned.
-	# The cursor position is changed inside choseeditqso and remembered in
-	# this loop.
+    # We have selected search criteria in the QSO-array. Now display a
+    # scrollable list with only the matching QSOs. The user selects one QSO,
+    # the number of the QSO (as in the NR field in the database) is returned.
+    # The cursor position is changed inside choseeditqso and remembered in
+    # this loop.
 
-	$editnr = &choseeditqso(\$weditlog, \@sqso, \$posnr);
+    $editnr = &choseeditqso(\$weditlog, \@sqso, \$posnr);
 
-	if ($editnr eq 'm') { 				# back to MAIN MENU
-		$status = 2;
-		$aw = 1;
-		last;
-	}
-	# cancel search (c) 
-	elsif (($editnr eq 'c') || ($editnr == 0)) {
-		for (0 .. 25) {					# clear the QSO and if no results also
-			$qso[$_] = '';				# sqso
-		}
-		@sqso = ();
-		$posnr = 1;			# forget last cursor position
-		$aw = 1;						# back to list
-	}
-	else {
-		# get the QSO from the database and put the content into the edit
-		# fields / windows.
-		&clearinputfields($wi, 2);
-		@qso = &geteditqso($editnr,\@wi);
-		$aw = 1;
-	}
+    if ($editnr eq 'm') {                 # back to MAIN MENU
+        $status = 2;
+        $aw = 1;
+        last;
+    }
+    # cancel search (c) 
+    elsif (($editnr eq 'c') || ($editnr == 0)) {
+        for (0 .. 25) {                    # clear the QSO and if no results also
+            $qso[$_] = '';                # sqso
+        }
+        @sqso = ();
+        $posnr = 1;            # forget last cursor position
+        $aw = 1;                        # back to list
+    }
+    else {
+        # get the QSO from the database and put the content into the edit
+        # fields / windows.
+        &clearinputfields($wi, 2);
+        @qso = &geteditqso($editnr,\@wi);
+        $aw = 1;
+    }
 } # $aw=2
 
 } # outer loop around while ($aw = x)
@@ -1438,100 +1438,100 @@ while ($aw == 2) {
 ##############################################################################
 
 while ($status == 9) {
-	my @adifiles; 
-	my $adifdir;
-	my $adifile;
-	my $nr;							# nr of imported QSOs
-	my $err;						# nr of errors during import
-	my $war;						# nr of warnings during import
+    my @adifiles; 
+    my $adifdir;
+    my $adifile;
+    my $nr;                            # nr of imported QSOs
+    my $err;                        # nr of errors during import
+    my $war;                        # nr of warnings during import
 
-	attron($wmain, COLOR_PAIR(4));
-	addstr($whead, 0,0, "YFKlog v$yfkver - ADIF import mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
-	addstr($whelp, 0,0, 'Select a directory. F1 to abort.');
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
+    attron($wmain, COLOR_PAIR(4));
+    addstr($whead, 0,0, "YFKlog v$yfkver - ADIF import mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+    addstr($whelp, 0,0, 'Select a directory. F1 to abort.');
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
 
-	refresh($wmain);
-	refresh($whead);
-	refresh($whelp);
+    refresh($wmain);
+    refresh($whead);
+    refresh($whelp);
 
-	curs_set(1);
-	$adifdir = &askbox(10, 5, 4, 70, 'filename', "Directory to search ".
-			"for ADIF files:", $directory);
-	curs_set(0);
+    curs_set(1);
+    $adifdir = &askbox(10, 5, 4, 70, 'filename', "Directory to search ".
+            "for ADIF files:", $directory);
+    curs_set(0);
 
-	# Check if directory is valid and there are adif files
+    # Check if directory is valid and there are adif files
 
-	unless (-e $adifdir) {
-		addstr($wmain, 5,15, "$adifdir does not exist! Any key to continue.");
-		refresh($wmain);
-		getch();
-		$status = 2;				# back to main menu
-		next;
-	}
+    unless (-e $adifdir) {
+        addstr($wmain, 5,15, "$adifdir does not exist! Any key to continue.");
+        refresh($wmain);
+        getch();
+        $status = 2;                # back to main menu
+        next;
+    }
 
-	addstr($whelp, 0,0, "Select a ADIF file from $adifdir or F1 to quit");
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
-	addstr($wmain, 2,10, "Select a ADIF file from $adifdir to import!");
-	refresh($wmain);
-	refresh($whead);
-	refresh($whelp);
+    addstr($whelp, 0,0, "Select a ADIF file from $adifdir or F1 to quit");
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
+    addstr($wmain, 2,10, "Select a ADIF file from $adifdir to import!");
+    refresh($wmain);
+    refresh($whead);
+    refresh($whelp);
 
-	@adifiles = <$adifdir/*.adi>;
-	push(@adifiles, <$adifdir/*.ADI>);
-	push(@adifiles, <$adifdir/*.adif>);
-	push(@adifiles, <$adifdir/*.ADIF>);
+    @adifiles = <$adifdir/*.adi>;
+    push(@adifiles, <$adifdir/*.ADI>);
+    push(@adifiles, <$adifdir/*.adif>);
+    push(@adifiles, <$adifdir/*.ADIF>);
 
-	my $y = scalar(@adifiles);
+    my $y = scalar(@adifiles);
 
-	if ($y == 0) {
-		addstr($wmain, 5,15, "No ADI-Files in $adifdir! Any key to continue.");
-		refresh($wmain);
-		getch;
-		$status = 2;				# back to main menu
-		next;
-	}
+    if ($y == 0) {
+        addstr($wmain, 5,15, "No ADI-Files in $adifdir! Any key to continue.");
+        refresh($wmain);
+        getch;
+        $status = 2;                # back to main menu
+        next;
+    }
 
-	# If there are more than 20 ADIF files in the list, we make it scrollable,
-	# with a fixed height of 20.
+    # If there are more than 20 ADIF files in the list, we make it scrollable,
+    # with a fixed height of 20.
 
-	if ($y > 15) { $y = 15; }
+    if ($y > 15) { $y = 15; }
 
-	$adifile = &selectlist(\$wmain, 4,15, $y ,50, \@adifiles);
+    $adifile = &selectlist(\$wmain, 4,15, $y ,50, \@adifiles);
 
-	if ($adifile eq 'm') {			# F1 pressed, go back to the menu
-		$status = 2;
-		last;
-	}
-	else {							# we want to import $adifiles[$adifile]
-		 ($nr, $err, $war) = &adifimport($adifiles[$adifile],$whelp);
-	}
+    if ($adifile eq 'm') {            # F1 pressed, go back to the menu
+        $status = 2;
+        last;
+    }
+    else {                            # we want to import $adifiles[$adifile]
+         ($nr, $err, $war) = &adifimport($adifiles[$adifile],$whelp);
+    }
 
-	attron($wmain, COLOR_PAIR(4));		# selectlist changed attributes
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
+    attron($wmain, COLOR_PAIR(4));        # selectlist changed attributes
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
 
-	if ($nr > 0) {									# OK, QSOs imported
-		$adifiles[$adifile] =~ /([^\/]+)$/;
-		my $basename = $1;
-		addstr($wmain,  8,20, "QSOs processed: $nr. Successful: ".($nr-$err));
-		addstr($wmain, 11,6, "Errors: $err. See detailed information in ".
-				"/tmp/$mycall-import-from-$basename.err") if $err;
-		addstr($wmain, 12,5, "Warnings: $war. See detailed information in ".
-			   "/tmp/$mycall-import-from-$basename.err") if $war;
-	}
-	else {			# No QSOs imported, huh?
-		addstr($wmain,  7,10, "No QSOs imported. Possibly this file doesn't meet the ADIF");
-		addstr($wmain,  8,10, "specifications. Make sure there the header is terminated");
-		addstr($wmain,  9,10, "with <eoh>. If you think the file is OK, contact author.");
-	}
-		refresh($wmain);
+    if ($nr > 0) {                                    # OK, QSOs imported
+        $adifiles[$adifile] =~ /([^\/]+)$/;
+        my $basename = $1;
+        addstr($wmain,  8,20, "QSOs processed: $nr. Successful: ".($nr-$err));
+        addstr($wmain, 11,6, "Errors: $err. See detailed information in ".
+                "/tmp/$mycall-import-from-$basename.err") if $err;
+        addstr($wmain, 12,5, "Warnings: $war. See detailed information in ".
+               "/tmp/$mycall-import-from-$basename.err") if $war;
+    }
+    else {            # No QSOs imported, huh?
+        addstr($wmain,  7,10, "No QSOs imported. Possibly this file doesn't meet the ADIF");
+        addstr($wmain,  8,10, "specifications. Make sure there the header is terminated");
+        addstr($wmain,  9,10, "with <eoh>. If you think the file is OK, contact author.");
+    }
+        refresh($wmain);
 
-	getch();
+    getch();
 
-	$status = 2;				# back to main menu
+    $status = 2;                # back to main menu
 
 } # end of $status = 9, ADIF Import Mode
 
@@ -1541,88 +1541,88 @@ while ($status == 9) {
 ##############################################################################
 
 while ($status == 10) {
-	my @logs;				# all log_{call}-tables in the database	
-	my $choice;				# logbook which is chosen
-	my $oldcall=$mycall;
-	
-	attron($wmain, COLOR_PAIR(4));
-	addstr($whead, 0,0, "YFKlog v$yfkver - Select Log mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
-	addstr($whelp, 0,0, 'Choose one of the logs or create/delete a new one ..'.' 'x50);
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
-	addstr($wmain, 2,7, 'Select an existing logbook or create a new log or destroy an old one!');
-	refresh($wmain);
-	refresh($whead);
-	refresh($whelp);
+    my @logs;                # all log_{call}-tables in the database    
+    my $choice;                # logbook which is chosen
+    my $oldcall=$mycall;
+    
+    attron($wmain, COLOR_PAIR(4));
+    addstr($whead, 0,0, "YFKlog v$yfkver - Select Log mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+    addstr($whelp, 0,0, 'Choose one of the logs or create/delete a new one ..'.' 'x50);
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
+    addstr($wmain, 2,7, 'Select an existing logbook or create a new log or destroy an old one!');
+    refresh($wmain);
+    refresh($whead);
+    refresh($whelp);
 
-	@logs = &getlogs();						# get list of logbooks
-	push(@logs, " Create new Logbook ");	# add option to make new one
-	@logs = sort @logs;
-	 push(@logs, " Delete Logbook ");	# add option to make new one
-	 @logs = sort @logs;
-	# After dorting, the " Create new Logbook " entry will be at the first
-	# position because it starts with a whitespace. This is needed because the
-	# case of creating a new logbook has to be treated different.
+    @logs = &getlogs();                        # get list of logbooks
+    push(@logs, " Create new Logbook ");    # add option to make new one
+    @logs = sort @logs;
+     push(@logs, " Delete Logbook ");    # add option to make new one
+     @logs = sort @logs;
+    # After dorting, the " Create new Logbook " entry will be at the first
+    # position because it starts with a whitespace. This is needed because the
+    # case of creating a new logbook has to be treated different.
 
     my $max = $row - 9;
 
-	# If there are more than 15 logs in the list, we make it scrollable,
-	# with a fixed height of 15.
-	my $y = scalar(@logs);
-	if ($y > $max) { $y = $max; }
+    # If there are more than 15 logs in the list, we make it scrollable,
+    # with a fixed height of 15.
+    my $y = scalar(@logs);
+    if ($y > $max) { $y = $max; }
 
-	$choice = &selectlist(\$wmain, 4,30, $y ,20, \@logs);
-	
-	# Now check what the user chosed: If it is the first entry, a new database
-	# has to be created. Otherwise only the $mycall has to be changed.
+    $choice = &selectlist(\$wmain, 4,30, $y ,20, \@logs);
+    
+    # Now check what the user chosed: If it is the first entry, a new database
+    # has to be created. Otherwise only the $mycall has to be changed.
 
-	if ($choice eq "m") {			# F1 pressed -> back to main menu
-		$status = 2;
-		last;
-	}
-	elsif ($choice == 0) {					# first item -> create new log
-		curs_set(1);  						# cursor visible
-		# Ask for the name of the new logbook.
-		my $new = &askbox(10, 15, 4, 50, '[a-zA-Z0-9/]', 
-						"Enter a name (callsign) for a new logbook:", '');
-		curs_set(0);  						# cursr invisible
-		my $msg = &newlogtable($new);
-		addstr($wmain, 15, (40-(length($msg." ($new)")/2)), $msg." ($new)");
-		if ($msg =~ /successfully/) {		# new call OK
-			$mycall = "\L$new";				# take it as MYCALL
-			$mycall =~ s/\//_/g;			# / -> _
-			&changemycall($mycall);			# change $mycall also in yfksubs.pl
-		}
-		refresh($wmain);
-		getch();
-	}
-	elsif ($choice == 1) {					# second item -> delete old log
-		curs_set(1);  						# cursor visible
-		# Ask for the name to delete.
-		my $old = &askbox(10, 15, 4, 50, '[a-zA-Z0-9/]', 
-						"Enter a name (callsign) to delete:", '');
-		curs_set(0);  						# cursr invisible
-		my $msg = &oldlogtable($old);
-		addstr($wmain, 15, (40-(length($msg." ($old)")/2)), $msg." ($old)");
-		addstr($wmain, 16,15,"Select another logbook before leave the log, tks!");
-		if ($msg =~ /successfully/) {		# delete succefull
-		}
-		refresh($wmain);
-		getch();
-	}
-	else {								# change $mycall to selected log
-		$mycall = $logs[$choice];		# Callsign is here
-		$mycall =~ s/\//_/g;			# change / to _
-		$mycall =~ tr/[A-Z]/[a-z]/;		# make letters lowercase
-		&changemycall($mycall);			# change $mycall also in yfksubs.pl
-	}
+    if ($choice eq "m") {            # F1 pressed -> back to main menu
+        $status = 2;
+        last;
+    }
+    elsif ($choice == 0) {                    # first item -> create new log
+        curs_set(1);                          # cursor visible
+        # Ask for the name of the new logbook.
+        my $new = &askbox(10, 15, 4, 50, '[a-zA-Z0-9/]', 
+                        "Enter a name (callsign) for a new logbook:", '');
+        curs_set(0);                          # cursr invisible
+        my $msg = &newlogtable($new);
+        addstr($wmain, 15, (40-(length($msg." ($new)")/2)), $msg." ($new)");
+        if ($msg =~ /successfully/) {        # new call OK
+            $mycall = "\L$new";                # take it as MYCALL
+            $mycall =~ s/\//_/g;            # / -> _
+            &changemycall($mycall);            # change $mycall also in yfksubs.pl
+        }
+        refresh($wmain);
+        getch();
+    }
+    elsif ($choice == 1) {                    # second item -> delete old log
+        curs_set(1);                          # cursor visible
+        # Ask for the name to delete.
+        my $old = &askbox(10, 15, 4, 50, '[a-zA-Z0-9/]', 
+                        "Enter a name (callsign) to delete:", '');
+        curs_set(0);                          # cursr invisible
+        my $msg = &oldlogtable($old);
+        addstr($wmain, 15, (40-(length($msg." ($old)")/2)), $msg." ($old)");
+        addstr($wmain, 16,15,"Select another logbook before leave the log, tks!");
+        if ($msg =~ /successfully/) {        # delete succefull
+        }
+        refresh($wmain);
+        getch();
+    }
+    else {                                # change $mycall to selected log
+        $mycall = $logs[$choice];        # Callsign is here
+        $mycall =~ s/\//_/g;            # change / to _
+        $mycall =~ tr/[A-Z]/[a-z]/;        # make letters lowercase
+        &changemycall($mycall);            # change $mycall also in yfksubs.pl
+    }
 
-	if ($mycall ne $oldcall) {
-		&changeconfig("mycall=$oldcall", "mycall=$mycall");
-	}
+    if ($mycall ne $oldcall) {
+        &changeconfig("mycall=$oldcall", "mycall=$mycall");
+    }
 
-	$status = 2;		
+    $status = 2;        
 } # end of $status = 10, logbook config
 
 ##############################################################################
@@ -1630,185 +1630,185 @@ while ($status == 10) {
 ##############################################################################
 
 while ($status == 11) {
-	my ($date1,$date2);				# start and stop date for award range
-	my $daterange='1';				# SQL string with start and end date
-	my %result= ('a'=>'b');			# DXCCs, WAZ, etc. for each band.
-	my %resultc = ('a'=>'b');		# same, but CFMed
-	my %resultcp = ('a'=>'b');		# same, Paper QSL received
-	my %resultcl = ('a'=>'b');		# same, LoTW received
-	my $custom='';					# DOK, RDA...
-	
-	attron($wmain, COLOR_PAIR(4));
-	addstr($whead, 0,0, "YFKlog v$yfkver - Award mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
-	addstr($whelp, 0,0, 'Select an award to generate statistics for ..'.' 'x50);
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
-	refresh($wmain);
-	refresh($whead);
-	refresh($whelp);
+    my ($date1,$date2);                # start and stop date for award range
+    my $daterange='1';                # SQL string with start and end date
+    my %result= ('a'=>'b');            # DXCCs, WAZ, etc. for each band.
+    my %resultc = ('a'=>'b');        # same, but CFMed
+    my %resultcp = ('a'=>'b');        # same, Paper QSL received
+    my %resultcl = ('a'=>'b');        # same, LoTW received
+    my $custom='';                    # DOK, RDA...
+    
+    attron($wmain, COLOR_PAIR(4));
+    addstr($whead, 0,0, "YFKlog v$yfkver - Award mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+    addstr($whelp, 0,0, 'Select an award to generate statistics for ..'.' 'x50);
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
+    refresh($wmain);
+    refresh($whead);
+    refresh($whelp);
 
-	# Menu Items
-	my  @menu = ('DXCC', 'PFX', 'CQZ', 'IOTA', 'STATE', 'GRID',
-			'QSO / Bands', 'QSO / Continent', 'QSO / Mode', 'Xplanet',
-			'Custom', 'QSL'
-		);
+    # Menu Items
+    my  @menu = ('DXCC', 'PFX', 'CQZ', 'IOTA', 'STATE', 'GRID',
+            'QSO / Bands', 'QSO / Continent', 'QSO / Mode', 'Xplanet',
+            'Custom', 'QSL'
+        );
 
-	# Let the user select one of the awards
-	my $choice = &selectlist(\$wmain, 4,30, 12 ,20, \@menu);
-	attron($wmain, COLOR_PAIR(4));
+    # Let the user select one of the awards
+    my $choice = &selectlist(\$wmain, 4,30, 12 ,20, \@menu);
+    attron($wmain, COLOR_PAIR(4));
 
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));
 
-	# Custom award. Ask for award type/string
-	if ($choice eq '10') {
-		addstr($wmain, 2,17, 'Custom Award Mode. Please specify which string');
-		addstr($wmain, 3,16, 'to search for (see documentation for details):');
-		addstr($whelp, 0,0, 'Specify a custom award type ..'.' 'x50);
-		refresh($wmain);
-		refresh($whelp);
-	
-		curs_set(1);
-		$custom = &askbox(6, 15, 4, 50, '[a-zA-Z0-9]', 
-								"Enter custom award string:", '');
-	}
+    # Custom award. Ask for award type/string
+    if ($choice eq '10') {
+        addstr($wmain, 2,17, 'Custom Award Mode. Please specify which string');
+        addstr($wmain, 3,16, 'to search for (see documentation for details):');
+        addstr($whelp, 0,0, 'Specify a custom award type ..'.' 'x50);
+        refresh($wmain);
+        refresh($whelp);
+    
+        curs_set(1);
+        $custom = &askbox(6, 15, 4, 50, '[a-zA-Z0-9]', 
+                                "Enter custom award string:", '');
+    }
 
-	unless ($choice eq '9' || $choice eq '11') {# not for the Xplanet, QSLs
-	# Ask for a date range...
-	addstr($wmain, 2,17, 'If you like to specify a date-range, enter the');
-	addstr($wmain, 3,16, 'start date now. Otherwise leave the field empty.');
-	addstr($whelp, 0,0, 'Specify a date range ..'.' 'x50);
-	refresh($wmain);
-	refresh($whelp);
-   	
-	curs_set(1);						# cursor visible	
-	$date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
-								"Specify start date (YYYY-MM-DD):", '');
+    unless ($choice eq '9' || $choice eq '11') {# not for the Xplanet, QSLs
+    # Ask for a date range...
+    addstr($wmain, 2,17, 'If you like to specify a date-range, enter the');
+    addstr($wmain, 3,16, 'start date now. Otherwise leave the field empty.');
+    addstr($whelp, 0,0, 'Specify a date range ..'.' 'x50);
+    refresh($wmain);
+    refresh($whelp);
+       
+    curs_set(1);                        # cursor visible    
+    $date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
+                                "Specify start date (YYYY-MM-DD):", '');
 
-	unless ($date1 eq '') {			# We have a start date, so ask for end date
-		$date2 = &askbox(12, 15, 4, 50, '[0-9-]', 
-								"Specify stop date (YYYY-MM-DD):", '');
+    unless ($date1 eq '') {            # We have a start date, so ask for end date
+        $date2 = &askbox(12, 15, 4, 50, '[0-9-]', 
+                                "Specify stop date (YYYY-MM-DD):", '');
 
-		# Verify that the dates are valid. If not, back to main menu.
-		unless (&checkdate($date1) && &checkdate($date2)) {
-			addstr($wmain, 18,29, 'Sorry, invalid date(s)!');
-			addstr($whelp, 0,0, 'Press any key to go back to the menu.'.' 'x50);
-			refresh($wmain);
-			refresh($whelp);
-			$status = 2;
-			getch();
-			last;
-		}
-		# if the dates are valid, build a SQL String to put into the
-		# database-query.
-		else {
-			$daterange = "DATE >= '$date1' AND DATE <= '$date2'";
-		}
-	} # unless date1 is empty
+        # Verify that the dates are valid. If not, back to main menu.
+        unless (&checkdate($date1) && &checkdate($date2)) {
+            addstr($wmain, 18,29, 'Sorry, invalid date(s)!');
+            addstr($whelp, 0,0, 'Press any key to go back to the menu.'.' 'x50);
+            refresh($wmain);
+            refresh($whelp);
+            $status = 2;
+            getch();
+            last;
+        }
+        # if the dates are valid, build a SQL String to put into the
+        # database-query.
+        else {
+            $daterange = "DATE >= '$date1' AND DATE <= '$date2'";
+        }
+    } # unless date1 is empty
 
-	# limit bands for query
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));
+    # limit bands for query
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));
 
-	addstr($wmain, 2,17, 'The following bands will be considered, as set in');
-	addstr($wmain, 3,16, '~/.yfklog/config. You can add or remove bands now.');
-	addstr($whelp, 0,0, 'Specify bands ..'.' 'x50);
-	refresh($wmain);
-	refresh($whelp);
+    addstr($wmain, 2,17, 'The following bands will be considered, as set in');
+    addstr($wmain, 3,16, '~/.yfklog/config. You can add or remove bands now.');
+    addstr($whelp, 0,0, 'Specify bands ..'.' 'x50);
+    refresh($wmain);
+    refresh($whelp);
 
-	curs_set(1);
-	$bands = &askbox(6, 15, 4, 50, '[0-9. ]', "Limit to bands:", $bands);
-	
-	} # unless 9 or 11
+    curs_set(1);
+    $bands = &askbox(6, 15, 4, 50, '[0-9. ]', "Limit to bands:", $bands);
+    
+    } # unless 9 or 11
 
-	unless ($choice eq '11') {# not for the QSLs
-		# limit modes for query
-		erase($wmain);
-		addstr($wmain,0,0, ' 'x(80*($row-2)));
+    unless ($choice eq '11') {# not for the QSLs
+        # limit modes for query
+        erase($wmain);
+        addstr($wmain,0,0, ' 'x(80*($row-2)));
 
-		addstr($wmain, 2,17, 'The following modes will be considered, as set in');
-		addstr($wmain, 3,16, '~/.yfklog/config. You can add or remove modes now.');
-		addstr($whelp, 0,0, 'Specify modes ..'.' 'x50);
-		refresh($wmain);
-		refresh($whelp);
+        addstr($wmain, 2,17, 'The following modes will be considered, as set in');
+        addstr($wmain, 3,16, '~/.yfklog/config. You can add or remove modes now.');
+        addstr($whelp, 0,0, 'Specify modes ..'.' 'x50);
+        refresh($wmain);
+        refresh($whelp);
 
-		curs_set(1);
-		$modes = &askbox(6, 15, 4, 50, '[A-Za-z0-9 ]', "Limit to modes:", $modes);
-	} # unless 11
-	
-	curs_set(0);						# cursor invisible	
+        curs_set(1);
+        $modes = &askbox(6, 15, 4, 50, '[A-Za-z0-9 ]', "Limit to modes:", $modes);
+    } # unless 11
+    
+    curs_set(0);                        # cursor invisible    
 
-	addstr($wmain,0,0, ' 'x(80*($row-2)));		# clear window	
-	addstr($wmain, 2, 25, "$menu[$choice] Statistics for " .
-		   uc(join('/', split(/_/, $mycall))) .
-		   " in " . join(', ', split(/\s+/, $modes)));
-	addstr($whelp, 0,0, "$menu[$choice] statistics".' 'x50);
-	refresh($whelp);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));        # clear window    
+    addstr($wmain, 2, 25, "$menu[$choice] Statistics for " .
+           uc(join('/', split(/_/, $mycall))) .
+           " in " . join(', ', split(/\s+/, $modes)));
+    addstr($whelp, 0,0, "$menu[$choice] statistics".' 'x50);
+    refresh($whelp);
 
-	# Now we make the queries, dependent on the AWARD type we chose in $choice
-	# There are different general award types. The easiest are DXCC, WAZ, WAS,
-	# IOTA etc, where the query method is always the same, only the database
-	# field is different. In the menu, those are choices 0 .. 4.
-	 
-	my $filename;
-	if (($choice <= 5) || $choice == 10) {
-		
-		# The result hash has bands as keys and nr of dxcc/iotas etc as 
-		# values.
-		&awards($daterange,$menu[$choice], \%result, \%resultc, \%resultcp,
-				\%resultcl, $bands, $modes, $custom);
-		addstr($wmain, 5, 20, "Band    Wkd   Cfmd    QSL    LoTW");
-		my $y = 5;
-		# Since "All" is not numeric and fucks up the sorting, we change it to
-		# 9999 instead and change later. 
-		($result{'9999'}, $resultc{'9999'}) = ($result{'All'}, $resultc{'All'});
-		($resultcp{'9999'},$resultcl{'9999'})=($resultcp{'All'},$resultcl{'All'});
+    # Now we make the queries, dependent on the AWARD type we chose in $choice
+    # There are different general award types. The easiest are DXCC, WAZ, WAS,
+    # IOTA etc, where the query method is always the same, only the database
+    # field is different. In the menu, those are choices 0 .. 4.
+     
+    my $filename;
+    if (($choice <= 5) || $choice == 10) {
+        
+        # The result hash has bands as keys and nr of dxcc/iotas etc as 
+        # values.
+        &awards($daterange,$menu[$choice], \%result, \%resultc, \%resultcp,
+                \%resultcl, $bands, $modes, $custom);
+        addstr($wmain, 5, 20, "Band    Wkd   Cfmd    QSL    LoTW");
+        my $y = 5;
+        # Since "All" is not numeric and fucks up the sorting, we change it to
+        # 9999 instead and change later. 
+        ($result{'9999'}, $resultc{'9999'}) = ($result{'All'}, $resultc{'All'});
+        ($resultcp{'9999'},$resultcl{'9999'})=($resultcp{'All'},$resultcl{'All'});
 
-		delete $result{'All'}; delete $resultc{'All'};
-		delete $resultcp{'All'}; delete $resultcl{'All'};
+        delete $result{'All'}; delete $resultc{'All'};
+        delete $resultcp{'All'}; delete $resultcl{'All'};
 
-		foreach my $key (sort {$a <=> $b} keys %result) {
-				$y++;
-				addstr($wmain, $y, 20, 
-						sprintf("%-4s     %-4s   %-4s   %-4s   %-4s" ,
-								$key, $result{$key}, $resultc{$key},
-								$resultcp{$key}, $resultcl{$key}));
-		}
-		addstr($wmain, $y, 20, sprintf("%-4s" ,"All")); # only overwrite 9999 with All
+        foreach my $key (sort {$a <=> $b} keys %result) {
+                $y++;
+                addstr($wmain, $y, 20, 
+                        sprintf("%-4s     %-4s   %-4s   %-4s   %-4s" ,
+                                $key, $result{$key}, $resultc{$key},
+                                $resultcp{$key}, $resultcl{$key}));
+        }
+        addstr($wmain, $y, 20, sprintf("%-4s" ,"All")); # only overwrite 9999 with All
 
-		addstr($wmain, $y+2,5, "Created detailed HTML-summary at $directory/$mycall-$menu[$choice].html");
-	}
+        addstr($wmain, $y+2,5, "Created detailed HTML-summary at $directory/$mycall-$menu[$choice].html");
+    }
 
-	# For QSO / Continent and QSO / Band other queries have to be made...
-	elsif ($choice =~ /[678]/) {
-		if ($choice eq "6") {
-			&statistics("BAND", \$wmain, $daterange, $bands, $modes);# result: BAND -> nr of QSOs
-			$filename="BAND";
-		}
-		elsif ($choice eq "7") {
-			&statistics("CONT", \$wmain, $daterange, $bands, $modes);# result: CONT->nr of QSOs
-			$filename="CONT";
-		}
-		elsif ($choice eq "8") {
-			&statistics("MODE", \$wmain, $daterange, $bands, $modes);# result: MODE ->nr of QSOs
-			$filename="MODE";
-		}
-		addstr($wmain, 20,5, "Created detailed HTML-summary at $directory/$mycall-$filename.html");
-	}
-	elsif ($choice eq '9') {		# Generate Marker file for xplanet
-			&xplanet($modes);
-			addstr($wmain, 8,5, "Output file $directory/$mycall-earth written.");
-	}
-	elsif ($choice eq '11') {
-		&qslstatistics($wmain);
-	}
+    # For QSO / Continent and QSO / Band other queries have to be made...
+    elsif ($choice =~ /[678]/) {
+        if ($choice eq "6") {
+            &statistics("BAND", \$wmain, $daterange, $bands, $modes);# result: BAND -> nr of QSOs
+            $filename="BAND";
+        }
+        elsif ($choice eq "7") {
+            &statistics("CONT", \$wmain, $daterange, $bands, $modes);# result: CONT->nr of QSOs
+            $filename="CONT";
+        }
+        elsif ($choice eq "8") {
+            &statistics("MODE", \$wmain, $daterange, $bands, $modes);# result: MODE ->nr of QSOs
+            $filename="MODE";
+        }
+        addstr($wmain, 20,5, "Created detailed HTML-summary at $directory/$mycall-$filename.html");
+    }
+    elsif ($choice eq '9') {        # Generate Marker file for xplanet
+            &xplanet($modes);
+            addstr($wmain, 8,5, "Output file $directory/$mycall-earth written.");
+    }
+    elsif ($choice eq '11') {
+        &qslstatistics($wmain);
+    }
 
-	# Statistics printed, wait for keystroke to go back to the menu
-	refresh($wmain);
-	getch();
-	
-	$status = 2;		# back to menu
+    # Statistics printed, wait for keystroke to go back to the menu
+    refresh($wmain);
+    getch();
+    
+    $status = 2;        # back to menu
 } # AWARD mode
 
 ##############################################################################
@@ -1816,29 +1816,29 @@ while ($status == 11) {
 ##############################################################################
 
 while ($status == 12) {
-	my $call;			# The callsign to edit.
-	attron($wmain, COLOR_PAIR(4));
-	addstr($whead, 0,0, "YFKlog v$yfkver - Name/DB edit mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
-	addstr($whelp, 0,0, 'Enter the callsign to edit.  F1: Menu  F12: Quit'.' 'x50);
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
-	refresh($wmain);
-	refresh($whead);
-	refresh($whelp);
+    my $call;            # The callsign to edit.
+    attron($wmain, COLOR_PAIR(4));
+    addstr($whead, 0,0, "YFKlog v$yfkver - Name/DB edit mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+    addstr($whelp, 0,0, 'Enter the callsign to edit.  F1: Menu  F12: Quit'.' 'x50);
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
+    refresh($wmain);
+    refresh($whead);
+    refresh($whelp);
 
-	curs_set(1);						# cursor visible	
-	$call= &askbox(10, 30, 4, 20, '[a-zA-Z0-9]', "Enter a callsign:", '');
-	# Edit the entry; returns 2 when the user wants to go back to the menu,
-	# otherwise 12. When the call is "m", go back to menu directly.
-	unless ($call eq "m" || $call =~ /^[A-Z0-9]{0,2}$/) {
-		addstr($whelp, 0,0, 'F1: Back to menu  F2: Save  F3: Delete entry'.' 'x50);
-		refresh($whelp);
-		$status = &editdb($call, \$wmain);
-	}
-	else {
-		$status = 2;
-	}
+    curs_set(1);                        # cursor visible    
+    $call= &askbox(10, 30, 4, 20, '[a-zA-Z0-9]', "Enter a callsign:", '');
+    # Edit the entry; returns 2 when the user wants to go back to the menu,
+    # otherwise 12. When the call is "m", go back to menu directly.
+    unless ($call eq "m" || $call =~ /^[A-Z0-9]{0,2}$/) {
+        addstr($whelp, 0,0, 'F1: Back to menu  F2: Save  F3: Delete entry'.' 'x50);
+        refresh($whelp);
+        $status = &editdb($call, \$wmain);
+    }
+    else {
+        $status = 2;
+    }
 }
 
 
@@ -1848,34 +1848,34 @@ while ($status == 12) {
 ##############################################################################
 
 while ($status == 13) {
-	my @lotwfiles; 
-	my $lotwdir;
-	my $lotwfile;
-	my ($nr, $match, $updated, $nf);
+    my @lotwfiles; 
+    my $lotwdir;
+    my $lotwfile;
+    my ($nr, $match, $updated, $nf);
     my @updates;
 
-	attron($wmain, COLOR_PAIR(4));
-	addstr($whead, 0,0, "YFKlog v$yfkver - LoTW import mode - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
-	addstr($whelp, 0,0, 'Select source of LoTW file. F1 to abort.');
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
+    attron($wmain, COLOR_PAIR(4));
+    addstr($whead, 0,0, "YFKlog v$yfkver - LoTW import mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+    addstr($whelp, 0,0, 'Select source of LoTW file. F1 to abort.');
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
 
-	refresh($wmain);
-	refresh($whead);
-	refresh($whelp);
+    refresh($wmain);
+    refresh($whead);
+    refresh($whelp);
 
     my @options = ('Open local file', 'Download from LoTW');
 
-	my $choice = &selectlist(\$wmain, 4,15, 10 , 50, \@options);
+    my $choice = &selectlist(\$wmain, 4,15, 10 , 50, \@options);
     attron($wmain, COLOR_PAIR(4));
 
     if ($choice eq "m") {
-		$status = 2;
-		last;
+        $status = 2;
+        last;
     }
     elsif ($choice == 1) {      # download automatically
-	    addstr($whelp,0,0, ' 'x(80*($row-2)));			# blue background
+        addstr($whelp,0,0, ' 'x(80*($row-2)));            # blue background
         addstr($whelp, 0,0, "Trying to download LoTW report...");
         erase($wmain);
         addstr($wmain,0,0, ' 'x(80*($row-2)));
@@ -1892,12 +1892,12 @@ while ($status == 13) {
         $lotwfile = &downloadlotw($startdate);
 
         if (!$lotwfile) {
-		    attron($wmain, COLOR_PAIR(6));
+            attron($wmain, COLOR_PAIR(6));
             addstr($wmain,6, 5, "Download failed! Check username/password and/or network connection.");
             attron($wmain, COLOR_PAIR(4));
             refresh($wmain);
             getch();
-            $status = 2;				# back to main menu
+            $status = 2;                # back to main menu
             next;
         }
 
@@ -1916,13 +1916,13 @@ while ($status == 13) {
             addstr($wmain, 5,15, "$lotwdir does not exist! Any key to continue.");
             refresh($wmain);
             getch();
-            $status = 2;				# back to main menu
+            $status = 2;                # back to main menu
             next;
         }
 
         addstr($whelp, 0,0, "Select a LoTW file from $lotwdir or F1 to quit");
         erase($wmain);
-        addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
+        addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
         addstr($wmain, 2,10, "Select a LoTW file from $lotwdir to import!");
         refresh($wmain);
         refresh($whead);
@@ -1938,7 +1938,7 @@ while ($status == 13) {
             addstr($wmain, 5,15, "No ADI-Files in $lotwdir! Any key to continue.");
             refresh($wmain);
             getch;
-            $status = 2;				# back to main menu
+            $status = 2;                # back to main menu
             next;
         }
 
@@ -1951,36 +1951,36 @@ while ($status == 13) {
         $lotwfile = $lotwfiles[$lotwfile];
     } # select file
 
-	if ($lotwfile eq 'm') {			# F1 pressed, go back to the menu
-		$status = 2;
-		last;
-	}
-	else {							# we want to import $lotwfiles[$lotwfile]
-		 ($nr,$match,$nf,@updates) = &lotwimport($lotwfile,$whelp)
-	}
+    if ($lotwfile eq 'm') {            # F1 pressed, go back to the menu
+        $status = 2;
+        last;
+    }
+    else {                            # we want to import $lotwfiles[$lotwfile]
+         ($nr,$match,$nf,@updates) = &lotwimport($lotwfile,$whelp)
+    }
 
-	attron($wmain, COLOR_PAIR(4));
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
+    attron($wmain, COLOR_PAIR(4));
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
 
-	if ($nr > 0) {									# OK, QSOs imported
-		$lotwfile =~ /([^\/]+)$/;
-		my $basename = $1;
-		addstr($wmain,  4,15, "QSOs processed: $nr. Matches: $match. Not found: $nf");
-		addstr($wmain, 5,5, "See /tmp/$mycall-LoTW-update-from-$basename.err for QSLs that were not found.") if $nf;
+    if ($nr > 0) {                                    # OK, QSOs imported
+        $lotwfile =~ /([^\/]+)$/;
+        my $basename = $1;
+        addstr($wmain,  4,15, "QSOs processed: $nr. Matches: $match. Not found: $nf");
+        addstr($wmain, 5,5, "See /tmp/$mycall-LoTW-update-from-$basename.err for QSLs that were not found.") if $nf;
 
         &selectlist(\$wmain, 7, 15, $row-10, 55, \@updates);
-	    attron($wmain, COLOR_PAIR(4));
-	}
-	else {			# Nothing
-		addstr($wmain,  7,10, "No QSLs imported. Possibly this file doesn't meet the LoTW");
-		addstr($wmain,  8,10, "specifications. ");
-		addstr($wmain,  9,10, "If you think the file is OK, contact author.");
-	    getch();
-	}
+        attron($wmain, COLOR_PAIR(4));
+    }
+    else {            # Nothing
+        addstr($wmain,  7,10, "No QSLs imported. Possibly this file doesn't meet the LoTW");
+        addstr($wmain,  8,10, "specifications. ");
+        addstr($wmain,  9,10, "If you think the file is OK, contact author.");
+        getch();
+    }
     refresh($wmain);
 
-	$status = 2;				# back to main menu
+    $status = 2;                # back to main menu
 
 } # end of $status = 13, LoTW import
 
@@ -1992,394 +1992,394 @@ while ($status == 13) {
 ##############################################################################
 
 while ($status == 15) {
-	attron($wmain, COLOR_PAIR(4));
-	addstr($whead, 0,0, "YFKlog v$yfkver - Setup - Active Logbook: ".
-	   "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
-	addstr($whelp, 0,0, 'Select the value you want to change. F1: Back to Menu.  F12: Exit.'.' 'x50);
-	erase($wmain);
-	addstr($wmain,0,0, ' 'x(80*($row-2)));			# blue background
-	addstr($wmain,0,10, 'Most settings of ~/.yfklog/config can be changed here.');
-	addstr($wmain,1,10, 'Please refer to the manual for further explanations.');
-	addstr($wmain, 2,30, 'YFKlog setup');
-	refresh($wmain);
-	refresh($whead);
-	refresh($whelp);
+    attron($wmain, COLOR_PAIR(4));
+    addstr($whead, 0,0, "YFKlog v$yfkver - Setup - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+    addstr($whelp, 0,0, 'Select the value you want to change. F1: Back to Menu.  F12: Exit.'.' 'x50);
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
+    addstr($wmain,0,10, 'Most settings of ~/.yfklog/config can be changed here.');
+    addstr($wmain,1,10, 'Please refer to the manual for further explanations.');
+    addstr($wmain, 2,30, 'YFKlog setup');
+    refresh($wmain);
+    refresh($whead);
+    refresh($whelp);
 
-	my @setup = (
-	sprintf("mycall=%-15s       - Your call sign", $mycall),
-	sprintf("dbuser=%-15s       - DB username (MySQL only)", $yfksubs::dbuser),
-	sprintf("dbname=%-15s       - DB name", $yfksubs::dbname),
-	sprintf("dbpass=%-15s       - DB password (MySQL only)", $yfksubs::dbpass),
-	sprintf("dbserver=%-15s     - DB server (MySQL), or 'sqlite' for SQLite", $yfksubs::dbserver),
-	sprintf("dbport=%-15s       - DB server port (MySQL only)", $yfksubs::dbport),
-	sprintf("dband=%-15s        - Default ham radio band", $dband),
-	sprintf("dmode=%-15s        - Default mode", $dmode),
-	sprintf("dpwr=%-15s         - Default output power", $dpwr),
-	sprintf("dqsls=%-15s        - Default QSL sent", $dqsls),
-	sprintf("dqslr=%-15s        - Default QSL received", $dqslr),
-	sprintf("dqslsi=%-15s       - Default QSL sent for ADIF import", $yfksubs::dqslsi),
-	sprintf("lat=%-15s          - Latitude, north positive", $yfksubs::lat1),
-	sprintf("lon=%-15s          - Longitude, west positive", $yfksubs::lon1),
-	sprintf("awardbands=%-15s   - Bands for awards", $yfksubs::bands),
-	sprintf("awardmodes=%-15s   - Modes for awards", $yfksubs::modes),
-	sprintf("screenlayout=%-15s - Layout, 1 or 0 (requires restart to take eff.)", $yfksubs::screenlayout),
-	sprintf("checklogs=%-15s    - Other logs to check for QSOs", $yfksubs::checklogs),
-	sprintf("rigmodel=%-15s     - hamlib rig model number (0 = disable hamlib)", $yfksubs::rigmodel),
-	sprintf("rigpath=%-15s      - hamlib rig path (e.g. /dev/ttyS0)", $yfksubs::rigpath),
-	sprintf("autoqueryrig=%-15s - Query hamlib automatically?", $yfksubs::autoqueryrig),
-	sprintf("operator=%-15s     - Operator's callsign", $yfksubs::operator),
-	sprintf("lotwdetails=%-15s  - Include details from LoTW?", $yfksubs::lotwdetails),
-	sprintf("directory=%-15s    - Default directory (ADIF, etc)", $yfksubs::directory),
-	sprintf("fieldorder=%-15s   - Default entry field order", $yfksubs::fieldorder),
-	sprintf("askme=%-15s        - Ask for confirmations?", $yfksubs::askme),
-	sprintf("logsort=%-15s      - Sorting log by 'N'umer or 'C'hronological", $yfksubs::logsort),
-	sprintf("prevsort=%-15s     - Show previous QSOs by date 'A'sc or 'D'esc?", $yfksubs::prevsort),
-	sprintf("browser=%-15s      - Web browser to use for QRZ.com lookups", $yfksubs::browser),
-	sprintf("colors=%-15s       - Enable colors? [1/0] (requires restart)", $colors),
-	sprintf("usehamdb=%-15s     - Use Ham::Callsign::DB to fill data", $yfksubs::usehamdb),
-	sprintf("qsldetails=%-15s   - Show QSO details in QSL write mode?", $qsldetails),
-	sprintf("drem=%-15s         - Default QSO remarks value", $drem),
-	sprintf("serial=%-15s       - Sent Serial Nr. (0 = None)", $serial),
-	sprintf("lotwlocation=%-15s - LoTW station locations", $yfksubs::lotwlocation)
-	);
+    my @setup = (
+    sprintf("mycall=%-15s       - Your call sign", $mycall),
+    sprintf("dbuser=%-15s       - DB username (MySQL only)", $yfksubs::dbuser),
+    sprintf("dbname=%-15s       - DB name", $yfksubs::dbname),
+    sprintf("dbpass=%-15s       - DB password (MySQL only)", $yfksubs::dbpass),
+    sprintf("dbserver=%-15s     - DB server (MySQL), or 'sqlite' for SQLite", $yfksubs::dbserver),
+    sprintf("dbport=%-15s       - DB server port (MySQL only)", $yfksubs::dbport),
+    sprintf("dband=%-15s        - Default ham radio band", $dband),
+    sprintf("dmode=%-15s        - Default mode", $dmode),
+    sprintf("dpwr=%-15s         - Default output power", $dpwr),
+    sprintf("dqsls=%-15s        - Default QSL sent", $dqsls),
+    sprintf("dqslr=%-15s        - Default QSL received", $dqslr),
+    sprintf("dqslsi=%-15s       - Default QSL sent for ADIF import", $yfksubs::dqslsi),
+    sprintf("lat=%-15s          - Latitude, north positive", $yfksubs::lat1),
+    sprintf("lon=%-15s          - Longitude, west positive", $yfksubs::lon1),
+    sprintf("awardbands=%-15s   - Bands for awards", $yfksubs::bands),
+    sprintf("awardmodes=%-15s   - Modes for awards", $yfksubs::modes),
+    sprintf("screenlayout=%-15s - Layout, 1 or 0 (requires restart to take eff.)", $yfksubs::screenlayout),
+    sprintf("checklogs=%-15s    - Other logs to check for QSOs", $yfksubs::checklogs),
+    sprintf("rigmodel=%-15s     - hamlib rig model number (0 = disable hamlib)", $yfksubs::rigmodel),
+    sprintf("rigpath=%-15s      - hamlib rig path (e.g. /dev/ttyS0)", $yfksubs::rigpath),
+    sprintf("autoqueryrig=%-15s - Query hamlib automatically?", $yfksubs::autoqueryrig),
+    sprintf("operator=%-15s     - Operator's callsign", $yfksubs::operator),
+    sprintf("lotwdetails=%-15s  - Include details from LoTW?", $yfksubs::lotwdetails),
+    sprintf("directory=%-15s    - Default directory (ADIF, etc)", $yfksubs::directory),
+    sprintf("fieldorder=%-15s   - Default entry field order", $yfksubs::fieldorder),
+    sprintf("askme=%-15s        - Ask for confirmations?", $yfksubs::askme),
+    sprintf("logsort=%-15s      - Sorting log by 'N'umer or 'C'hronological", $yfksubs::logsort),
+    sprintf("prevsort=%-15s     - Show previous QSOs by date 'A'sc or 'D'esc?", $yfksubs::prevsort),
+    sprintf("browser=%-15s      - Web browser to use for QRZ.com lookups", $yfksubs::browser),
+    sprintf("colors=%-15s       - Enable colors? [1/0] (requires restart)", $colors),
+    sprintf("usehamdb=%-15s     - Use Ham::Callsign::DB to fill data", $yfksubs::usehamdb),
+    sprintf("qsldetails=%-15s   - Show QSO details in QSL write mode?", $qsldetails),
+    sprintf("drem=%-15s         - Default QSO remarks value", $drem),
+    sprintf("serial=%-15s       - Sent Serial Nr. (0 = None)", $serial),
+    sprintf("lotwlocation=%-15s - LoTW station locations", $yfksubs::lotwlocation)
+    );
 
-	my $choice = &selectlist(\$wmain, 2, 1, $row-6, 78, \@setup);
+    my $choice = &selectlist(\$wmain, 2, 1, $row-6, 78, \@setup);
 
-	if ($choice eq 'm') {		# back to main menu
-		&readconfig;
-		&readsubconfig;
-		&connectdb;
-		&connectrig;
-		$firstrun = 0;
-		$status = 2;
-#		endwin;
-		&databaseupgrade(1);	# 1 -> clear screen first
-		getch;
-		last;
-	}
+    if ($choice eq 'm') {        # back to main menu
+        &readconfig;
+        &readsubconfig;
+        &connectdb;
+        &connectrig;
+        $firstrun = 0;
+        $status = 2;
+#        endwin;
+        &databaseupgrade(1);    # 1 -> clear screen first
+        getch;
+        last;
+    }
 
 
-	my $original = '';
-	if ($choice == 0) {
-		$original = "mycall=$mycall";
-		my $ret = &askbox(10,20,4,30, '[A-Za-z0-9\/]', "Enter new mycall", $mycall);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			$ret = lc($ret);
-			$ret =~ s/\//_/g;
-			&changeconfig($original, "mycall=$ret");
-		}
-	}
-	elsif ($choice == 1) {
-		$original = "dbuser=$yfksubs::dbuser";
-		my $ret = &askbox(10,20,4,30, '\w', "Enter new dbuser",
-				$yfksubs::dbuser);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dbuser=$ret");
-		}
-	}
-	elsif ($choice == 2) {
-		$original = "dbname=$yfksubs::dbname";
-		my $ret = &askbox(10,20,4,30, '\w', "Enter new dbname",
-				$yfksubs::dbname);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dbname=$ret");
-		}
-	}
-	elsif ($choice == 3) {
-		$original = "dbpass=$yfksubs::dbpass";
-		my $ret = &askbox(10,20,4,30, '\w', "Enter new dbpass",
-				$yfksubs::dbpass);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dbpass=$ret");
-		}
-	}
-	elsif ($choice == 4) {
-		$original = "dbserver=$yfksubs::dbserver";
-		my $ret = &askbox(10,20,4,30, 'filename', "Enter new dbserver",
-				$yfksubs::dbserver);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dbserver=$ret");
-		}
-	}
-	elsif ($choice == 5) {
-		$original = "dbport=$yfksubs::dbport";
-		my $ret = &askbox(10,20,4,30, '\d', "Enter new dbport",
-				$yfksubs::dbport);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dbport=$ret");
-		}
-	}
-	elsif ($choice == 6) {
-		$original = "dband=$dband";
-		my $ret = &askbox(10,20,4,30, '\d', "Enter new dband",
-				$dband);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dband=$ret");
-		}
-	}
-	elsif ($choice == 7) {
-		$original = "dmode=$dmode";
-		my $ret = &askbox(10,20,4,30, '[A-Za-z0-9]', "Enter new dmode",
-				$dmode);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dmode=$ret");
-		}
-	}
-	elsif ($choice == 8) {
-		$original = "dpwr=$dpwr";
-		my $ret = &askbox(10,20,4,30, '\d', "Enter new dpwr",
-				$dpwr);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dpwr=$ret");
-		}
-	}
-	elsif ($choice == 9) {
-		$original = "dqsls=$dqsls";
-		my $ret = &askbox(10,20,4,30, '[A-Za-z]', "Enter new dqsls",
-				$dqsls);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dqsls=$ret");
-		}
-	}
-	elsif ($choice == 10) {
-		$original = "dqslr=$dqslr";
-		my $ret = &askbox(10,20,4,30, '[A-Za-z]', "Enter new dqslr",
-				$dqslr);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dqslr=$ret");
-		}
-	}
-	elsif ($choice == 11) {
-		$original = "dqslsi=$yfksubs::dqslsi";
-		my $ret = &askbox(10,20,4,30, '[A-Za-z]', "Enter new dqslsi",
-				$yfksubs::dqslsi);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "dqslsi=$ret");
-		}
-	}
-	elsif ($choice == 12) {
-		$original = "lat=$yfksubs::lat1";
-		my $ret = &askbox(10,20,4,30, '[0-9\-]', "Enter new latitude",
-				$yfksubs::lat1);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "lat=$ret");
-		}
-	}
-	elsif ($choice == 13) {
-		$original = "lon=$yfksubs::lon1";
-		my $ret = &askbox(10,20,4,30, '[0-9\-]', "Enter new longitude",
-				$yfksubs::lon1);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "lon=$ret");
-		}
-	}
-	elsif ($choice == 14) {
-		$original = "awardbands=$yfksubs::bands";
-		my $ret = &askbox(10,20,4,50, '[0-9. ]', "Enter new award bands",
-				$yfksubs::bands);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "awardbands=$ret");
-		}
-	}
-	elsif ($choice == 15) {
-		$original = "awardmodes=$yfksubs::modes";
-		my $ret = &askbox(10,20,4,50, '[A-Z0-9. ]', "Enter new award modes",
-				$yfksubs::modes);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "awardmodes=$ret");
-		}
-	}
-	elsif ($choice == 16) {
-		$original = "screenlayout=$yfksubs::screenlayout";
-		my $ret = &askbox(10,20,4,30, '[10]', "Enter screenlayout (0 or 1)",
-				$yfksubs::screenlayout);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "screenlayout=$ret");
-		}
-	}
-	elsif ($choice == 17) {
-		$original = "checklogs=$yfksubs::checklogs";
-		my $ret = &askbox(10,20,4,30, '[A-Za-z0-9\/ ]', 
-				"Enter checklogs (space separated)",
-				$yfksubs::checklogs);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "checklogs=$ret");
-		}
-	}
-	elsif ($choice == 18) {
-		$original = "rigmodel=$yfksubs::rigmodel";
-		my $ret = &askbox(10,20,4,30, '\d', "Enter hamlib rigmodel (0=no rig)",
-				$yfksubs::rigmodel);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "rigmodel=$ret");
-		}
-	}
-	elsif ($choice == 19) {
-		$original = "rigpath=$yfksubs::rigpath";
-		my $ret = &askbox(10,20,4,30, 'filename', "Enter hamlib rigpath",
-				$yfksubs::rigpath);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "rigpath=$ret");
-		}
-	}
-	elsif ($choice == 20) {
-		$original = "autoqueryrig=$yfksubs::autoqueryrig";
-		my $ret = &askbox(10,20,4,30, '[01]', "autoqueryrig? 1=yes, 0=no",
-				$yfksubs::autoqueryrig);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "autoqueryrig=$ret");
-		}
-	}
-	elsif ($choice == 21) {
-		$original = "operator=$yfksubs::operator";
-		my $ret = &askbox(10,20,4,30, '[a-zA-Z0-9]', "Enter new operator call",
-				$yfksubs::operator);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "operator=$ret");
-		}
-	}
-	elsif ($choice == 22) {
-		$original = "lotwdetails=$yfksubs::lotwdetails";
-		my $ret = &askbox(10,20,4,30, '[01]', "lotwdetails? 1=yes, 0=no",
-				$yfksubs::lotwdetails);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "lotwdetails=$ret");
-		}
-	}
-	elsif ($choice == 23) {
-		$original = "directory=$yfksubs::directory";
-		my $ret = &askbox(10,20,4,30, 'filename', "Default directory",
-				$yfksubs::directory);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "directory=$ret");
-		}
-	}
-	elsif ($choice == 24) {
-		$original = "fieldorder=$yfksubs::fieldorder";
-		my $ret = &askbox(10,20,4,30, '[A-Z ]', "Field order?",
-				$yfksubs::fieldorder);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "fieldorder=$ret");
-		}
-	} 
-	elsif ($choice == 25) {
-		$original = "askme=$yfksubs::askme";
-		my $ret = &askbox(10,10,4,60, '[01]', 
-				"Ask for confirmations (see Manual)? (0/1)", $yfksubs::askme);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "askme=$ret");
-		}
-	} 
-	elsif ($choice == 26) {
-		$original = "logsort=$yfksubs::logsort";
-		my $ret = &askbox(10,10,4,60, '[ncNC]', 
-				"Sort log by N=Number or C=Chronological?", $yfksubs::logsort);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			$ret = uc($ret);
-			&changeconfig($original, "logsort=$ret");
-		}
-	} 
-	elsif ($choice == 27) {
-		$original = "prevsort=$yfksubs::prevsort";
-		my $ret = &askbox(10,10,4,60, '[ADad]', 
-			"Sort prev. QSOs A=Ascending, D=Descending?", $yfksubs::prevsort);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			$ret = uc($ret);
-			&changeconfig($original, "prevsort=$ret");
-		}
-	} 
-	elsif ($choice == 28) {
-		$original = "browser=$yfksubs::browser";
-		my $ret = &askbox(10,10,4,60, 'filename', 
-			"Web browser for QRZ lookups?", $yfksubs::browser);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "browser=$ret");
-		}
-	} 
-	elsif ($choice == 29) {
-		$original = "colors=$colors";
-		my $ret = &askbox(10,10,4,60, '[10]', 
-			"Use colors? [1/0]", $colors);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "colors=$ret");
-		}
-	} 
-	elsif ($choice == 30) {
-		$original = "usehamdb=$yfksubs::usehamdb";
-		my $ret = &askbox(10,20,4,30, '[01]', "Use Ham::Callsign::DB? 1=yes, 0=no",
-				$yfksubs::usehamdb);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "usehamdb=$ret");
-		}
-	}
-	elsif ($choice == 31) {
-		$original = "qsldetails=$qsldetails";
-		my $ret = &askbox(10,20,4,30, '[01]', "Show QSO details? 1=yes, 0=no",
-				$qsldetails);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "qsldetails=$ret");
-		}
-	}
-	elsif ($choice == 32) {
-		$original = "drem=$drem";
-		my $ret = &askbox(10,20,4,30, 'text', "Default remarks text?",
-				$drem);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "drem=$ret");
-		}
-	}
-	elsif ($choice == 33) {
-		$original = "serial=$serial";
-		my $ret = &askbox(10,20,4,30, 'text', "Default serial nr. (0 = none)?",
-				$serial);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "serial=$ret");
-		}
-	}
-	elsif ($choice == 34) { # todo: askbox doesn't scroll beyond initial size
-		$original = "lotwlocation=$yfksubs::lotwlocation";
-		my $ret = &askbox(10,5,4,70, '[A-Za-z0-9\-\/_,:]', "LoTW station locations?", $yfksubs::lotwlocation);
-		if ($ret eq 'm') { last }
-		elsif ($ret ne '') {
-			&changeconfig($original, "lotwlocation=$ret");
-		}
-	}
-	&readconfig;
-	&readsubconfig;
+    my $original = '';
+    if ($choice == 0) {
+        $original = "mycall=$mycall";
+        my $ret = &askbox(10,20,4,30, '[A-Za-z0-9\/]', "Enter new mycall", $mycall);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            $ret = lc($ret);
+            $ret =~ s/\//_/g;
+            &changeconfig($original, "mycall=$ret");
+        }
+    }
+    elsif ($choice == 1) {
+        $original = "dbuser=$yfksubs::dbuser";
+        my $ret = &askbox(10,20,4,30, '\w', "Enter new dbuser",
+                $yfksubs::dbuser);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dbuser=$ret");
+        }
+    }
+    elsif ($choice == 2) {
+        $original = "dbname=$yfksubs::dbname";
+        my $ret = &askbox(10,20,4,30, '\w', "Enter new dbname",
+                $yfksubs::dbname);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dbname=$ret");
+        }
+    }
+    elsif ($choice == 3) {
+        $original = "dbpass=$yfksubs::dbpass";
+        my $ret = &askbox(10,20,4,30, '\w', "Enter new dbpass",
+                $yfksubs::dbpass);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dbpass=$ret");
+        }
+    }
+    elsif ($choice == 4) {
+        $original = "dbserver=$yfksubs::dbserver";
+        my $ret = &askbox(10,20,4,30, 'filename', "Enter new dbserver",
+                $yfksubs::dbserver);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dbserver=$ret");
+        }
+    }
+    elsif ($choice == 5) {
+        $original = "dbport=$yfksubs::dbport";
+        my $ret = &askbox(10,20,4,30, '\d', "Enter new dbport",
+                $yfksubs::dbport);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dbport=$ret");
+        }
+    }
+    elsif ($choice == 6) {
+        $original = "dband=$dband";
+        my $ret = &askbox(10,20,4,30, '\d', "Enter new dband",
+                $dband);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dband=$ret");
+        }
+    }
+    elsif ($choice == 7) {
+        $original = "dmode=$dmode";
+        my $ret = &askbox(10,20,4,30, '[A-Za-z0-9]', "Enter new dmode",
+                $dmode);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dmode=$ret");
+        }
+    }
+    elsif ($choice == 8) {
+        $original = "dpwr=$dpwr";
+        my $ret = &askbox(10,20,4,30, '\d', "Enter new dpwr",
+                $dpwr);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dpwr=$ret");
+        }
+    }
+    elsif ($choice == 9) {
+        $original = "dqsls=$dqsls";
+        my $ret = &askbox(10,20,4,30, '[A-Za-z]', "Enter new dqsls",
+                $dqsls);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dqsls=$ret");
+        }
+    }
+    elsif ($choice == 10) {
+        $original = "dqslr=$dqslr";
+        my $ret = &askbox(10,20,4,30, '[A-Za-z]', "Enter new dqslr",
+                $dqslr);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dqslr=$ret");
+        }
+    }
+    elsif ($choice == 11) {
+        $original = "dqslsi=$yfksubs::dqslsi";
+        my $ret = &askbox(10,20,4,30, '[A-Za-z]', "Enter new dqslsi",
+                $yfksubs::dqslsi);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dqslsi=$ret");
+        }
+    }
+    elsif ($choice == 12) {
+        $original = "lat=$yfksubs::lat1";
+        my $ret = &askbox(10,20,4,30, '[0-9\-]', "Enter new latitude",
+                $yfksubs::lat1);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "lat=$ret");
+        }
+    }
+    elsif ($choice == 13) {
+        $original = "lon=$yfksubs::lon1";
+        my $ret = &askbox(10,20,4,30, '[0-9\-]', "Enter new longitude",
+                $yfksubs::lon1);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "lon=$ret");
+        }
+    }
+    elsif ($choice == 14) {
+        $original = "awardbands=$yfksubs::bands";
+        my $ret = &askbox(10,20,4,50, '[0-9. ]', "Enter new award bands",
+                $yfksubs::bands);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "awardbands=$ret");
+        }
+    }
+    elsif ($choice == 15) {
+        $original = "awardmodes=$yfksubs::modes";
+        my $ret = &askbox(10,20,4,50, '[A-Z0-9. ]', "Enter new award modes",
+                $yfksubs::modes);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "awardmodes=$ret");
+        }
+    }
+    elsif ($choice == 16) {
+        $original = "screenlayout=$yfksubs::screenlayout";
+        my $ret = &askbox(10,20,4,30, '[10]', "Enter screenlayout (0 or 1)",
+                $yfksubs::screenlayout);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "screenlayout=$ret");
+        }
+    }
+    elsif ($choice == 17) {
+        $original = "checklogs=$yfksubs::checklogs";
+        my $ret = &askbox(10,20,4,30, '[A-Za-z0-9\/ ]', 
+                "Enter checklogs (space separated)",
+                $yfksubs::checklogs);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "checklogs=$ret");
+        }
+    }
+    elsif ($choice == 18) {
+        $original = "rigmodel=$yfksubs::rigmodel";
+        my $ret = &askbox(10,20,4,30, '\d', "Enter hamlib rigmodel (0=no rig)",
+                $yfksubs::rigmodel);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "rigmodel=$ret");
+        }
+    }
+    elsif ($choice == 19) {
+        $original = "rigpath=$yfksubs::rigpath";
+        my $ret = &askbox(10,20,4,30, 'filename', "Enter hamlib rigpath",
+                $yfksubs::rigpath);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "rigpath=$ret");
+        }
+    }
+    elsif ($choice == 20) {
+        $original = "autoqueryrig=$yfksubs::autoqueryrig";
+        my $ret = &askbox(10,20,4,30, '[01]', "autoqueryrig? 1=yes, 0=no",
+                $yfksubs::autoqueryrig);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "autoqueryrig=$ret");
+        }
+    }
+    elsif ($choice == 21) {
+        $original = "operator=$yfksubs::operator";
+        my $ret = &askbox(10,20,4,30, '[a-zA-Z0-9]', "Enter new operator call",
+                $yfksubs::operator);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "operator=$ret");
+        }
+    }
+    elsif ($choice == 22) {
+        $original = "lotwdetails=$yfksubs::lotwdetails";
+        my $ret = &askbox(10,20,4,30, '[01]', "lotwdetails? 1=yes, 0=no",
+                $yfksubs::lotwdetails);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "lotwdetails=$ret");
+        }
+    }
+    elsif ($choice == 23) {
+        $original = "directory=$yfksubs::directory";
+        my $ret = &askbox(10,20,4,30, 'filename', "Default directory",
+                $yfksubs::directory);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "directory=$ret");
+        }
+    }
+    elsif ($choice == 24) {
+        $original = "fieldorder=$yfksubs::fieldorder";
+        my $ret = &askbox(10,20,4,30, '[A-Z ]', "Field order?",
+                $yfksubs::fieldorder);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "fieldorder=$ret");
+        }
+    } 
+    elsif ($choice == 25) {
+        $original = "askme=$yfksubs::askme";
+        my $ret = &askbox(10,10,4,60, '[01]', 
+                "Ask for confirmations (see Manual)? (0/1)", $yfksubs::askme);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "askme=$ret");
+        }
+    } 
+    elsif ($choice == 26) {
+        $original = "logsort=$yfksubs::logsort";
+        my $ret = &askbox(10,10,4,60, '[ncNC]', 
+                "Sort log by N=Number or C=Chronological?", $yfksubs::logsort);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            $ret = uc($ret);
+            &changeconfig($original, "logsort=$ret");
+        }
+    } 
+    elsif ($choice == 27) {
+        $original = "prevsort=$yfksubs::prevsort";
+        my $ret = &askbox(10,10,4,60, '[ADad]', 
+            "Sort prev. QSOs A=Ascending, D=Descending?", $yfksubs::prevsort);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            $ret = uc($ret);
+            &changeconfig($original, "prevsort=$ret");
+        }
+    } 
+    elsif ($choice == 28) {
+        $original = "browser=$yfksubs::browser";
+        my $ret = &askbox(10,10,4,60, 'filename', 
+            "Web browser for QRZ lookups?", $yfksubs::browser);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "browser=$ret");
+        }
+    } 
+    elsif ($choice == 29) {
+        $original = "colors=$colors";
+        my $ret = &askbox(10,10,4,60, '[10]', 
+            "Use colors? [1/0]", $colors);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "colors=$ret");
+        }
+    } 
+    elsif ($choice == 30) {
+        $original = "usehamdb=$yfksubs::usehamdb";
+        my $ret = &askbox(10,20,4,30, '[01]', "Use Ham::Callsign::DB? 1=yes, 0=no",
+                $yfksubs::usehamdb);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "usehamdb=$ret");
+        }
+    }
+    elsif ($choice == 31) {
+        $original = "qsldetails=$qsldetails";
+        my $ret = &askbox(10,20,4,30, '[01]', "Show QSO details? 1=yes, 0=no",
+                $qsldetails);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "qsldetails=$ret");
+        }
+    }
+    elsif ($choice == 32) {
+        $original = "drem=$drem";
+        my $ret = &askbox(10,20,4,30, 'text', "Default remarks text?",
+                $drem);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "drem=$ret");
+        }
+    }
+    elsif ($choice == 33) {
+        $original = "serial=$serial";
+        my $ret = &askbox(10,20,4,30, 'text', "Default serial nr. (0 = none)?",
+                $serial);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "serial=$ret");
+        }
+    }
+    elsif ($choice == 34) { # todo: askbox doesn't scroll beyond initial size
+        $original = "lotwlocation=$yfksubs::lotwlocation";
+        my $ret = &askbox(10,5,4,70, '[A-Za-z0-9\-\/_,:]', "LoTW station locations?", $yfksubs::lotwlocation);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "lotwlocation=$ret");
+        }
+    }
+    &readconfig;
+    &readsubconfig;
 }
 
 } # end of MAIN PROGRAM LOOP
