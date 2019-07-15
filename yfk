@@ -26,6 +26,8 @@ use DBI;                # Database interface
 use Curses;    
 use Net::FTP;            # upload of online log or backup
 
+use threads ('yield', 'stack_size' => 64*4096, 'exit' => 'threads_only', 'stringify'); 
+
 # terminal size (will be queried later)
 our $col;
 our $row;
@@ -209,7 +211,7 @@ init_pair(7, COLOR_BLACK, COLOR_WHITE);
 
 }
 
-our ($whead, $whelp, $winput, $winfo, $wlog, $wqsos, $wedit, $weditlog, $wmain);
+our ($whead, $whelp, $winput, $winfo, $wlog, $wqsos, $wedit, $weditlog, $wmain, $wdxc);
 # build logging windows (see yfksubs.pl)
 &create_windows();
 
@@ -251,6 +253,11 @@ $wi[24] = &makewindow(1,6,5,39,5);            # Edit  Window: OPERATOR
 $wi[25] = &makewindow(1,6,5,53,5);            # Edit  Window: GRID
 my  $wi = \@wi;            # Window reference
 
+# launch DX cluster if configured
+if ($wdxc) {
+    my $thr = threads->create('rundxc');
+}
+
 ##############################################################################
 # MAIN PROGRAM LOOP
 # This is the outer loop of the program. Depending on $status, it choses
@@ -260,6 +267,7 @@ my  $wi = \@wi;            # Window reference
 
 while (1) {                # Loop infinitely;  most outer loop.
 
+redraw();
 
 ##############################################################################
 # LOGGING MODE  ($status = 1)

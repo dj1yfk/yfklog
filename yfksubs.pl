@@ -34,7 +34,7 @@ changemycall newlogtable oldlogtable choseeditqso geteditqso editw updateqso che
 awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
 connectdb connectrig jumpfield receive_qso tqslsign getlotwlocations 
-getlotwstartdate downloadlotw redraw create_windows);
+getlotwstartdate downloadlotw redraw create_windows rundxc);
 
 use strict;
 use POSIX;                # needed for acos in distance/direction calculation
@@ -44,6 +44,7 @@ use IO::Socket;
 use DBI;
 use IPC::SysV qw(IPC_PRIVATE IPC_RMID IPC_NOWAIT IPC_CREAT);
 use LWP::UserAgent ();
+use Net::Telnet ();
 
 my $havehamdb = eval "require Ham::Callsign::DB;";
 my $hamdb;
@@ -113,13 +114,17 @@ sub redraw {
     $main::row-- if ($main::row % 2);
 
     &create_windows();
-
 }
 
 sub create_windows {
 
     my $row = $main::row;
+    my $col = $main::col;
 
+    # DX cluster window. only create this if we have enough space (width >= 160)
+    if ($col >= 180) {
+        $main::wdxc = &makewindow($row,100,0,80,5);
+    }
 
     # GENERAL WINDOWS, always visible
     $main::whead  = &makewindow(1,80,0,0,2);      # head window
@@ -143,13 +148,69 @@ sub create_windows {
     }
 
     # EDIT / SEARCH MODE WINDOWS ($status = 10)
-    $main::wedit      = &makewindow(5,80,1,0,1);      # Edit Window
-    $main::weditlog   = &makewindow(($row-7),80,6,0,4);       # Search results
+    $main::wedit      = &makewindow(5,80,1,0,1);        # Edit Window
+    $main::weditlog   = &makewindow(($row-7),80,6,0,4); # Search results
 
-    $main::wmain = &makewindow($row-2,80,1,0,4);       # Input Window
+    $main::wmain = &makewindow($row-2,80,1,0,4);        # general purpose window
+
 }
 
+sub rundxc {
+    my $win = $main::wdxc;
+    my $c = 0;
+    my $rows = $main::row;
+    while (1) {
 
+	my $t = new Net::Telnet (Timeout => 600, Port => 7300, Prompt => '/./');
+	$t->open("localhost");
+	$t->print("dj1yfk-9\n");
+	$t->print("set/raw\n");
+
+	my %bcfh = ();   # band-call-> freq hash
+	my %bcth = ();   # band-call-> timestamp hash
+
+    while (1) {
+        my $line = $t->getline();
+        chomp($line);
+        if ($line =~ /DX de .*:\s+([0-9.]+)\s+([A-Z0-9\/]+)/) {
+            my $dxcall = $2;
+            my $freq = $1;
+            $freq =~ s/(\.\d)\d$/$1/g;
+            my $dxband = &freq2band($freq);
+
+            $bcfh{$dxband}{$dxcall} = $freq;
+            $bcth{$dxband}{$dxcall} = time;
+            print STDERR "set bcth >$dxband< >$dxcall< ==> ".$bcth{$dxband}{$dxcall}."\n";
+            print STDERR "set bcfh >$dxband< >$dxcall< ==> ".$bcfh{$dxband}{$dxcall}."\n";
+
+            addstr($win, 0, 0, " "x9999);
+            
+            $c = 0;
+
+            for my $band ( sort { $b <=> $a } keys %bcfh ) {
+                $c++ if ($c);
+                for my $call ( sort { $bcfh{$band}{$a} <=> $bcfh{$band}{$b} } keys %{ $bcfh{$band} } ) {
+                    $line = sprintf("%7.1f  %s", $bcfh{$band}{$call}, $call);
+                    print STDERR "LINE === >>$line<< $band\n";
+                    $c++;
+                    # we split into columns with a width of 25                    
+                    my $mrow = $c % $rows;
+                    my $mcol = int($c / $rows);
+                    addstr($win, $mrow , 1 + $mcol*25, $line);
+
+                    if ((time - $bcth{$band}{$call}) > 10) {
+                        print STDERR "timeout for >$call< on >$band< . current time = ".time." saved time = ".$bcth{$band}{$call}."\n";
+
+                        delete($bcfh{$band}{$call});
+                        delete($bcth{$band}{$call});
+                    }
+                }
+            }
+        }
+        refresh($win);
+    }
+}
+}
 
 # We read the configuration file .yfklog.
 
@@ -5839,6 +5900,7 @@ sub freq2band {
 
         if (($freq >= 1800) && ($freq <= 2000)) { $freq = "160"; }
         elsif (($freq >= 3500) && ($freq <= 4000)) { $freq = "80"; }
+        elsif (($freq >= 5100) && ($freq <= 5500)) { $freq = "60"; }
         elsif (($freq >= 7000) && ($freq <= 7300)) { $freq = "40"; }
         elsif (($freq >=10100) && ($freq <=10150)) { $freq = "30"; }
         elsif (($freq >=14000) && ($freq <=14350)) { $freq = "20"; }
