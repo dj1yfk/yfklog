@@ -180,8 +180,6 @@ sub rundxc {
 
             $bcfh{$dxband}{$dxcall} = $freq;
             $bcth{$dxband}{$dxcall} = time;
-            print STDERR "set bcth >$dxband< >$dxcall< ==> ".$bcth{$dxband}{$dxcall}."\n";
-            print STDERR "set bcfh >$dxband< >$dxcall< ==> ".$bcfh{$dxband}{$dxcall}."\n";
 
             addstr($win, 0, 0, " "x9999);
             
@@ -191,16 +189,13 @@ sub rundxc {
                 $c++ if ($c);
                 for my $call ( sort { $bcfh{$band}{$a} <=> $bcfh{$band}{$b} } keys %{ $bcfh{$band} } ) {
                     $line = sprintf("%7.1f  %s", $bcfh{$band}{$call}, $call);
-                    print STDERR "LINE === >>$line<< $band\n";
                     $c++;
                     # we split into columns with a width of 25                    
                     my $mrow = $c % $rows;
                     my $mcol = int($c / $rows);
                     addstr($win, $mrow , 1 + $mcol*25, $line);
 
-                    if ((time - $bcth{$band}{$call}) > 10) {
-                        print STDERR "timeout for >$call< on >$band< . current time = ".time." saved time = ".$bcth{$band}{$call}."\n";
-
+                    if ((time - $bcth{$band}{$call}) > 300) {
                         delete($bcfh{$band}{$call});
                         delete($bcth{$band}{$call});
                     }
