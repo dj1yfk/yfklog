@@ -9,9 +9,9 @@ install:
 	sed 's^prefix="/usr"^prefix="$(DESTDIR)"^g' yfksubs.pl > yfksubs2.pl 
 	sed 's^prefix="/usr"^prefix="$(DESTDIR)"^g' yfk > yfk2 
 	chmod 0755 yfk
-	install -d -v				$(DESTDIR)/share/yfklog/
-	install -d -v				$(DESTDIR)/share/yfklog/labels/
-	install -d -v				$(DESTDIR)/bin/
+	install -d  				$(DESTDIR)/share/yfklog/
+	install -d  				$(DESTDIR)/share/yfklog/labels/
+	install -d  				$(DESTDIR)/bin/
 	install -m 0755 yfk2		$(DESTDIR)/bin/yfk 
 	install -m 0444 yfksubs2.pl	$(DESTDIR)/share/yfklog/yfksubs.pl
 	install -m 0444 db_* 		$(DESTDIR)/share/yfklog/
