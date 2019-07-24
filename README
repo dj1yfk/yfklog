@@ -1,10 +1,10 @@
-YFKlog Version 0.4.0 - A general purpose Ham Radio Logbook  
+YFKlog Version 0.5.0 - A general purpose Ham Radio Logbook  
 ------------------------------------------------------------------------------
 
 1. Project Description 
 ----------------------
 YFKlog is a general purpose logbook to keep track of amateur
-radio contacts. This is Version 0.4.0, released on 23. October 2007.
+radio contacts. This is Version 0.5.0, released on July 31, 2019.
 The key characteristics are:
 
 - Console based, bloat-free text interface. 
@@ -44,7 +44,10 @@ up YFKlog.
 For generating QSL-labels, pdflatex with the 'geometry' package is 
 needed. 
 
-YFKlog was designed to run in a console with 80x24 characters. 
+YFKlog was designed to run in a console with at least 80x24
+characters. It will scale vertically, e.g. if you're running
+it in a console with 80x50 characters, you will see more rows
+of your log; excessive terminal width is not used.
 
 5. Installation
 ---------------
