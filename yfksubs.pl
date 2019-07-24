@@ -169,10 +169,15 @@ sub rundxc {
 	my %bcfh = ();   # band-call-> freq hash
 	my %bcth = ();   # band-call-> timestamp hash
 
+    my $timeout = 300;
+    my $lastrefresh = 0;
+
+    sleep(2);
+
     while (1) {
         my $line = $t->getline();
         chomp($line);
-        if ($line =~ /DX de .*:\s+([0-9.]+)\s+([A-Z0-9\/]+)/) {
+        if ($line =~ /CW/ and $line =~ /DX de .*:\s+([0-9.]+)\s+([A-Z0-9\/]+)/) {
             my $dxcall = $2;
             my $freq = $1;
             $freq =~ s/(\.\d)\d$/$1/g;
@@ -181,28 +186,39 @@ sub rundxc {
             $bcfh{$dxband}{$dxcall} = $freq;
             $bcth{$dxband}{$dxcall} = time;
 
+            # remember cursor pos
             addstr($win, 0, 0, " "x9999);
             
-            $c = 0;
+            do {
+                $c = 0;
+                for my $band ( sort { $b <=> $a } keys %bcfh ) {
+                    $c++ if ($c);
+                    for my $call ( sort { $bcfh{$band}{$a} <=> $bcfh{$band}{$b} } keys %{ $bcfh{$band} } ) {
+                        $line = sprintf("%7.1f  %s", $bcfh{$band}{$call}, $call);
+                        $c++;
+                        # we split into columns with a width of 25                    
+                        my $mrow = $c % $rows;
+                        my $mcol = int($c / $rows);
+                        addstr($win, $mrow , 1 + $mcol*25, $line);
 
-            for my $band ( sort { $b <=> $a } keys %bcfh ) {
-                $c++ if ($c);
-                for my $call ( sort { $bcfh{$band}{$a} <=> $bcfh{$band}{$b} } keys %{ $bcfh{$band} } ) {
-                    $line = sprintf("%7.1f  %s", $bcfh{$band}{$call}, $call);
-                    $c++;
-                    # we split into columns with a width of 25                    
-                    my $mrow = $c % $rows;
-                    my $mcol = int($c / $rows);
-                    addstr($win, $mrow , 1 + $mcol*25, $line);
-
-                    if ((time - $bcth{$band}{$call}) > 300) {
-                        delete($bcfh{$band}{$call});
-                        delete($bcth{$band}{$call});
+                        if ((time - $bcth{$band}{$call}) > $timeout) {
+                            delete($bcfh{$band}{$call});
+                            delete($bcth{$band}{$call});
+                        }
                     }
                 }
-            }
+
+                # bandmap full? reduce timeout!
+                $timeout -= 1;
+            } while ($c >= (4 * $rows));
+
+            $timeout = 300;
         }
-        refresh($win);
+        # limit screen refresh to 1/second
+        if ($lastrefresh != time) {
+            refresh($win);
+            $lastrefresh = time;
+        }
     }
 }
 }
