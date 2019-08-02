@@ -104,7 +104,9 @@ our $hamlibtcpport = 4532;
 our $lotwlocation="";                 # LoTW station locations in format: CALL:location,CALL:location
 our $lotwuser="";                     # Username for automatic LoTW download
 our $lotwpass="";                     # Password for automatic LoTW download
-
+our $dxchost="";                      # dx cluster host
+our $dxcport=0;                       # dx cluster telnet port
+our $dxccall="";                      # dx cluster login callsign
 
 
 sub redraw {
@@ -121,9 +123,10 @@ sub create_windows {
     my $row = $main::row;
     my $col = $main::col;
 
-    # DX cluster window. only create this if we have enough space (width >= 160)
-    if ($col >= 180) {
-        $main::wdxc = &makewindow($row,100,0,80,5);
+    # DX cluster window. only create this if we have enough space
+    # (at least 80 + 25 columns for one bandmap column)
+    if ($col >= 105) {
+        $main::wdxc = &makewindow($row,$col-80,0,80,5);
     }
 
     # GENERAL WINDOWS, always visible
@@ -159,11 +162,29 @@ sub rundxc {
     my $win = $main::wdxc;
     my $c = 0;
     my $rows = $main::row;
-    while (1) {
 
-	my $t = new Net::Telnet (Timeout => 600, Port => 7300, Prompt => '/./');
-	$t->open("localhost");
-	$t->print("dj1yfk-9\n");
+    # each column in the bandmap requires 25 characters. from the total number
+    # of available columns, 80 are already used by the logger, so we can
+    # calculate the number of bandmap columns as follows: 
+    my $dxccols = int(($main::col - 80) / 25);
+
+    # DX cluster not configured? Exit thread.
+    unless ($dxchost =~ /\./ && $dxcport =~ /^\d+$/ && $dxccall ne "") {
+        return;
+    }
+
+    while (1) {
+    
+    addstr($win, 1, 3, " Connecting to '$dxchost:$dxcport'");
+    addstr($win, 2, 3, " with callsign '$dxccall'. ");
+#    addstr($win, 3, 3, " ($dxccols columns)");
+    refresh($win);
+
+    sleep(3);
+
+	my $t = new Net::Telnet (Timeout => 600, Port => $dxcport, Prompt => '/./');
+	$t->open($dxchost);
+	$t->print("$dxccall\n");
 	$t->print("set/raw\n");
 
 	my %bcfh = ();   # band-call-> freq hash
@@ -172,7 +193,7 @@ sub rundxc {
     my $timeout = 300;
     my $lastrefresh = 0;
 
-    sleep(2);
+    sleep(3);
 
     while (1) {
         my $line = $t->getline();
@@ -186,8 +207,7 @@ sub rundxc {
             $bcfh{$dxband}{$dxcall} = $freq;
             $bcth{$dxband}{$dxcall} = time;
 
-            # remember cursor pos
-            addstr($win, 0, 0, " "x9999);
+            addstr($win, 0, 0, " "x($dxccols * 50 * $rows));
             
             do {
                 $c = 0;
@@ -199,8 +219,10 @@ sub rundxc {
                         # we split into columns with a width of 25                    
                         my $mrow = $c % $rows;
                         my $mcol = int($c / $rows);
+                        next if ($mcol >= $dxccols); # don't swap into a non-existing column
                         addstr($win, $mrow , 1 + $mcol*25, $line);
 
+                        # remove spots that are older than 5 minutes
                         if ((time - $bcth{$band}{$call}) > $timeout) {
                             delete($bcfh{$band}{$call});
                             delete($bcth{$band}{$call});
@@ -208,19 +230,20 @@ sub rundxc {
                     }
                 }
 
-                # bandmap full? reduce timeout!
+                # bandmap full? reduce timeout gradually until we have resolved
+                # the overflow.
                 $timeout -= 1;
-            } while ($c >= (4 * $rows));
+            } while ($c >= ($dxccols * $rows));
 
-            $timeout = 300;
+            $timeout = 3000;
         }
         # limit screen refresh to 1/second
         if ($lastrefresh != time) {
             refresh($win);
             $lastrefresh = time;
         }
-    }
-}
+    } # while 1 (when connected)
+} # while(1) outter loop
 }
 
 # We read the configuration file .yfklog.
@@ -346,6 +369,15 @@ while (defined (my $line = <CONFIG>))   {            # Read line into $line
     }
     elsif ($line =~ /^lotwpass=(.+)/) {
             $lotwpass = $1;
+    }
+    elsif ($line =~ /^dxchost=(.+)/) {
+            $dxchost = $1;
+    }
+    elsif ($line =~ /^dxcport=(.+)/) {
+            $dxcport = $1;
+    }
+    elsif ($line =~ /^dxccall=(.+)/) {
+            $dxccall = $1;
     }
 }
 close CONFIG;    # Configuration read.

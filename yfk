@@ -2048,7 +2048,10 @@ while ($status == 15) {
     sprintf("qsldetails=%-15s   - Show QSO details in QSL write mode?", $qsldetails),
     sprintf("drem=%-15s         - Default QSO remarks value", $drem),
     sprintf("serial=%-15s       - Sent Serial Nr. (0 = None)", $serial),
-    sprintf("lotwlocation=%-15s - LoTW station locations", $yfksubs::lotwlocation)
+    sprintf("lotwlocation=%-15s - LoTW station locations", $yfksubs::lotwlocation),
+    sprintf("dxchost=%-15s      - DX cluster hostname", $yfksubs::dxchost),
+    sprintf("dxcport=%-15s      - DX cluster port", $yfksubs::dxcport),
+    sprintf("dxccall=%-15s      - DX cluster login call", $yfksubs::dxccall)
     );
 
     my $choice = &selectlist(\$wmain, 2, 1, $row-6, 78, \@setup);
@@ -2386,6 +2389,31 @@ while ($status == 15) {
             &changeconfig($original, "lotwlocation=$ret");
         }
     }
+    elsif ($choice == 35) { 
+        $original = "dxchost=$yfksubs::dxchost";
+        my $ret = &askbox(10,5,4,70, '[A-Za-z0-9.-_]', "DX cluster host name?", $yfksubs::dxchost);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dxchost=$ret");
+        }
+    }
+    elsif ($choice == 36) { 
+        $original = "dxcport=$yfksubs::dxcport";
+        my $ret = &askbox(10,5,4,70, '[0-9]', "DX cluster port?", $yfksubs::dxcport);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dxcport=$ret");
+        }
+    }
+    elsif ($choice == 37) { 
+        $original = "dxccall=$yfksubs::dxccall";
+        my $ret = &askbox(10,5,4,70, '[A-Za-z0-9/-]', "DX cluster login callsign?", $yfksubs::dxccall);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dxccall=$ret");
+        }
+    }
+ 
     &readconfig;
     &readsubconfig;
 }
