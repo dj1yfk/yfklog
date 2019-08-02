@@ -235,7 +235,7 @@ sub rundxc {
                 $timeout -= 1;
             } while ($c >= ($dxccols * $rows));
 
-            $timeout = 3000;
+            $timeout = 300;
         }
         # limit screen refresh to 1/second
         if ($lastrefresh != time) {
@@ -1803,12 +1803,12 @@ sub splashscreen {
         my $yfkver = $_[0];
         return "YFKlog v$yfkver - a general purpose ham radio logbook
 
-Copyright (C) 2005-2008  Fabian Kurz, DJ1YFK
+Copyright (C) 2005-2019  Fabian Kurz, DJ1YFK
 
 This is free software, and you are welcome to redistribute it
 under certain conditions (see COPYING).
 
-YFKlog website: http://fkurz.net/ham/yfklog.html
+YFKlog website: https://fkurz.net/ham/yfklog.html
 Your feedback is appreciated.";
 }
 return 1;
