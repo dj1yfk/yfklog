@@ -1,5 +1,7 @@
-RELEASENOTES for YFKlog 0.4.0
-==============================
+RELEASENOTES for YFKlog 
+=======================
+
+(This file was last updated for version 0.3.2)
 
 To update from an older version, just replace all files of the old
 YFKlog-version with the new ones and follow these instructions: 
@@ -77,7 +79,3 @@ start with a fresh config file. It'll automatically be created on the first
 run.
 The SQLite database file will also be searched for in ~/.yfklog/, so move/copy
 it there if you used SQLite.
-
-
-If you are encountering any problems, don't hesitate to ask me via e-Mail
-(mail@fkurz.net) or ICQ (169955833).

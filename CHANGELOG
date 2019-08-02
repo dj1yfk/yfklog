@@ -1,13 +1,14 @@
 2019-Jul-31:   Version 0.5.0
 -------------------------------------------------------------------------------
-- LoTW download: Show list of confirmed contacts.
+- LoTW download: Show list of confirmed contacts after import.
 - Usability: Flush keyboard input buffer frequently during blocking operations
   (e.g. scrolling) to avoid unexpected behaviour (such as further scrolling 
   after PgUp/Dwn was released)
 - Include a minimal DX cluster / bandmap tool.
 - Support for terminal window sizes beyond 80x25. Additional vertical size
-  allows to show more QSOs in the log, horizontal size may be used for the
-  bandmap / DX cluster.
+  allows to show more QSOs in the log, horizontal size will be used for the
+  bandmap / DX cluster (if configured)
+- Include docs in the release tarball and install it to share/doc/yfklog
 - Remove GNUisms from Makefile (tnx KC3NTG)
 
 2019-Jun-30:   Version 0.4.0

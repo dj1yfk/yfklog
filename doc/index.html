@@ -1,7 +1,7 @@
 <html>
 
 <head>
-		<title>YFKlog v0.4.0 Manual</title>
+		<title>YFKlog v0.5.0 Manual</title>
 </head>
 
 <style>
@@ -29,8 +29,8 @@ figure figcaption {
 
 <body>
 
-<h1>YFKlog v0.4.0 Manual</h1>
-<p><code>Copyright (c)  2008-2019  Fabian Kurz, DJ1YFK &lt;<a href="mailto:mail&#64;fkurz.net">mail&#64;fkurz.net</a>&gt;<br>
+<h1>YFKlog v0.5.0 Manual</h1>
+<p><code>Copyright (c)  2008-2019  Fabian Kurz, DJ1YFK &lt;<a href="fabianto:&#64;fkurz.net">fabian&#64;fkurz.net</a>&gt;<br>
 		Permission is granted to copy, distribute and/or modify this document<br>
 		under the terms of the GNU Free Documentation License, Version 1.2<br>
 		or any later version published by the Free Software Foundation;<br>
@@ -42,10 +42,10 @@ figure figcaption {
 <hr noshade>
 
 <p>YFKlog is a general purpose ham radio logbook program designed to run on
-*nix systems. This manual tries to give a detailed description of all features
+Linux and Unix systems. This manual tries to give a detailed description of all features
 and functions of YFKlog.</p>
 <p>The main website of YFKlog is located at:
-<a href="http://fkurz.net/ham/yfklog.html">http://fkurz.net/ham/yfklog.html</a>
+<a href="https://fkurz.net/ham/yfklog.html">https://fkurz.net/ham/yfklog.html</a>
 </p>
 
 <hr>
@@ -90,6 +90,7 @@ and functions of YFKlog.</p>
 		</li>
 		<li><a href="#hamlib">Transceiver control, hamlib</a></li>
 		<li><a href="#remote">Remote logging (for fldigi)</a></li>
+		<li><a href="#bandmap">DX cluster / bandmap</a></li>
 		<li><a href="#appendix">Appendix</a></li>
 		<li><a href="#GNUFDL">GNU Free Documentation License</a></li>
 
@@ -104,18 +105,16 @@ and functions of YFKlog.</p>
     <li>Perl</li>
     <li>DBI</li>
     <li>SQLite</li>
-    <li>ncurses</li>
+    <li>Curses</li>
     <li>Make</li>
     <li>libwww-perl</li>
 </ul>
 
 <p>On Ubuntu or Debian Linux, you can satisfy all requirements simply by
 running:</p>
-<code>sudo apt-get install perl libdbd-sqlite3-perl libclass-dbi-sqlite-perl
-    make libsqlite3-0 libcurses-perl libwww-perl</code>
+<code>sudo apt-get install perl libdbd-sqlite3-perl libclass-dbi-sqlite-perl make libsqlite3-0 libcurses-perl libwww-perl libnet-telnet-perl</code>
 
-<p>For LoTW, you will also need the packages <code>trustedqsl</code> and
-<code>xvfb</code>.</p>
+<p>For the LoTW integration, you will also need the packages <code>trustedqsl</code> and <code>xvfb</code>.</p>
 
 <p>Download the <a href="http://fkurz.net/ham/yfklog/">latest version</a> of
 YFKlog (or clone the latest version from git) and unpack the tarball to a directory of your choice, then run 
@@ -123,9 +122,9 @@ YFKlog (or clone the latest version from git) and unpack the tarball to a direct
 
 <h3>Install from distribution archive</h3>
 <code><pre>
-$ wget http://fkurz.net/ham/yfklog/yfklog-0.4.0.tar.gz
-$ tar zxfv yfklog-0.4.0.tar.gz
-$ cd yfklog-0.4.0 
+$ wget http://fkurz.net/ham/yfklog/yfklog-0.5.0.tar.gz
+$ tar zxfv yfklog-0.5.0.tar.gz
+$ cd yfklog-0.5.0 
 $ sudo make install
 </pre></code>
 
@@ -154,7 +153,8 @@ You can chose between two databases,
 <a href="http://www.mysql.com/">MySQL</a>.</p>
 <p>SQLite is a lightweight,
 self-contained, zero-configuration SQL database engine and probably the right
-choice for most users of YFKlog. Only use MySQL if you know why.</p>
+choice for most users of YFKlog. Using MySQL may be a good idea if you have
+the MySQL daemon running on your computer anyway.</p>
 
 <h3>1.1 SQLite</h3>
 <p>There is nothing really to set up, this is the default setting. 
@@ -196,7 +196,7 @@ manually with your favourite text editor.</p>
 
 <p>If you're editing the file manually, note that the file-format allows an
 arbitrary placement of the variables in the file. If a variable is set more
-than once, the last occurance is used. The format <code>name=value</code> must
+than once, the last occurrence is used. The format <code>name=value</code> must
 be used, no spaces/tabs between <code>name=</code> and <code>value</code> are
 allowed.</p>
 
@@ -317,10 +317,20 @@ they are not important.</p>
 
 		<li><strong>browser</strong> - Browser for QRZ.com lookups. (Default: dillo) </li>
 
-        <li><strong>lotwlocation</strong> - List of station locations for LoTW</li>
+        <li><strong>lotwlocation</strong> - List of station locations for LoTW
+        (see section on LoTW below for details!)</li>
         <li><strong>lotwuser</strong> - LoTW web user name to download reports</li>
         <li><strong>lotwpass</strong> - LoTW web password</li>
+        
+        <li><strong>dxchost</strong> - DX cluster hostname (e.g. foc.dj1yfk.de)</li>
+        <li><strong>dxcport</strong> - DX cluster port (e.g. 7300)</li>
+        <li><strong>dxccall</strong> - DX cluster login call (e.g. DJ1YFK-9)</li>
 </ul>
+
+<p>YFKlog will need a minimum terminal size of 80 x 25 characters to run. If
+there's more vertical space, the logging window will use the additional space
+to show more lines of the log. If there's additional horizontal space, you can
+make use of the 
 
 <hr>
 <figure>
@@ -469,7 +479,7 @@ permanently deletes the selected QSO.</p>
 <p>In some cases, you may want to change a <em>group</em> of QSOs at once,
 which would be a lot of work via this <strong>Search and Edit</strong> mode one
 by one. For such occasions, it is advantageous to know some basic SQL commands
-to do the changes directly on the mysql command line. The <a href="">Appendix
+to do the changes directly on the mysql command line. The <a href="#edit">Appendix
 II</a> contains examples for several common scenarios (like toggling
 the QSL-sent flag for a number of QSOs, deleting QSOs from a date-range etc.)
 which can easily be adopted, even without knowledge of SQL.</p>
@@ -507,10 +517,10 @@ cards:</p>
 
 <h4>6.2.1 Print cards/labels</h4>
 
-<p>The queued QSLs can be printed into a PDF file by selecting the <strong>QSL
+<p>The queued QSLs can be printed into a PDF file (<a href="http://fkurz.net/ham/qsl-sample.pdf">example</a>) by selecting the <strong>QSL
 print</strong> mode. Different label definition files (*.lab) are
-available, and <a href="">Appendix III</a> gives a short tutorial how to write
-your own. The conversion to PDF is done with <a
+available and creating your own should be easy by following the existing
+examples.  The conversion to PDF is done with <a
 		href="http://www.latex-project.org/">LaTeX</a>. To work properly,
 <code>pdflatex</code>, with the <code>geometry</code> package must be
 installed on the system.</p>
@@ -544,8 +554,8 @@ to the main menu.</p>
 Format) is now the <em>de facto</em> standard format to exchange logbook data.
 YFKlog can import and export this format, using a good subset of the available
 defined fields.</p>
-<p>See <a href="">Appendix X</a> for a detailled description of the database
-design of YFKlog and differences to ADIF.</p>
+<!-- p>See <a href="">Appendix X</a> for a detailled description of the database
+design of YFKlog and differences to ADIF.</p -->
 
 <h3>7.1 ADIF export</h3>
 
@@ -774,6 +784,46 @@ remote QSOs in the background, but a logged QSO (by fldigi/gmfsk) will survive i
 message queue and be fetched as soon as YFKlog enters the remote mode.</p>
 
 <hr>
+<figure style="width:940px">
+<img src="bandmap.png" align="right">
+<figcaption>YFKlog's built-in bandmap</figcaption>
+</figure>
+
+<h2><a id="bandmap" name="bandmap">15. DX Cluster / bandmap</a></h2>
+
+<p>Version 0.5.0 introduces a very simple DX cluster bandmap function. The
+bandmap is displayed next to the normal logging window, which means your
+terminal window needs a size of at least 105 columns. For every additonal
+25 columns, a new bandmap column can be shown.</p>
+
+<p>If you configure <code>dxchost</code>, <code>dxcport</code> and
+<code>dxccall</code>, YFKlog will on startup try to connect to
+<code>dxchost:port</code> and then log in with <code>dxccall</code> and look
+for DX spots.</p>
+
+<p>The current implementation of the DX cluster does not allow any
+interactive use - it's "read only", and simply prints all DX spots
+sorted by frequency and grouped by bands. If you want to set any
+filters for the DX cluster you use, please do so with your regular
+telnet program before logging in with YFKlog.</p>
+
+<p>The intended purpose of this bandmap was to display data from the
+<a href="http://reversebeacon.net/">Reverse Beacon Network</a>. If
+you like to try it, connect to <code>foc.dj1yfk.de</code> in port
+<code>7300</code>. Use the telnet command <code>set/raw</code> to
+disable all filters, then login with YFKlog.</p>
+
+<p>Spots in the bandmap have a lifetime of 5 minutes before they
+disappear again. If the bandmap is full, the oldest spots in the
+list are purged until everything fits on the screen again.</p>
+
+<p>You may occasionally get display errors when using the bandmap.
+This happens when the bandmap updates exactly in the same moment when
+YFKlog updates its screen. Curses is not thread safe any YFKlog
+currently doesn't do any locking. If things get too bad, just quit
+and restart YFKlog.</p>
+
+<hr>
 
 <h2><a id="appendix" name="appendix">Appendix</a></h2>
 
@@ -815,7 +865,7 @@ Saving to: 'hsc.txt'
 
 Saved to hsc.sql (1358 records).
 $ mysql -uUSERNAME -pPASSWORD YFKlog < hsc.sql   # for MySQL
-$ sqlite3 ~/.yfklog/YFKlog < hsc.sql             # for sqlite
+$ sqlite3 ~/.yfklog/YFKlog &lt; hsc.sql             # for sqlite
 </pre>
 
 
@@ -845,7 +895,7 @@ YFKlog does many repeated equal database queries, for example when scrolling
 through a list of QSOs. Enabling the cahce will significantly speed up
 scrolling.</p>
 
-<h3>2. SQL examples: Mass-editing, deletion, etc.</h3>
+<h3 id="edit">2. SQL examples: Mass-editing, deletion, etc.</h3>
 
 <p>YFKlog offers the possibility to edit or delete QSOs, one by one. In some
 cases however, you might want to delete or modify a large number of QSOs. In

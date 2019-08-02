@@ -1,5 +1,6 @@
 ##############################################################################
-# Config file for YFKlog. 
+# Config file for YFKlog. See https://fkurz.net/ham/yfklog/doc/ or
+# /usr/[local/]share/doc/yfklog/doc/index.html for details.
 #
 # There are two different kinds of settings, MANDATORY settings without which
 # the program will NOT WORK and OPTIONAL settings which you might want to
@@ -115,7 +116,7 @@ ftpdir=/logs
 
 # (O) Liddish callsign addidions which have to be removed, so the DXCC and 
 # Prefix can be properly determined. If you log stations with their proper 
-# calls (/QRP is not a part of the call!), don't bother anyway.
+# calls (/QRP is not a part of the call), don't bother anyway.
 
 lidadditions=^QRP$|^LGT$|^\d{2,99}$
 
@@ -203,8 +204,23 @@ browser=firefox
 
 colors=1
 
-#
-# Wether we should use the Ham::Callsign::DB class to look up data to
+# (O) Whether we should use the Ham::Callsign::DB class to look up data to
 # fill in QSO information with FCC and/or QRZ lookup information
-#
+
 usehamdb=0
+
+# (O) lotwlocation: List of station locations for LoTW, in the format
+# CALLSIGN:location. Has to match your definitions in the tqsl program.
+#lotwlocation=
+
+# (O) lotwuser: LoTW web user name to download reports
+#lotwuser=
+
+# (O) lotwpass: LoTW web password
+#lotwpass=
+
+# (O) dxchost: DX cluster hostname (e.g. foc.dj1yfk.de)
+
+# (O) dxcport: DX cluster port (e.g. 7300)
+
+# (O) dxccall: DX cluster login call (e.g. DJ1YFK-9)
