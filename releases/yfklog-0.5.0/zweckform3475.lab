@@ -1,0 +1,24 @@
+% Zweckform 70x36mm
+% QSOS=5
+% WIDTH=70
+% HEIGHT=36
+% TOPMARGIN=4.5
+% LEFTMARGIN=0
+% ROWS=8
+% COLS=3
+\put(3,34){\makebox(0,0)[lt]{To Radio:}}
+\put(63,34){\makebox(0,0)[rt]{\large\bf HISCALL}}
+\put(3,29){\makebox(0,0)[lt]{Via:}}
+\put(63,29){\makebox(0,0)[rt]{\large\bf MANAGER}}
+\put(3,23){\makebox(0,0)[l]{\footnotesize MYCALL is glad to confirm 2 way QSOs:}}
+\put(2,10){
+\footnotesize
+\begin{tabular}{@{}p{16mm}@{}p{10mm}@{}p{9mm}@{}p{10mm}@{}p{10mm}@{}p{5mm}@{}}
+\bf Date&\bf Time&\bf Band&\bf 2way&\bf RST&\bf QSL\\
+\hline
+DATE1&TIME1&BAND1&MODE1&RST1&QSLR1\\
+DATE2&TIME2&BAND2&MODE2&RST2&QSLR2\\
+DATE3&TIME3&BAND3&MODE3&RST3&QSLR3\\
+DATE4&TIME4&BAND4&MODE4&RST4&QSLR4\\
+DATE5&TIME5&BAND5&MODE5&RST5&QSLR5
+\end{tabular}}

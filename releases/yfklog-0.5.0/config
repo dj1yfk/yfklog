@@ -1,0 +1,226 @@
+##############################################################################
+# Config file for YFKlog. See https://fkurz.net/ham/yfklog/doc/ or
+# /usr/[local/]share/doc/yfklog/doc/index.html for details.
+#
+# There are two different kinds of settings, MANDATORY settings without which
+# the program will NOT WORK and OPTIONAL settings which you might want to
+# change, but they have internal defaults if they are not specified.
+# Mandatory settings are marked with a "(M)", optional settings with a "(O)" 
+# in the first description line.
+##############################################################################
+
+# (M) mycall: YFKlog can handle several logs parallell, but this one
+# is the one YFKlog starts with. As the name suggests, you should use your
+# callsign for it. Use lowercase letters.
+
+mycall=dl1test
+
+# (M) dbuser: Database username of your MySQL DB access 
+
+dbuser=fabian
+
+# (M) dbname: name of the MySQL Database OR SQLite3 database file.
+
+dbname=YFKlog
+
+# (M) dbpass: ONLY for MySQL.
+# Database password. U should make this file only readable to
+# yourself (chmod 600 .yfklog) unless you want everyone to be able to read 
+# your password.
+
+dbpass=notmypassword
+
+# (M) dbserver: 
+#
+# If you use SQLite, set  it to 'sqlite'
+#
+# For MySQL:
+# Depending on the configuration of your server,
+# only 'localhost' (via a socket) or only '127.0.0.1' (tcp) might work.
+
+dbserver=sqlite
+
+# (M) dbport: database server port (ONLY for MySQL)
+
+dbport=3306
+
+# (O) directory: This is the default directory used for example for ADIF
+# import/export, PDF-label output etc. By default it's /tmp.
+
+directory=/tmp
+
+# (O) fieldorder: The order of the fields in the main entry mask.
+# Available fields (also default order is:)
+# CALL DATE TON TOFF BAND MODE QTH NAME QSLS QSLR RSTS RSTR REM PWR
+# You may omit fields you don't need.
+# Separate fields with whitespaces.
+
+fieldorder=CALL DATE TON TOFF BAND MODE QTH NAME QSLS QSLR RSTS RSTR REM PWR
+
+# (O) dband: The default band. At the moment YFKlog stores the band in m,
+# since I only work from 2190m (136 kHz) - 2m (144 MHz). If there is popular
+# demand for it, I could change it to kHz or MHz, so also VHF-EHF can properly
+# log their QSOs. Default is my "home band" 80 (m).
+
+dband=80
+
+# (O) dmode: The default mode. You can enter any string here up to 6 letters.
+
+dmode=CW
+
+# (O) dmode: The default power. Only 4 digits for power, some OMs might want to
+# regard the number as kW instead of W, some as mW :-)
+
+dpwr=100
+
+# (O) dqsls: Default value for QSL Sent. If not specifield it's "Q" for
+# "Queue", meaning that the QSO will be put into the QSL writing-Queue.
+
+dqsls=Q
+
+# (O) dqslr: Default value for QSL received. Usually the QSL has not arrived
+# when the QSO happens, so it is N by default
+
+dqslr=N
+
+# (O) dqslsi: Default value for QSL Sent for IMPORTED QSOs, if there is no such
+# info in the ADIF. This might be useful because for contest QSOs there is
+# usually no such info in the adif, and for those who do not send QSLs for
+# every contest QSO this is an easy way to make sure that they don't end up in
+# the QSL queue when dqsls=Q.   Default: N
+
+dqslsi=N
+
+# (O) lat and lon: Latitude and longitude of the own station in decimal format.
+# Needed to calculate the distance and beam heading.
+
+lat=52
+lon=-8
+
+# (O) onlinedata: Specifies the columns of the logbook which will be added to
+# the online logbook. Possible columns: NR, CALL, DATE, T_ON, T_OFF, BAND, MODE
+# QTH, NAME, QSLS, QSLR, RSTS, RSTR, REM, PWR, DXCC, PFX, CONT, QSLINFO.
+# Separate fields with commas
+
+onlinedata=`CALL`, DATE, BAND, MODE, RSTS, RSTR, T_ON, QSLS, QSLR, PWR, QSLINFO, STATE
+
+# (O) ftp-information: If you want to use the upload function for a online
+# searchable log, some ftp-settings have to be specified. The names are
+# self-explaining.
+
+ftpserver=127.0.0.1
+ftpport=21
+ftpuser=dj1yfk
+ftppass=test
+ftpdir=/logs 
+
+# (O) Liddish callsign addidions which have to be removed, so the DXCC and 
+# Prefix can be properly determined. If you log stations with their proper 
+# calls (/QRP is not a part of the call), don't bother anyway.
+
+lidadditions=^QRP$|^LGT$|^\d{2,99}$
+
+# (O) Additions to the callsign which do not change the DXCC or Prefix; default:
+# /P, /M, /MM, /AM. Add your own following the same schema if needed.
+
+csadditions=(^P$)|(^M{1,2}$)|(^AM$)|(^A$)
+
+# (O) Bands for award/statistic calculations. Default: all bands from 160 to
+# 2m. Format: Bands, separated by whitespaces.
+
+awardbands=160 80 40 30 20 17 15 12 10 6 2
+
+# (O) Modes for award/statistic calculations. Default: CW and SSB
+# Format: Modes, separated by whitespaces.
+
+awardmodes=CW SSB
+
+# (O) Screenlayout: YFKlog supports (at the moment) two different layouts of
+# the main logging screen. You can toggle between them by setting screenlayout
+# to either 0 or 1.   
+
+screenlayout=1
+
+# (O) Checklogs: By default, when logging a new callsign, only the previous
+# contacts in the current log are checked. It's now possible also to specify
+# additional logs that will be checked for QSOs. If a QSO exists, it will be
+# shown in the same line where club-membership information is usually shown, in
+# a very short form:  e.g:  In logs: 9A/DJ1YFK/p PA/DJ1YFK/p
+#
+# Format: checklogs=LOG1 LOG2 LOG3...
+#
+# Example: checklog=DJ1YFK DM7A DG9YFK PA/DJ1YFK/P
+#
+# NB: The current active log can be included in the list; it'll be ignored.
+
+checklogs=
+
+# (O) hamlib rig model. 0 for no hamlib.
+
+rigmodel=0
+
+# (O) hamlib path to the device. For example /dev/ttyS0 etc.
+
+rigpath=/dev/ttyS0
+
+# (O) autoqueryrig: If set to 1, YFKlog queries the frequency from the
+# transceiver via hamlib at every new QSO automatically.
+
+autoqueryrig=0
+
+# (O) operator: As of version 0.2.5, YFKlog can save an operator information
+# for every QSO. This is the default value. When logging, QSOs, the OP can also
+# be specified in the remarks-field by OPERATOR:DJ1YFK 
+
+operator=
+
+# (O) lotwdetails: If set to 1, include all details (like CQ-Zone, ITU-Zone
+# etc) from lotw-reports into the log. If 0, only change the QSLrL flag to Y.
+
+lotwdetails=0
+
+# (O) askme: Ask for confirmation when leaving the logging mode (to the menu)
+# without saving the QSO, or deleting a QSO.
+
+askme=1
+
+# (O) logsort: How to sort the QSOs in the log display: Chronological or by the
+# QSO-number (how they were entered or imported).
+# Possible values: "C" = chronological, "N" = Number (default).
+
+logsort=C
+
+# (O) prevsort: How to sort the display of previous QSOs for a certain call
+# D = By date, descending (default)
+# A = By date, ascending
+
+prevsort=D
+
+# (O) browser: A browser to do QRZ.com call lookups.
+
+browser=firefox
+
+# (O) colors: Use terminal colors (1, default) or not (0).
+
+colors=1
+
+# (O) Whether we should use the Ham::Callsign::DB class to look up data to
+# fill in QSO information with FCC and/or QRZ lookup information
+
+usehamdb=0
+
+# (O) lotwlocation: List of station locations for LoTW, in the format
+# CALLSIGN:location. Has to match your definitions in the tqsl program.
+#lotwlocation=
+
+# (O) lotwuser: LoTW web user name to download reports
+#lotwuser=
+
+# (O) lotwpass: LoTW web password
+#lotwpass=
+
+# (O) dxchost: DX cluster hostname (e.g. foc.dj1yfk.de)
+
+# (O) dxcport: DX cluster port (e.g. 7300)
+
+# (O) dxccall: DX cluster login call (e.g. DJ1YFK-9)
