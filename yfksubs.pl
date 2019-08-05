@@ -112,7 +112,7 @@ our $dxchost="";                      # dx cluster host
 our $dxcport=0;                       # dx cluster telnet port
 our $dxccall="";                      # dx cluster login callsign
 
-
+my $db_keepalive = time;
 
 my @dxspots;
 share(@dxspots);
@@ -6079,8 +6079,10 @@ sub getch2 {
     do {
         $ch = getch();
 
+        # we ran into a timeout (1 second)
         if ($ch eq "-1") {
             &showdxc();
+            &dbkeepalife();
         }
 
     } while ($ch eq "-1");
@@ -6179,6 +6181,12 @@ sub downloadlotw {
     }
 }
 
+sub dbkeepalife {
+    if (time - $db_keepalive > 300) {
+        $dbh->do("select 1") or die "MySQL server died... ".DBI->errstr;
+        $db_keepalive = time;
+    }
+}
 return 1;
 
 # Local Variables:
