@@ -34,7 +34,7 @@ changemycall newlogtable oldlogtable choseeditqso geteditqso editw updateqso che
 awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
 connectdb connectrig jumpfield receive_qso tqslsign getlotwlocations 
-getlotwstartdate downloadlotw redraw create_windows rundxc);
+getlotwstartdate downloadlotw redraw create_windows rundxc getch2 waitkey);
 
 use strict;
 use POSIX;                # needed for acos in distance/direction calculation
@@ -46,6 +46,9 @@ use IPC::SysV qw(IPC_PRIVATE IPC_RMID IPC_NOWAIT IPC_CREAT);
 use LWP::UserAgent ();
 use Net::Telnet ();
 
+use threads;
+use threads::shared;
+
 my $havehamdb = eval "require Ham::Callsign::DB;";
 my $hamdb;
 if ($havehamdb) {
@@ -53,6 +56,7 @@ if ($havehamdb) {
     $hamdb = new Ham::Callsign::DB();
     $hamdb->initialize_dbs();
 }
+
 
 # We load the default values for some variables that can be changed in .yfklog
 
@@ -109,6 +113,10 @@ our $dxcport=0;                       # dx cluster telnet port
 our $dxccall="";                      # dx cluster login callsign
 
 
+
+my @dxspots;
+share(@dxspots);
+
 sub redraw {
     endwin();
     initscr();
@@ -158,9 +166,11 @@ sub create_windows {
 
 }
 
+# connect to a DX cluster (if configured)
 sub rundxc {
-    my $win = $main::wdxc;
-    my $c = 0;
+    my %bcfh = ();   # band-call-> freq hash
+    my %bcth = ();   # band-call-> timestamp hash
+
     my $rows = $main::row;
 
     # each column in the bandmap requires 25 characters. from the total number
@@ -168,83 +178,119 @@ sub rundxc {
     # calculate the number of bandmap columns as follows: 
     my $dxccols = int(($main::col - 80) / 25);
 
+    my $maxspots = $rows * $dxccols;
+
     # DX cluster not configured? Exit thread.
     unless ($dxchost =~ /\./ && $dxcport =~ /^\d+$/ && $dxccall ne "") {
         return;
     }
 
     while (1) {
-    
-    addstr($win, 1, 3, " Connecting to '$dxchost:$dxcport'");
-    addstr($win, 2, 3, " with callsign '$dxccall'. ");
-#    addstr($win, 3, 3, " ($dxccols columns)");
+        @dxspots = ();
+        push @dxspots, " Connecting to '$dxchost:$dxcport'";
+        push @dxspots, " with callsign '$dxccall'.";
+
+        my $t = new Net::Telnet (Timeout => 600, Port => $dxcport, Prompt => '/./');
+        $t->open($dxchost);
+        $t->print("$dxccall\n");
+
+        sleep(3);
+
+        while (1) {
+            my $line = $t->getline();
+            chomp($line);
+            if ($line =~ /CW/ and $line =~ /DX de .*:\s+([0-9.]+)\s+([A-Z0-9\/]+)/) {
+                my $dxcall = $2;
+                my $freq = $1;
+                $freq =~ s/(\.\d)\d$/$1/g;
+                my $dxband = &freq2band($freq);
+
+                $bcfh{$dxband}{$dxcall} = $freq;
+                $bcth{$dxband}{$dxcall} = time;
+
+                # update the @dxspots array
+                &updatedxc(\%bcfh, \%bcth, $maxspots);
+            } 
+
+        } # while 1 (when connected)
+    } # while(1) outter loop
+}
+
+# push bandmap entries in shared array @dxspots. it will be 
+# printed on screen by showdxc() from the main thread
+sub updatedxc {
+    my $fr = shift; # reference to %bcfh
+    my $tr = shift; # reference to %bcth
+    my $maxspots = shift;
+
+    my $c = 0;
+    my $timeout = 300;
+
+    @dxspots = ();
+
+    do {
+        $c = 0;
+        for my $band ( sort { $b <=> $a } keys %{ $tr } ) {
+            if ($c) {
+                push @dxspots, "";
+                $c++;
+            }
+            for my $call ( sort { $fr->{$band}{$a} <=> $fr->{$band}{$b} } keys %{ $fr->{$band} } ) {
+                push @dxspots, sprintf("%7.1f  %s", $fr->{$band}{$call}, $call);
+                $c++;
+
+                # remove spots that are older than 5 minutes
+                if ((time - $tr->{$band}{$call}) > $timeout) {
+                    delete($fr->{$band}{$call});
+                    delete($tr->{$band}{$call});
+                }
+            }
+        }
+
+        # bandmap full? reduce timeout gradually until we have resolved
+        # the overflow.
+        $timeout -= 1;
+    } while ($c >= $maxspots);
+
+    $timeout = 300;
+}
+
+# print bandmap in wdxc window. 
+# this is called from the main thread (getch2, on keyboard timeout)
+
+sub showdxc {
+    my $win = $main::wdxc;
+    my $rows = $main::row;
+
+    return unless (defined($win));
+
+    # each column in the bandmap requires 25 characters. from the total number
+    # of available columns, 80 are already used by the logger, so we can
+    # calculate the number of bandmap columns as follows: 
+    my $dxccols = int(($main::col - 80) / 25);
+
+    addstr($win, 0, 0, " "x($dxccols * 50 * $rows));
+
+    my $c = 0;
+    foreach my $line (@dxspots) {
+        # we split into columns with a width of 25                    
+        my $mrow = $c % $rows;
+        my $mcol = int($c / $rows);
+        next if ($mcol >= $dxccols); # don't swap into a non-existing column
+        next if ($mrow == 0 && $line eq ""); # don't print empty line on top
+        addstr($win, $mrow , 1 + $mcol*25, $line) if ($win);
+        $c++;
+    }
+
     refresh($win);
 
-    sleep(3);
-
-	my $t = new Net::Telnet (Timeout => 600, Port => $dxcport, Prompt => '/./');
-	$t->open($dxchost);
-	$t->print("$dxccall\n");
-	$t->print("set/raw\n");
-
-	my %bcfh = ();   # band-call-> freq hash
-	my %bcth = ();   # band-call-> timestamp hash
-
-    my $timeout = 300;
-    my $lastrefresh = 0;
-
-    sleep(3);
-
-    while (1) {
-        my $line = $t->getline();
-        chomp($line);
-        if ($line =~ /CW/ and $line =~ /DX de .*:\s+([0-9.]+)\s+([A-Z0-9\/]+)/) {
-            my $dxcall = $2;
-            my $freq = $1;
-            $freq =~ s/(\.\d)\d$/$1/g;
-            my $dxband = &freq2band($freq);
-
-            $bcfh{$dxband}{$dxcall} = $freq;
-            $bcth{$dxband}{$dxcall} = time;
-
-            addstr($win, 0, 0, " "x($dxccols * 50 * $rows));
-            
-            do {
-                $c = 0;
-                for my $band ( sort { $b <=> $a } keys %bcfh ) {
-                    $c++ if ($c);
-                    for my $call ( sort { $bcfh{$band}{$a} <=> $bcfh{$band}{$b} } keys %{ $bcfh{$band} } ) {
-                        $line = sprintf("%7.1f  %s", $bcfh{$band}{$call}, $call);
-                        $c++;
-                        # we split into columns with a width of 25                    
-                        my $mrow = $c % $rows;
-                        my $mcol = int($c / $rows);
-                        next if ($mcol >= $dxccols); # don't swap into a non-existing column
-                        addstr($win, $mrow , 1 + $mcol*25, $line);
-
-                        # remove spots that are older than 5 minutes
-                        if ((time - $bcth{$band}{$call}) > $timeout) {
-                            delete($bcfh{$band}{$call});
-                            delete($bcth{$band}{$call});
-                        }
-                    }
-                }
-
-                # bandmap full? reduce timeout gradually until we have resolved
-                # the overflow.
-                $timeout -= 1;
-            } while ($c >= ($dxccols * $rows));
-
-            $timeout = 300;
-        }
-        # limit screen refresh to 1/second
-        if ($lastrefresh != time) {
-            refresh($win);
-            $lastrefresh = time;
-        }
-    } # while 1 (when connected)
-} # while(1) outter loop
+    # a little trick to get the cursor back to the entry field
+    # where it was before: push a character into the keyboard
+    # input queue that will be ignored 
+    ungetchar("~");
 }
+
+
 
 # We read the configuration file .yfklog.
 
@@ -1967,8 +2013,8 @@ do  {            # loop and get keyboard input
     }
     
     elsif ($ch eq KEY_F(8)) {            # back to inp-window without any action
-        $goon = 0;                        # do not go on!
-        $ret = "i";                        # return value i = Input Window
+        $goon = 0;                       # do not go on!
+        $ret = "i";                      # return value i = Input Window
     }
     
     elsif ($ch eq KEY_F(10)) {            # to QSO b4-window without any action
@@ -1976,7 +2022,7 @@ do  {            # loop and get keyboard input
         $ret = "q";                        # return value q = QSO Window
     }
     
-    elsif ($ch =~ /\s/) {                # we selected a QSO!
+    elsif ($ch =~ /\s/) {               # we selected a QSO!
         $goon=0;                        # get out of the do .. while loop
     }    
 
@@ -2300,7 +2346,7 @@ for ($y=$ystart; $y < ($ystart+$height); $y++) {    # go through $y range
     
 refresh($win);
 
-$ch = getch();
+$ch = getch2();
 
 if ($ch eq KEY_DOWN) {            # Arrow down was pressed 
     if ($aline < $#items) {        # not at last position
@@ -2357,7 +2403,7 @@ elsif ($ch eq KEY_F(12)) {            # F12 - QUIT YFKlog
     exit;
 }
 elsif (ord($ch) eq '27') {
-    $ch = getch();
+    $ch = getch2();
     if ($ch eq '1') {
         return "m";
     }
@@ -2539,7 +2585,7 @@ if ($write) {                        # QSL Write mode
             addstr($win, 0,0, " " x ($xw * $yh));            # clear window
             addstr($win, 9, 33, "No QSL queued!");
             refresh($win);
-            getch();                                    # wait for user 
+            getch2();                                    # wait for user 
             return 2;                                     # return to main menu
     }
 }
@@ -2561,7 +2607,7 @@ else {                                # QSL receive mode
             my $msg = "No QSO found matching $call!";
             addstr($win, 9, ($xw-length($msg))/2 , $msg);
             refresh($win);
-            getch();                                    # wait for user 
+            getch2();                                    # wait for user 
             return 3; 
     }
 }
@@ -4354,7 +4400,7 @@ sub editw {
         move ($win,0,$pos);                        # move cursor to $pos
         refresh($win);                            # show new window
         
-        $ch = &getch2;                            # wait for a character
+        $ch = &getch2();                            # wait for a character
     
         # We first check if it is a legal character of the specified $match,
         # if so, it will be added to the string (at the proper position!) 
@@ -4910,7 +4956,7 @@ sub editdb {
         addstr($win, 10, 23, "$call does not exist in the database.");
         curs_set(0);
         refresh($win);
-        getch;
+        getch2();
         curs_set(1);
         return 12;
     }
@@ -5673,7 +5719,7 @@ sub askconfirmation {
     addstr($win, 0, 0, $question." "x80);
     refresh($win);
     do { 
-        $k = getch();
+        $k = getch2();
     } until ($k =~ /$regex/i);
 
     delwin($win);
@@ -5770,7 +5816,7 @@ sub finderror {
     addstr($win, 2, 0, "$err QSO cannot be saved. Press any key to go back to the QSO..");
     curs_set(0);
     refresh($win);
-    getch;
+    getch2();
     delwin($win);
 
     if ($mode eq 'log') {
@@ -6028,7 +6074,16 @@ sub qslstatistics {
 
 sub getch2 {
 
-    my $ch = getch();
+    halfdelay(10);
+    my $ch;
+    do {
+        $ch = getch();
+
+        if ($ch eq "-1") {
+            &showdxc();
+        }
+
+    } while ($ch eq "-1");
 
     # ESC-n instead of F-Keys
     if (ord($ch) == 27) {
@@ -6049,6 +6104,16 @@ sub getch2 {
 
     return $ch;
 }
+
+# return on anything except ~ (see showdxc)
+sub waitkey {
+    while (getch2() eq "~"){};
+}
+
+
+
+
+
 
 sub tqslsign {
     my $filename = shift;

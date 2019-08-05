@@ -27,11 +27,13 @@ use Curses;
 use Net::FTP;            # upload of online log or backup
 
 use threads ('yield', 'stack_size' => 64*4096, 'exit' => 'threads_only', 'stringify'); 
+use threads::shared;
 
 # terminal size (will be queried later)
 our $col;
 our $row;
 
+# window/terminal size changed
 $SIG{'WINCH'} = sub { 
     &redraw();
 };
@@ -170,7 +172,7 @@ else {
 
 &databaseupgrade(0) unless ($firstrun);
 
-getch;
+&waitkey();
 
 
 # Now the main windows will be generated: 
@@ -669,7 +671,7 @@ while ($aw == 6) {
     addstr($wqsos, 1, 0, "Press F7 again to return to interactive mode.");
     refresh($wqsos);
 
-    my $c = getch();
+    my $c = getch2();
     my $ret = &receive_qso();
     &lastqsos(\$wlog);
 
@@ -881,7 +883,7 @@ while ($status == 4) {
 
     $status = 2;
     
-    getch();    
+    &waitkey();
 
     
 } # end of $status = 4, update of online log
@@ -969,7 +971,7 @@ while ($status == 6) {
                 refresh($wmain);
                 refresh($whelp);
                 $status = 2;
-                getch();
+                &waitkey();
                 last;
             }
             # if the dates are valid, build a SQL String to put into the
@@ -1056,7 +1058,7 @@ while ($status == 6) {
         addstr($wmain, 0,0, " "x(80*($row-2)));
         addstr($wmain, 10,28, "No QSL Cards in queue!");
         refresh($wmain);
-        getch();
+        &waitkey();
         $status = 2;                            # back to main menu
         last;                                     
     }
@@ -1105,7 +1107,7 @@ while ($status == 6) {
         my $nr = &emptyqslqueue;            # returns nr of QSOs..
         addstr($wmain, 19,16, "$nr QSOs updated. Press any key to continue!");
         refresh($wmain);
-        getch();
+        &waitkey();
     }
 
     $status = 2;                            # back to the main menu    
@@ -1195,7 +1197,7 @@ while (($status == 7) || ($status == 14)) {
                 refresh($wmain);
                 refresh($whelp);
                 $status = 2;
-                getch();
+                &waitkey();
                 last;
             }
             # if the dates are valid, build a SQL String to put into the
@@ -1277,7 +1279,7 @@ while (($status == 7) || ($status == 14)) {
 
     refresh($wmain);
     flushinp();
-    getch();
+    &waitkey();
     
     $status = 2;
 } # end ADIF export mode, $status==7
@@ -1474,7 +1476,7 @@ while ($status == 9) {
     unless (-e $adifdir) {
         addstr($wmain, 5,15, "$adifdir does not exist! Any key to continue.");
         refresh($wmain);
-        getch();
+        &waitkey();
         $status = 2;                # back to main menu
         next;
     }
@@ -1497,7 +1499,7 @@ while ($status == 9) {
     if ($y == 0) {
         addstr($wmain, 5,15, "No ADI-Files in $adifdir! Any key to continue.");
         refresh($wmain);
-        getch;
+        &waitkey();
         $status = 2;                # back to main menu
         next;
     }
@@ -1537,7 +1539,7 @@ while ($status == 9) {
     }
         refresh($wmain);
 
-    getch();
+    &waitkey();
 
     $status = 2;                # back to main menu
 
@@ -1603,7 +1605,7 @@ while ($status == 10) {
             &changemycall($mycall);            # change $mycall also in yfksubs.pl
         }
         refresh($wmain);
-        getch();
+        &waitkey();
     }
     elsif ($choice == 1) {                    # second item -> delete old log
         curs_set(1);                          # cursor visible
@@ -1617,7 +1619,7 @@ while ($status == 10) {
         if ($msg =~ /successfully/) {        # delete succefull
         }
         refresh($wmain);
-        getch();
+        &waitkey();
     }
     else {                                # change $mycall to selected log
         $mycall = $logs[$choice];        # Callsign is here
@@ -1705,7 +1707,7 @@ while ($status == 11) {
             refresh($wmain);
             refresh($whelp);
             $status = 2;
-            getch();
+            &waitkey();
             last;
         }
         # if the dates are valid, build a SQL String to put into the
@@ -1814,7 +1816,8 @@ while ($status == 11) {
 
     # Statistics printed, wait for keystroke to go back to the menu
     refresh($wmain);
-    getch();
+    flushinp();
+    &waitkey();
     
     $status = 2;        # back to menu
 } # AWARD mode
@@ -1904,7 +1907,7 @@ while ($status == 13) {
             addstr($wmain,6, 5, "Download failed! Check username/password and/or network connection.");
             attron($wmain, COLOR_PAIR(4));
             refresh($wmain);
-            getch();
+            &waitkey();
             $status = 2;                # back to main menu
             next;
         }
@@ -1923,7 +1926,7 @@ while ($status == 13) {
         unless (-e $lotwdir) {
             addstr($wmain, 5,15, "$lotwdir does not exist! Any key to continue.");
             refresh($wmain);
-            getch();
+            &waitkey();
             $status = 2;                # back to main menu
             next;
         }
@@ -1945,7 +1948,7 @@ while ($status == 13) {
         if ($y == 0) {
             addstr($wmain, 5,15, "No ADI-Files in $lotwdir! Any key to continue.");
             refresh($wmain);
-            getch;
+            &waitkey();
             $status = 2;                # back to main menu
             next;
         }
@@ -1984,7 +1987,7 @@ while ($status == 13) {
         addstr($wmain,  7,10, "No QSLs imported. Possibly this file doesn't meet the LoTW");
         addstr($wmain,  8,10, "specifications. ");
         addstr($wmain,  9,10, "If you think the file is OK, contact author.");
-        getch();
+        &waitkey();
     }
     refresh($wmain);
 
@@ -2065,7 +2068,7 @@ while ($status == 15) {
         $status = 2;
 #        endwin;
         &databaseupgrade(1);    # 1 -> clear screen first
-        getch;
+        &waitkey();
         last;
     }
 
