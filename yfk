@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # indentation looks best with tw=4
 
@@ -717,7 +717,8 @@ while ($status == 2) {
     "Edit Name/QTH DB  - Edit the database used to save Names and QTHs",
     "Import from LoTW  - Read LoTW report and update the confirmations",
     "Export to LoTW    - Generate ADIF file of QSOs not uploaded yet",
-    "Setup YFKlog      - Most logbook settings can be changed here"
+    "Setup YFKlog      - Most logbook settings can be changed here",
+    "DX cluster        - Console for the DX cluster"
     );
         
     addstr($whead, 0,0, "YFKlog v$yfkver - Main Menu - Active Logbook: ".
@@ -778,6 +779,9 @@ while ($status == 2) {
     }
     elsif ($choice == 13) {            # Setup mode
         $status = 15;
+    }
+    elsif ($choice == 14) {            # Setup mode
+        $status = 16;
     }
     
 } # end of $status == 2, Main menu
@@ -2054,7 +2058,8 @@ while ($status == 15) {
     sprintf("lotwlocation=%-15s - LoTW station locations", $yfksubs::lotwlocation),
     sprintf("dxchost=%-15s      - DX cluster hostname", $yfksubs::dxchost),
     sprintf("dxcport=%-15s      - DX cluster port", $yfksubs::dxcport),
-    sprintf("dxccall=%-15s      - DX cluster login call", $yfksubs::dxccall)
+    sprintf("dxccall=%-15s      - DX cluster login call", $yfksubs::dxccall),
+    sprintf("dxcmode=%-15s      - DX cluster mode (B = bandmap, N = normal)", $yfksubs::dxcmode)
     );
 
     my $choice = &selectlist(\$wmain, 2, 1, $row-6, 78, \@setup);
@@ -2416,10 +2421,48 @@ while ($status == 15) {
             &changeconfig($original, "dxccall=$ret");
         }
     }
+    elsif ($choice == 38) { 
+        $original = "dxcmode=$yfksubs::dxcmode";
+        my $ret = &askbox(10,5,4,70, '[bn]', "DX cluster mode: b = bandmap, n = normal", $yfksubs::dxcmode);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "dxcmode=$ret");
+        }
+    }
  
     &readconfig;
     &readsubconfig;
 }
+
+##############################################################################
+# DX cluster console
+##############################################################################
+
+while ($status == 16) {
+    my $in;
+    attron($wmain, COLOR_PAIR(4));
+    addstr($whead, 0,0, "YFKlog v$yfkver - DX cluster console - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+    addstr($whelp, 0,0, 'Enter commands to send to the cluster. F1: Menu  F12: Quit'.' 'x50);
+    erase($wmain);
+    addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
+    refresh($wmain);
+    refresh($whead);
+    refresh($whelp);
+
+    curs_set(1);                        # cursor visible    
+    $in = &askbox(2, 30, 4, 30, '[^~\n]', "Enter a command", '');
+    # when the call is "m", go back to menu directly.
+    unless ($in eq "m") {
+        &senddxc($in);
+    }
+    else {
+        $status = 2;
+    }
+}
+
+
+
 
 } # end of MAIN PROGRAM LOOP
 

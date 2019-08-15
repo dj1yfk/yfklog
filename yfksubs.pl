@@ -34,7 +34,8 @@ changemycall newlogtable oldlogtable choseeditqso geteditqso editw updateqso che
 awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
 connectdb connectrig jumpfield receive_qso tqslsign getlotwlocations 
-getlotwstartdate downloadlotw redraw create_windows rundxc getch2 waitkey);
+getlotwstartdate downloadlotw redraw create_windows rundxc getch2 waitkey
+senddxc);
 
 use strict;
 use POSIX;                # needed for acos in distance/direction calculation
@@ -111,11 +112,16 @@ our $lotwpass="";                     # Password for automatic LoTW download
 our $dxchost="";                      # dx cluster host
 our $dxcport=0;                       # dx cluster telnet port
 our $dxccall="";                      # dx cluster login callsign
+our $dxcmode="N";                     # dx cluster mode. N = normal, B = bandmap
 
 my $db_keepalive = time;
 
-my @dxspots;
+my @dxspots;    # DX cluster thread -> main thread (DX spots)
+my @dxlines;    # DX cluster thread -> main thread (raw lines)
+my @dxinput;    # main thread -> DX cluster thread (keyboard input lines)
 share(@dxspots);
+share(@dxlines);
+share(@dxinput);
 
 sub redraw {
     endwin();
@@ -197,8 +203,19 @@ sub rundxc {
         sleep(3);
 
         while (1) {
+
+            # push keyboard input to cluster
+            foreach my $l (@dxinput) {
+                $t->print($l);
+            }
+            @dxinput = ();
+
             my $line = $t->getline();
             chomp($line);
+
+            push @dxlines, $line;
+            if ($#dxlines > $rows) { shift @dxlines; }
+
             if ($line =~ /CW/ and $line =~ /DX de .*:\s+([0-9.]+)\s+([A-Z0-9\/]+)/) {
                 my $dxcall = $2;
                 my $freq = $1;
@@ -255,7 +272,7 @@ sub updatedxc {
     $timeout = 300;
 }
 
-# print bandmap in wdxc window. 
+# print dx cluster output or bandmap in wdxc window. 
 # this is called from the main thread (getch2, on keyboard timeout)
 
 sub showdxc {
@@ -268,18 +285,26 @@ sub showdxc {
     # of available columns, 80 are already used by the logger, so we can
     # calculate the number of bandmap columns as follows: 
     my $dxccols = int(($main::col - 80) / 25);
-
     addstr($win, 0, 0, " "x($dxccols * 50 * $rows));
 
-    my $c = 0;
-    foreach my $line (@dxspots) {
-        # we split into columns with a width of 25                    
-        my $mrow = $c % $rows;
-        my $mcol = int($c / $rows);
-        next if ($mcol >= $dxccols); # don't swap into a non-existing column
-        next if ($mrow == 0 && $line eq ""); # don't print empty line on top
-        addstr($win, $mrow , 1 + $mcol*25, $line) if ($win);
-        $c++;
+    # "normal" dx cluster mode
+    if ($dxcmode eq "N") {
+        my $row = 0;
+        foreach my $line (@dxlines) {
+            addstr($win, $row++ , 1, $line);
+        }
+    }
+    elsif ($dxcmode eq "B") {
+        my $c = 0;
+        foreach my $line (@dxspots) {
+            # we split into columns with a width of 25                    
+            my $mrow = $c % $rows;
+            my $mcol = int($c / $rows);
+            next if ($mcol >= $dxccols); # don't swap into a non-existing column
+            next if ($mrow == 0 && $line eq ""); # don't print empty line on top
+            addstr($win, $mrow , 1 + $mcol*25, $line);
+            $c++;
+        }
     }
 
     refresh($win);
@@ -290,6 +315,10 @@ sub showdxc {
     ungetchar("~");
 }
 
+sub senddxc {
+    my $line = shift;
+    push @dxinput, $line;
+}
 
 
 # We read the configuration file .yfklog.
@@ -424,6 +453,9 @@ while (defined (my $line = <CONFIG>))   {            # Read line into $line
     }
     elsif ($line =~ /^dxccall=(.+)/) {
             $dxccall = $1;
+    }
+    elsif ($line =~ /^dxcmode=(.+)/) {
+            $dxcmode = $1;
     }
 }
 close CONFIG;    # Configuration read.
