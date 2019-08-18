@@ -186,7 +186,7 @@ askme=1
 
 # (O) logsort: How to sort the QSOs in the log display: Chronological or by the
 # QSO-number (how they were entered or imported).
-# Possible values: "C" = chronological, "N" = Number (default).
+# Possible values: "C" = chronological, "N" = Number
 
 logsort=C
 
@@ -224,3 +224,5 @@ usehamdb=0
 # (O) dxcport: DX cluster port (e.g. 7300)
 
 # (O) dxccall: DX cluster login call (e.g. DJ1YFK-9)
+
+# (O) dxcmode: DX cluster mode (B = bandmap, N = normal telnet)

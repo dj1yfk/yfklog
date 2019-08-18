@@ -1,7 +1,7 @@
 <html>
 
 <head>
-		<title>YFKlog v0.5.0 Manual</title>
+		<title>YFKlog v0.6.0 Manual</title>
 </head>
 
 <style>
@@ -29,7 +29,7 @@ figure figcaption {
 
 <body>
 
-<h1>YFKlog v0.5.0 Manual</h1>
+<h1>YFKlog v0.6.0 Manual</h1>
 <p><code>Copyright (c)  2008-2019  Fabian Kurz, DJ1YFK &lt;<a href="fabianto:&#64;fkurz.net">fabian&#64;fkurz.net</a>&gt;<br>
 		Permission is granted to copy, distribute and/or modify this document<br>
 		under the terms of the GNU Free Documentation License, Version 1.2<br>
@@ -122,9 +122,9 @@ YFKlog (or clone the latest version from git) and unpack the tarball to a direct
 
 <h3>Install from distribution archive</h3>
 <code><pre>
-$ wget http://fkurz.net/ham/yfklog/yfklog-0.5.0.tar.gz
-$ tar zxfv yfklog-0.5.0.tar.gz
-$ cd yfklog-0.5.0 
+$ wget http://fkurz.net/ham/yfklog/yfklog-0.6.0.tar.gz
+$ tar zxfv yfklog-0.6.0.tar.gz
+$ cd yfklog-0.6.0 
 $ sudo make install
 </pre></code>
 
@@ -325,6 +325,7 @@ they are not important.</p>
         <li><strong>dxchost</strong> - DX cluster hostname (e.g. foc.dj1yfk.de)</li>
         <li><strong>dxcport</strong> - DX cluster port (e.g. 7300)</li>
         <li><strong>dxccall</strong> - DX cluster login call (e.g. DJ1YFK-9)</li>
+        <li><strong>dxcmode</strong> - DX cluster mode. B = Bandmap, N = Normal telnet display</li>
 </ul>
 
 <p>YFKlog will need a minimum terminal size of 80 x 25 characters to run. If
@@ -378,8 +379,8 @@ following sections; some are self explanatory. A quick overview:</p>
 		database can be changed or deleted in this menu point.</li>
 		<li><strong>Import/Export LoTW</strong> - Support for working with
 		ARRL's LoTW. See <a href="#lotw">chapter LoTW</a> for details.</li>
-		<li><strong>Setup YFKlog</strong> - Most settings mentioned in <a
-				href="#setup">Setup</a> can be changed here. </li>
+		<li><strong>Setup YFKlog</strong> - Most settings mentioned in <a href="#setup">Setup</a> can be changed here. </li>
+        <li><strong>DX cluster</strong> - Send commands to the DX cluster.</li>
 </ul>
 
 <hr>
@@ -794,37 +795,31 @@ message queue and be fetched as soon as YFKlog enters the remote mode.</p>
 
 <h2><a id="bandmap" name="bandmap">15. DX Cluster / bandmap</a></h2>
 
-<p>Version 0.5.0 introduces a very simple DX cluster bandmap function. The
-bandmap is displayed next to the normal logging window, which means your
-terminal window needs a size of at least 105 columns. For every additonal
-25 columns, a new bandmap column can be shown.</p>
+<p>Version 0.5.0 introduces a very simple DX cluster and bandmap function. The
+bandmap or cluster is displayed next to the normal logging window, which means your
+terminal window needs a size of at least 105 columns (bandmap) or 160 columns
+(DX cluster). In bandmap mode, for every additonal
+25 columns a new bandmap column can be shown.</p>
 
 <p>If you configure <code>dxchost</code>, <code>dxcport</code> and
-<code>dxccall</code>, YFKlog will on startup try to connect to
-<code>dxchost:port</code> and then log in with <code>dxccall</code> and look
-for DX spots.</p>
+<code>dxccall</code>, YFKlog will try to connect to <code>dxchost:port</code>
+on startup and then log in with <code>dxccall</code> and look for DX spots. The
+<code>dxcmode</code> can be set to <code>B</code> for <b>b</b>andmap mode (as
+shown in the figure on the right) or <code>N</code> for <b>n</b>ormal DX
+cluster mode, as shown <a href="dxcluster.png">here</a>.</p>
 
-<p>The current implementation of the DX cluster does not allow any
-interactive use - it's "read only", and simply prints all DX spots
-sorted by frequency and grouped by bands. If you want to set any
-filters for the DX cluster you use, please do so with your regular
-telnet program before logging in with YFKlog.</p>
+<p>In order to interact with the telnet cluster, chose the menu item
+"DX Cluster" where you can enter e.g. DX spots or filter commands.</p>
 
-<p>The intended purpose of this bandmap was to display data from the
+<p>The intended purpose of the bandmap was to display data from the
 <a href="http://reversebeacon.net/">Reverse Beacon Network</a>. If
-you like to try it, connect to <code>foc.dj1yfk.de</code> in port
+you like to try it, connect to <code>foc.dj1yfk.de</code> on port
 <code>7300</code>. Use the telnet command <code>set/raw</code> to
-disable all filters, then login with YFKlog.</p>
+disable all filters.</p>
 
 <p>Spots in the bandmap have a lifetime of 5 minutes before they
 disappear again. If the bandmap is full, the oldest spots in the
 list are purged until everything fits on the screen again.</p>
-
-<p>You may occasionally get display errors when using the bandmap.
-This happens when the bandmap updates exactly in the same moment when
-YFKlog updates its screen. Curses is not thread safe any YFKlog
-currently doesn't do any locking. If things get too bad, just quit
-and restart YFKlog.</p>
 
 <hr>
 
