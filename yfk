@@ -1237,7 +1237,7 @@ while (($status == 7) || ($status == 14)) {
 
         my @lotwlocations = &getlotwlocations();
 
-        if ($#lotwlocations) {
+        if (length(@lotwlocations)) {
             addstr($whelp, 0,0, 'LoTW upload...'.' 'x50);
             refresh($whelp);
             addstr($wmain,12,17,"Select station location for signing with tqsl!");

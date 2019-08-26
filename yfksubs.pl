@@ -6168,7 +6168,7 @@ sub getlotwlocations {
     my @ret;
 
     foreach (@a) {
-        if ($_ =~ /$mycall:(.*)/i) {
+        if ($_ =~ /^$mycall:(.*)/i) {
             push @ret, $1;
         }
     }
