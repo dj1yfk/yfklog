@@ -35,7 +35,7 @@ awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
 connectdb connectrig jumpfield receive_qso tqslsign getlotwlocations 
 getlotwstartdate downloadlotw redraw create_windows rundxc getch2 waitkey
-senddxc);
+senddxc mycurs_set);
 
 use strict;
 use POSIX;                # needed for acos in distance/direction calculation
@@ -119,6 +119,9 @@ my $db_keepalive = time;
 my @dxspots;    # DX cluster thread -> main thread (DX spots)
 my @dxlines;    # DX cluster thread -> main thread (raw lines)
 my @dxinput;    # main thread -> DX cluster thread (keyboard input lines)
+
+my $cursoron = 0;
+
 share(@dxspots);
 share(@dxlines);
 share(@dxinput);
@@ -457,6 +460,10 @@ while (defined (my $line = <CONFIG>))   {            # Read line into $line
     elsif ($line =~ /^dxcmode=(.+)/) {
             $dxcmode = $1;
     }
+    elsif ($line =~ /^cursoron=(.+)/) {
+            $cursoron = $1;
+    }
+
 }
 close CONFIG;    # Configuration read.
 
@@ -1998,6 +2005,7 @@ do  {            # loop and get keyboard input
         $y--;
     }
 
+    move($wlog, $aline, 0);                      # move cursor to highlighted line
     refresh($wlog);
 
     return "i" unless ($totalcalls);            # no QSOs!
@@ -2209,6 +2217,7 @@ do {                                    # we start looping here
     for (;$y < $nbr;$y++) {                    # for the remaining rows
         addstr($wqsos, $y, 0, " "x80);        # fill with whitespace
     }
+    move($wqsos, $aline, 0);                  # move cursor to highlighted line
     refresh($wqsos);
 
     $ch = &getch2();                    # get keyboard input
@@ -2362,10 +2371,12 @@ for (my $i=0; $i < @items; $i++) {                    # iterate through items
 
 
 do {
+    my $hly = 0;
 
 for ($y=$ystart; $y < ($ystart+$height); $y++) {    # go through $y range
     if (($y+$yoffset-$ystart) == $aline) {            # active line
-        attron($win, COLOR_PAIR(1));                # highlight it
+        attron($win, COLOR_PAIR(1));                # highlight ita
+        $hly = $y;
     }    
     if (defined($items[$y-$ystart+$yoffset])) {        # if line exists
         addstr($win, $y, $xstart, $items[$y-$ystart+$yoffset]);    # print
@@ -2375,7 +2386,9 @@ for ($y=$ystart; $y < ($ystart+$height); $y++) {    # go through $y range
     } 
     attron($win, COLOR_PAIR(2));                    # normal colors again
 }# end of for();
-    
+
+move($win, $hly, $xstart);
+
 refresh($win);
 
 $ch = getch2();
@@ -2478,7 +2491,7 @@ sub askbox {
     # Now we start reading from the keyboard, character by character
     # This is mostly identical to &readw;
 
-    curs_set(1);
+    mycurs_set(1);
 
     while (1) {                                    # loop until beer is empty
         addstr($iwin, 0,0, $str." "x80);        # put $str in inputwindow
@@ -2570,7 +2583,7 @@ sub askbox {
 
 
 sub toggleqsl {
-    curs_set(0);             # no cursor please
+    mycurs_set(0);             # no cursor please
     my $win = ${$_[0]};        # reference to $wmain window
     my $call = $_[1];        # callsign to display
     my $details = $_[2];    # show details of QSO?
@@ -2724,6 +2737,7 @@ do {                                    # we start looping here
         addstr($win, $y, 0, " "x80);        # fill with whitespace
     }
 
+    move($win, $aline, 0);                 # move cursor to highlighted line
     refresh($win);
 
     $ch = &getch2();
@@ -4211,6 +4225,7 @@ do {
     for (;$y < $nlines;$y++) {                    # for the remaining rows
         addstr($win, $y, 0, " "x80);        # fill with whitespace
     }
+    move($win, $aline, 0);                  # move cursor to current line
     refresh($win);
         
     $ch = &getch2();                             # Get keyboard input
@@ -4986,10 +5001,10 @@ sub editdb {
     
     unless (defined($nameqth[0]) || defined($nameqth[1])) {
         addstr($win, 10, 23, "$call does not exist in the database.");
-        curs_set(0);
+        mycurs_set(0);
         refresh($win);
         getch2();
-        curs_set(1);
+        mycurs_set(1);
         return 12;
     }
     addstr($win, 5, 23, "Editing database information for $call");
@@ -5746,7 +5761,7 @@ sub askconfirmation {
     my ($question, $regex) = @_;
     my $win = &makewindow(1,80,$main::row-1,0,6);
 
-    curs_set(0);
+    mycurs_set(0);
 
     addstr($win, 0, 0, $question." "x80);
     refresh($win);
@@ -5759,7 +5774,7 @@ sub askconfirmation {
     touchwin($main::whelp);
     refresh($main::whelp);
     
-    curs_set(1);
+    mycurs_set(1);
 
     return $k;
 }
@@ -5846,7 +5861,7 @@ sub finderror {
     addstr($win, 0, 0, " "x500);
     addstr($win, 0, 0, "Error! Following fields have invalid values:");
     addstr($win, 2, 0, "$err QSO cannot be saved. Press any key to go back to the QSO..");
-    curs_set(0);
+    mycurs_set(0);
     refresh($win);
     getch2();
     delwin($win);
@@ -5859,7 +5874,7 @@ sub finderror {
         touchwin($main::weditlog);
         refresh($main::weditlog);
     }
-    curs_set(1);
+    mycurs_set(1);
     
 }
 
@@ -6210,6 +6225,15 @@ sub downloadlotw {
     }
     else {
         return 0;
+    }
+}
+
+# when the $cursoron option is set, ignore
+# the curs_set(0) command to hide the cursor.
+# (accessibility function for screen reader users)
+sub mycurs_set {
+    if (!$cursoron) {
+        curs_set(shift);
     }
 }
 

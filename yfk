@@ -124,7 +124,7 @@ keypad(1);                    # enable keys like F1, F2,.. cursor keys etc.
 if (!has_colors && $colors) {    # we need colors, if not available, die
     die "No colors"; }
 start_color if $colors;;    # got colors!
-curs_set(0);                # cursor invisible
+mycurs_set(0);                # cursor invisible
 
 getmaxyx($row, $col);
 $row-- if ($row % 2);   # force even number of rows
@@ -321,7 +321,7 @@ while (1) {
 $af = 1;                                # start in 1st field (call)
 
 while ($aw == 1) {                        # We are in the logging Window
-    curs_set(1);
+    mycurs_set(1);
     $workcall = $qso[0];                # The call we are working right now,
                                         # so we can change DXCC etc if it
                                         # changes
@@ -579,7 +579,7 @@ elsif ($af == 14) {
 ##############################################################################
 
 while ($aw == 2) {
-    curs_set(0);                        # Make the cursor invisible
+    mycurs_set(0);                        # Make the cursor invisible
 
     # choseqso lets the OP scroll in the log and select a QSO. The return value
     # is the number of the QSO as in the NR column in the database
@@ -622,7 +622,7 @@ while ($aw == 2) {
 ##############################################################################
 
 while ($aw == 3) {
-    curs_set(0);                        # Make the cursor invisible
+    mycurs_set(0);                        # Make the cursor invisible
     $editnr = &chosepqso(\$wqsos,$qso[0]);
 
     if ($editnr eq "i")    {                # back to input window
@@ -664,7 +664,7 @@ if ($aw == 5) {                            # we leave logging mode and go to men
 
 addstr($wqsos, 0, 0, ' 'x500);
 while ($aw == 6) {
-    curs_set(0);
+    mycurs_set(0);
     halfdelay(10);
 
     addstr($wqsos, 0, 0, "Remote Log Mode. Listening for QSOs from fldigi.");
@@ -700,7 +700,7 @@ while ($aw == 6) {
 
 while ($status == 2) {    
     attron($wmain, COLOR_PAIR(4));
-    curs_set(0);
+    mycurs_set(0);
     my $choice;                            # Choice from the main menu
 
     # These are the menu items to chose from in the main menu.
@@ -799,7 +799,7 @@ while ($status == 3) {
     my $qslcall= "";                    # The callsign from which we got a QSL
     my $validc = "[a-zA-Z0-9\/]";        # valid characters for the callsign
     attron($wmain, COLOR_PAIR(4));
-    curs_set(1);
+    mycurs_set(1);
     addstr($whead, 0,0, "YFKlog v$yfkver - QSL receive mode - Active Logbook: ".
        "\U$mycall"." - DB: $dbname @ $dbserver");
     addstr($whelp, 0,0, "Enter a call and select QSOs. F1 Main menu  F2 Save  F3 Cancel  F12 Exit"." " x 70);
@@ -857,7 +857,7 @@ while ($status == 4) {
      "local       - Save it in $mycall.log");
     
     attron($wmain, COLOR_PAIR(4));
-    curs_set(0);
+    mycurs_set(0);
     addstr($whead, 0,0, "YFKlog v$yfkver - Updating Online Log - Active Logbook: \U$mycall"." " x 30);
     addstr($whelp, 0,0, "Update in progress ..."." " x 70);
     refresh($whead);                        
@@ -902,7 +902,7 @@ while ($status == 4) {
 
 while ($status == 5) {
     attron($wmain, COLOR_PAIR(4));
-    curs_set(1);
+    mycurs_set(1);
     
     # change text in head and help lines ...
     addstr($whead, 0,0, "YFKlog v$yfkver - QSL write mode - Active Logbook: ".
@@ -934,7 +934,7 @@ while ($status == 6) {
     my ($date1, $date2, $daterange) = ('','','1');
     
     attron($wmain, COLOR_PAIR(4));
-    curs_set(0);                        # Make the cursor invisble
+    mycurs_set(0);                        # Make the cursor invisble
     # change text in head and help lines ...
     addstr($whead, 0,0, "YFKlog v$yfkver - QSL print mode - Active Logbook: ".
        "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
@@ -949,7 +949,7 @@ while ($status == 6) {
     refresh($wmain);
     refresh($whelp);
        
-    curs_set(1);                        # cursor visible    
+    mycurs_set(1);                        # cursor visible    
     $date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
                             "Specify start date (YYYY-MM-DD) or number:", '');
 
@@ -1129,7 +1129,7 @@ while (($status == 7) || ($status == 14)) {
     my ($date1, $date2, $daterange) = ('','','1');
 
     attron($wmain, COLOR_PAIR(4));
-    curs_set(1);                        # Make the cursor visble
+    mycurs_set(1);                        # Make the cursor visble
     
     # change text in head and help lines ...
     
@@ -1151,7 +1151,7 @@ while (($status == 7) || ($status == 14)) {
     $filename= 
     &askbox(10, 15,4,50, 'filename', "Enter a filename (default $mycall.adi).",
             $filename);
-    curs_set(0);
+    mycurs_set(0);
     
     if ($filename eq 'm') {                # go back to the menu
         $status = 2;
@@ -1175,7 +1175,7 @@ while (($status == 7) || ($status == 14)) {
     refresh($wmain);
     refresh($whelp);
        
-    curs_set(1);                        # cursor visible    
+    mycurs_set(1);                        # cursor visible    
     $date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
                             "Specify start date (YYYY-MM-DD) or number:", '');
 
@@ -1242,11 +1242,11 @@ while (($status == 7) || ($status == 14)) {
             refresh($whelp);
             addstr($wmain,12,17,"Select station location for signing with tqsl!");
             refresh($wmain);
-            curs_set(0);
+            mycurs_set(0);
             unshift (@lotwlocations, "  Cancel  ");
             my $choice = &selectlist(\$wmain, 14,30,6,22, \@lotwlocations);
             attron($wmain, COLOR_PAIR(4));
-            curs_set(0);
+            mycurs_set(0);
             if ($choice ne "m" and $choice > 0) {
                 addstr($wmain,0,0," "x(80*($row-2)));            # clear main window
                 my @ret = &tqslsign($filename, $lotwlocations[$choice]);
@@ -1333,7 +1333,7 @@ while (1) {        # outer loop around  while ($aw = x)
 ##############################################################################
 
 while ($aw == 1) {
-    curs_set(1);
+    mycurs_set(1);
     touchwin($weditlog);
     refresh($weditlog);
     addstr($whelp, 0,0, 'F1: Menu  F2: Save changes  F3: Cancel  F4: Delete QSO  F5: Search'.' 'x30);
@@ -1406,7 +1406,7 @@ elsif ($aw == 0) {                        # back to QSO list
 ##############################################################################
 
 while ($aw == 2) {
-    curs_set(0);                        # Make the cursor invisble
+    mycurs_set(0);                        # Make the cursor invisble
     addstr($whelp, 0,0, 'F3: Cancel, new Search  SPACE/ENTER: Edit QSO'.' 'x30);
     refresh($whelp);
 
@@ -1470,10 +1470,10 @@ while ($status == 9) {
     refresh($whead);
     refresh($whelp);
 
-    curs_set(1);
+    mycurs_set(1);
     $adifdir = &askbox(10, 5, 4, 70, 'filename', "Directory to search ".
             "for ADIF files:", $directory);
-    curs_set(0);
+    mycurs_set(0);
 
     # Check if directory is valid and there are adif files
 
@@ -1596,11 +1596,11 @@ while ($status == 10) {
         last;
     }
     elsif ($choice == 0) {                    # first item -> create new log
-        curs_set(1);                          # cursor visible
+        mycurs_set(1);                          # cursor visible
         # Ask for the name of the new logbook.
         my $new = &askbox(10, 15, 4, 50, '[a-zA-Z0-9/]', 
                         "Enter a name (callsign) for a new logbook:", '');
-        curs_set(0);                          # cursr invisible
+        mycurs_set(0);                          # cursr invisible
         my $msg = &newlogtable($new);
         addstr($wmain, 15, (40-(length($msg." ($new)")/2)), $msg." ($new)");
         if ($msg =~ /successfully/) {        # new call OK
@@ -1612,11 +1612,11 @@ while ($status == 10) {
         &waitkey();
     }
     elsif ($choice == 1) {                    # second item -> delete old log
-        curs_set(1);                          # cursor visible
+        mycurs_set(1);                          # cursor visible
         # Ask for the name to delete.
         my $old = &askbox(10, 15, 4, 50, '[a-zA-Z0-9/]', 
                         "Enter a name (callsign) to delete:", '');
-        curs_set(0);                          # cursr invisible
+        mycurs_set(0);                          # cursr invisible
         my $msg = &oldlogtable($old);
         addstr($wmain, 15, (40-(length($msg." ($old)")/2)), $msg." ($old)");
         addstr($wmain, 16,15,"Select another logbook before leave the log, tks!");
@@ -1683,7 +1683,7 @@ while ($status == 11) {
         refresh($wmain);
         refresh($whelp);
     
-        curs_set(1);
+        mycurs_set(1);
         $custom = &askbox(6, 15, 4, 50, '[a-zA-Z0-9]', 
                                 "Enter custom award string:", '');
     }
@@ -1696,7 +1696,7 @@ while ($status == 11) {
     refresh($wmain);
     refresh($whelp);
        
-    curs_set(1);                        # cursor visible    
+    mycurs_set(1);                        # cursor visible    
     $date1 = &askbox(6, 15, 4, 50, '[0-9-]', 
                                 "Specify start date (YYYY-MM-DD):", '');
 
@@ -1731,7 +1731,7 @@ while ($status == 11) {
     refresh($wmain);
     refresh($whelp);
 
-    curs_set(1);
+    mycurs_set(1);
     $bands = &askbox(6, 15, 4, 50, '[0-9. ]', "Limit to bands:", $bands);
     
     } # unless 9 or 11
@@ -1747,11 +1747,11 @@ while ($status == 11) {
         refresh($wmain);
         refresh($whelp);
 
-        curs_set(1);
+        mycurs_set(1);
         $modes = &askbox(6, 15, 4, 50, '[A-Za-z0-9 ]', "Limit to modes:", $modes);
     } # unless 11
     
-    curs_set(0);                        # cursor invisible    
+    mycurs_set(0);                        # cursor invisible    
 
     addstr($wmain,0,0, ' 'x(80*($row-2)));        # clear window    
     addstr($wmain, 2, 25, "$menu[$choice] Statistics for " .
@@ -1842,7 +1842,7 @@ while ($status == 12) {
     refresh($whead);
     refresh($whelp);
 
-    curs_set(1);                        # cursor visible    
+    mycurs_set(1);                        # cursor visible    
     $call= &askbox(10, 30, 4, 20, '[a-zA-Z0-9]', "Enter a callsign:", '');
     # Edit the entry; returns 2 when the user wants to go back to the menu,
     # otherwise 12. When the call is "m", go back to menu directly.
@@ -1920,10 +1920,10 @@ while ($status == 13) {
 
     }
     else {
-        curs_set(1);
+        mycurs_set(1);
         $lotwdir = &askbox(10, 5, 4, 70, 'filename', "Directory to search ".
             "for LoTW files:", $directory);
-        curs_set(0);
+        mycurs_set(0);
 
         # Check if directory is valid and there are ADIF files
 
@@ -2059,7 +2059,8 @@ while ($status == 15) {
     sprintf("dxchost=%-15s      - DX cluster hostname", $yfksubs::dxchost),
     sprintf("dxcport=%-15s      - DX cluster port", $yfksubs::dxcport),
     sprintf("dxccall=%-15s      - DX cluster login call", $yfksubs::dxccall),
-    sprintf("dxcmode=%-15s      - DX cluster mode (B = bandmap, N = normal)", $yfksubs::dxcmode)
+    sprintf("dxcmode=%-15s      - DX cluster mode (B = bandmap, N = normal)", $yfksubs::dxcmode),
+    sprintf("cursoron=%-15s     - Cursor always visible (1/0)", $yfksubs::cursoron)
     );
 
     my $choice = &selectlist(\$wmain, 2, 1, $row-6, 78, \@setup);
@@ -2429,6 +2430,14 @@ while ($status == 15) {
             &changeconfig($original, "dxcmode=$ret");
         }
     }
+    elsif ($choice == 39) { 
+        $original = "cursoron=$yfksubs::cursoron";
+        my $ret = &askbox(10,5,4,70, '[01]', "Cursor always on (screen readers)? (1/0)", $yfksubs::cursoron);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "cursoron=$ret");
+        }
+    }
  
     &readconfig;
     &readsubconfig;
@@ -2450,7 +2459,7 @@ while ($status == 16) {
     refresh($whead);
     refresh($whelp);
 
-    curs_set(1);                        # cursor visible    
+    mycurs_set(1);                        # cursor visible    
     $in = &askbox(2, 30, 4, 30, '[^~\n]', "Enter a command", '');
     # when the call is "m", go back to menu directly.
     unless ($in eq "m") {
