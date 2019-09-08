@@ -1,0 +1,22 @@
+% LB3651-1 52,5 x 29,7mm 
+% QSOS=3
+% WIDTH=52.5
+% HEIGHT=29.7
+% TOPMARGIN=0
+% LEFTMARGIN=0
+% ROWS=9
+% COLS=4
+\put(3.3,25){\makebox(0,0)[lt]{To Radio:}}
+\put(48,25){\makebox(0,0)[rt]{\large\bf HISCALL}}
+\put(3.3,20){\makebox(0,0)[lt]{Via:}}
+\put(48,20){\makebox(0,0)[rt]{\large\bf MANAGER}}
+\put(3.3,14){\makebox(0,0)[l]{\footnotesize MYCALL is glad to confirm 2xQSOs:}}
+\put(2.4,3){
+\footnotesize
+\begin{tabular}{@{}p{16mm}@{}p{8.5mm}@{}p{8mm}@{}p{8mm}@{}p{6.5mm}@{}}
+\bf Date&\bf Time&\bf Band&\bf 2way&\bf RST\\
+\hline
+DATE1&TIME1&BAND1&MODE1&RST1\\
+DATE2&TIME2&BAND2&MODE2&RST2\\
+DATE3&TIME3&BAND3&MODE3&RST3
+\end{tabular}}

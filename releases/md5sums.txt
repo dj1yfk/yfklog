@@ -14,3 +14,4 @@ b9dcffbd77d262676ed108be0ab2db0d  releases/yfklog-0.3.5.tar.gz
 75d4c0901d360c2622a559e6c637c0b1  releases/yfklog-0.3.6.tar.gz
 4128ea4b46a37692130755dd437104fc  releases/yfklog-0.4.0.tar.gz
 2c3fe7c0c3bc00918546e7df5ed1c18b  releases/yfklog-0.5.0.tar.gz
+43b39137469167a9858b60aa876353a0  releases/yfklog-0.6.0.tar.gz
