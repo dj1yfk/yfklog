@@ -6167,7 +6167,10 @@ sub waitkey {
 sub tqslsign {
     my $filename = shift;
     my $location = shift;
-    my $cmd = "xvfb-run tqsl -x -u -c $mycall -d -l $location $filename 2>&1";
+    my $mycall_slash = $mycall;
+    $mycall_slash =~ s#_#/#g;
+
+    my $cmd = "xvfb-run tqsl -x -u -c $mycall_slash -d -l $location $filename 2>&1";
     my @result = `$cmd`;
 
     unshift @result, $cmd;
@@ -6182,8 +6185,11 @@ sub getlotwlocations {
     my @a = split(/,/, $lotwlocation);
     my @ret;
 
+    my $mycall_slash = $mycall;
+    $mycall_slash =~ s#_#/#g;
+
     foreach (@a) {
-        if ($_ =~ /^$mycall:(.*)/i) {
+        if ($_ =~ /^$mycall_slash:(.*)/i) {
             push @ret, $1;
         }
     }
