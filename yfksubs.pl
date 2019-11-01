@@ -256,7 +256,8 @@ sub updatedxc {
                 $c++;
             }
             for my $call ( sort { $fr->{$band}{$a} <=> $fr->{$band}{$b} } keys %{ $fr->{$band} } ) {
-                push @dxspots, sprintf("%7.1f  %s", $fr->{$band}{$call}, $call);
+                my $age = int((time - $tr->{$band}{$call})/60);
+                push @dxspots, sprintf("$age%7.1f  %s", $fr->{$band}{$call}, $call);
                 $c++;
 
                 # remove spots that are older than 5 minutes
@@ -305,7 +306,15 @@ sub showdxc {
             my $mcol = int($c / $rows);
             next if ($mcol >= $dxccols); # don't swap into a non-existing column
             next if ($mrow == 0 && $line eq ""); # don't print empty line on top
-            addstr($win, $mrow , 1 + $mcol*25, $line);
+
+            # extract age from spot
+            my $age = substr($line, 0, 1);
+
+            if ($age < 1) {
+                attron($win, A_BOLD);
+            }
+            addstr($win, $mrow , 1 + $mcol*25, substr($line, 1));
+            attroff($win, A_BOLD);
             $c++;
         }
     }
