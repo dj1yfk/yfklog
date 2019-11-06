@@ -1401,7 +1401,7 @@ sub readw {
         elsif ($ch eq KEY_F(6)) {
             my $lookup = ${$_[3]}[0];
             unless ($lookup) { $lookup = $input };
-            system("$browser http://www.qrz.com/db/$lookup &> /dev/null &");
+            system("$browser http://www.qrz.com/db/$lookup > /dev/null 2>&1 &");
         }
 
         # F7 -> go to remote mode for fldigi
