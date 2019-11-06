@@ -2047,7 +2047,7 @@ while ($status == 15) {
     sprintf("directory=%-15s    - Default directory (ADIF, etc)", $yfksubs::directory),
     sprintf("fieldorder=%-15s   - Default entry field order", $yfksubs::fieldorder),
     sprintf("askme=%-15s        - Ask for confirmations?", $yfksubs::askme),
-    sprintf("logsort=%-15s      - Sorting log by 'N'umer or 'C'hronological", $yfksubs::logsort),
+    sprintf("logsort=%-15s      - Sorting log by 'N'umber or 'C'hronological", $yfksubs::logsort),
     sprintf("prevsort=%-15s     - Show previous QSOs by date 'A'sc or 'D'esc?", $yfksubs::prevsort),
     sprintf("browser=%-15s      - Web browser to use for QRZ.com lookups", $yfksubs::browser),
     sprintf("colors=%-15s       - Enable colors? [1/0] (requires restart)", $colors),
