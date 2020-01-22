@@ -6179,7 +6179,7 @@ sub tqslsign {
     my $mycall_slash = $mycall;
     $mycall_slash =~ s#_#/#g;
 
-    my $cmd = "xvfb-run tqsl -x -u -c $mycall_slash -d -l $location $filename 2>&1";
+    my $cmd = "xvfb-run -a tqsl -x -u -c $mycall_slash -d -l $location $filename 2>&1";
     my @result = `$cmd`;
 
     unshift @result, $cmd;
