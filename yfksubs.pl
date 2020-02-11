@@ -3253,7 +3253,7 @@ sub emptyqslqueue {
 # QSLINFO, ITUZ, CQZ, STATE, IOTA, CONT and GRID are exported into their
 # appropriate fields.  
 # if $_[1] is 'adif', all QSOs are exported
-# if $_[1] is 'LOTW', all QSOs where QSLRL = 'N' are exported and set to 'R'
+# if $_[1] is 'lotw', all QSOs where QSLRL = 'N' are exported and set to 'R'
 #          for 'Requested'. 
 ##############################################################################
 
@@ -3360,8 +3360,9 @@ sub adifexport {
 
     close ADIF;
 
-    $dbh->do("UPDATE log_$mycall set qslrl='R' where qslrl='N'") if 
-                                                        ($export eq 'lotw');
+    if ($export eq 'lotw') {
+        $dbh->do("UPDATE log_$mycall set qslrl='R' where qslrl='N' and $daterange")
+    }
 
     return $nr;            # return number of exported QSOs...
 }    # end of ADIF export
