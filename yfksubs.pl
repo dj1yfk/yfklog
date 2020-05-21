@@ -120,11 +120,14 @@ my @dxspots;    # DX cluster thread -> main thread (DX spots)
 my @dxlines;    # DX cluster thread -> main thread (raw lines)
 my @dxinput;    # main thread -> DX cluster thread (keyboard input lines)
 
+my %wkdcalls = ();  # worked calls - those will not be highlighted on the bandmap
+
 our $cursoron = 1;                   # show cursor all the time? (makes things easy for people with a screen reader)
 
 share(@dxspots);
 share(@dxlines);
 share(@dxinput);
+share(%wkdcalls);
 
 sub redraw {
     endwin();
@@ -196,8 +199,8 @@ sub rundxc {
 
     while (1) {
         @dxspots = ();
-        push @dxspots, " Connecting to '$dxchost:$dxcport'";
-        push @dxspots, " with callsign '$dxccall'.";
+        push @dxspots, "  Connecting to '$dxchost:$dxcport'";
+        push @dxspots, "  with callsign '$dxccall'.";
 
         my $t = new Net::Telnet (Timeout => 600, Port => $dxcport, Prompt => '/./');
         $t->open($dxchost);
@@ -257,7 +260,8 @@ sub updatedxc {
             }
             for my $call ( sort { $fr->{$band}{$a} <=> $fr->{$band}{$b} } keys %{ $fr->{$band} } ) {
                 my $age = int((time - $tr->{$band}{$call})/60);
-                push @dxspots, sprintf("$age%7.1f  %s", $fr->{$band}{$call}, $call);
+                my $flag = defined($wkdcalls{$call}) ? 1 : 0;
+                push @dxspots, sprintf("$age$flag%7.1f  %s", $fr->{$band}{$call}, $call);
                 $c++;
 
                 # remove spots that are older than 5 minutes
@@ -285,6 +289,15 @@ sub showdxc {
 
     return unless (defined($win));
 
+    # fill array of worked calls
+    unless (keys %wkdcalls) {
+        my $q = $dbh->prepare("SELECT distinct `call` FROM log_$mycall;");
+        $q->execute();
+        while (my @r = $q->fetchrow_array()) {
+            $wkdcalls{$r[0]} = 1;
+        }
+    }
+ 
     # each column in the bandmap requires 25 characters. from the total number
     # of available columns, 80 are already used by the logger, so we can
     # calculate the number of bandmap columns as follows: 
@@ -307,14 +320,20 @@ sub showdxc {
             next if ($mcol >= $dxccols); # don't swap into a non-existing column
             next if ($mrow == 0 && $line eq ""); # don't print empty line on top
 
-            # extract age from spot
+            # extract age/flag from spot
             my $age = substr($line, 0, 1);
+            my $flag = substr($line, 1, 1);
 
             if ($age < 1) {
                 attron($win, A_BOLD);
             }
-            addstr($win, $mrow , 1 + $mcol*25, substr($line, 1));
+
+            if ($flag ne "1") {
+                attron($win, COLOR_PAIR(8));
+            }
+            addstr($win, $mrow , 1 + $mcol*25, substr($line, 2));
             attroff($win, A_BOLD);
+            attron($win, COLOR_PAIR(5));
             $c++;
         }
     }
@@ -927,6 +946,7 @@ sub qsotofields {
 ##############################################################################
 
 sub saveqso {
+    %wkdcalls = ();          # bandmap
     my $qslinfo = "";        # QSLinfo, IOTA and STATE will be read from the
     my $iota= "";            # remarks field, if available.
     my $state = "";
