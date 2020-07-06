@@ -3693,6 +3693,7 @@ for my $i ( 0 .. $#qso ) {                    # iterate through Array of Hashes
             
             if ($val =~ /^(1[.][89]|2[.]0)/) { $qso[$i]{'band'} = '160' } 
             elsif ($val =~ /^[34][.]/) { $qso[$i]{'band'} = '80' } 
+            elsif ($val =~ /(^5[.])|(^5$)/) { $qso[$i]{'band'} = '60' } 
             elsif ($val =~ /(^7[.])|(^7$)/) { $qso[$i]{'band'} = '40' } 
             elsif ($val =~ /(^10[.](0|1))|(^10$)/) { $qso[$i]{'band'} = '30' } 
             elsif ($val =~ /(^14[.])|(^14$)/) { $qso[$i]{'band'} = '20' } 
@@ -3701,6 +3702,7 @@ for my $i ( 0 .. $#qso ) {                    # iterate through Array of Hashes
             elsif ($val =~ /^24/) { $qso[$i]{'band'} = '12' } 
             elsif ($val =~ /^2(8|9)/) { $qso[$i]{'band'} = '10' } 
             elsif ($val =~ /^5[0-4]/) { $qso[$i]{'band'} = '6' } 
+            elsif ($val =~ /^7[0-4]/) { $qso[$i]{'band'} = '4' } 
             elsif ($val =~ /^14[4-8]/) { $qso[$i]{'band'} = '2' } 
             elsif ($val =~ /^4[2-5]\d/) { $qso[$i]{'band'} = '0.7' } 
             elsif ($val =~ /^1[23]\d\d/) { $qso[$i]{'band'} = '0.23' } 
@@ -6091,7 +6093,9 @@ sub freq2band {
         elsif (($freq >=24890) && ($freq <=24990)) { $freq = "12"; }
         elsif (($freq >=28000) && ($freq <=29700)) { $freq = "10"; }
         elsif (($freq >=50000) && ($freq <=54000)) { $freq = "6"; }
+        elsif (($freq >=70000) && ($freq <=74000)) { $freq = "4"; }
         elsif (($freq >=144000) && ($freq <=148000)) { $freq = "2"; }
+        elsif (($freq >=430000) && ($freq <=460000)) { $freq = "0.7"; }
         else {
             $freq = 0;
         }
