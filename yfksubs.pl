@@ -1334,7 +1334,7 @@ sub readw {
             ${$_[3]}[$_[2]] = $input;                # save to @qso;
             return 1;
         }
-        # Arrow-up or Shift-Tab gues to the previous QSO field. Everything
+        # Arrow-up or Shift-Tab goes to the previous QSO field. Everything
         # else same as above 
         elsif (($ch eq KEY_UP) || ($ch eq '353')) {    # Cursor up or Shift-Tab
             ${$_[3]}[$_[2]] = $input;                # save to @qso;
@@ -2041,7 +2041,7 @@ do  {            # loop and get keyboard input
 
     $ch = &getch2();                        # get character from keyboard
 
-    if ($ch eq KEY_DOWN) {                # key down was pressed
+    if ($ch eq KEY_DOWN || $ch eq 'j') {                # key down was pressed
         if ($aline < ($nbr-1)) {        # no scrolling needed
             $aline++;
         }
@@ -2053,7 +2053,7 @@ do  {            # loop and get keyboard input
         }
     }
     
-    if ($ch eq KEY_UP) {                # key up was pressed
+    if ($ch eq KEY_UP || $ch eq 'k') {                # key up was pressed
         if (($aline > -1) && 
                 ($callsthispage>($nbr-$aline))) {        # no scrolling needed
             $aline--;
@@ -2251,7 +2251,7 @@ do {                                    # we start looping here
 
     $ch = &getch2();                    # get keyboard input
 
-    if ($ch eq KEY_DOWN) {            # arrow key down
+    if ($ch eq KEY_DOWN || $ch eq 'j') {            # arrow key down
         # we now have to check two things: 1. is the $pos lower than $count?
         # 2. are we at the end of a page and have to scroll?
         if ($pos < $count) {        # we can go down, but on same page?
@@ -2267,7 +2267,7 @@ do {                                    # we start looping here
         }
     }
     
-    elsif ($ch eq KEY_UP) {            # arrow key up
+    elsif ($ch eq KEY_UP || $ch eq 'j') {            # arrow key up
         # we now have to check two things: 1. is the $pos over 1 (=lowest)?
         # 2. are we at the start of a page (aline=0) and have to scroll back?
         if ($pos > 1) {            # we can go up, but on same page?
@@ -2422,7 +2422,7 @@ refresh($win);
 
 $ch = getch2();
 
-if ($ch eq KEY_DOWN) {            # Arrow down was pressed 
+if ($ch eq KEY_DOWN || $ch eq 'j') {            # Arrow down was pressed 
     if ($aline < $#items) {        # not at last position
         # We can savely increase $aline, because we are not yet at the end of the
         # items array. 
@@ -2438,7 +2438,7 @@ if ($ch eq KEY_DOWN) {            # Arrow down was pressed
         $yoffset = 0;
     }
 }
-elsif ($ch eq KEY_UP) {        # arrow up
+elsif ($ch eq KEY_UP || $ch eq 'k') {        # arrow up
     if ($aline > 0) {        # we are not at 0
         # We can savely decrease the $aline position, but maybe we have to scroll
         # up
@@ -2827,7 +2827,7 @@ do {                                    # we start looping here
     # end of the list. $aline is the position only relative to the window, so
     # we have to compare $aline+$offset+1 agains the $count of QSOs... (+1
     # because $aline starts at 0, $count at 1)
-    elsif (($ch eq KEY_DOWN) && (($aline + $offset + 1) < $count)) {
+    elsif (($ch eq KEY_DOWN || $ch eq 'j') && (($aline + $offset + 1) < $count)) {
             # We are allowed to go down, but we have to check if we need to
             # scroll or not. Scrolling is needed when $aline is 21.
             if ($aline == ($yh-1)) {
@@ -2840,7 +2840,7 @@ do {                                    # we start looping here
     }
     # Same story when we want to go up: Make sure that we are not at the
     # beginning of the list.
-    elsif (($ch eq KEY_UP) && (($aline + $offset) > 0)) {
+    elsif (($ch eq KEY_UP || $ch eq 'k') && (($aline + $offset) > 0)) {
             # We are allowed to go up, but we have to check if we need to
             # scroll or not. Scrolling is needed when $aline is 0.
             if ($aline == 0) {
@@ -3726,13 +3726,13 @@ for my $i ( 0 .. $#qso ) {                    # iterate through Array of Hashes
 
         if (defined($qso[$i]{'rst_sent'})) {
             $qso[$i]{'rsts'} = $qso[$i]{'rst_sent'};
-            $qso[$i]{'rsts'} =~ s/[^0-9]//g;
+            $qso[$i]{'rsts'} =~ s/[^0-9-+]//g;  # allow negative values (e.g. for FT8)
             delete($qso[$i]{'rst_sent'});
         }
         
         if (defined($qso[$i]{'rst_rcvd'})) {
             $qso[$i]{'rstr'} = $qso[$i]{'rst_rcvd'};
-            $qso[$i]{'rstr'} =~ s/[^0-9]//g;
+            $qso[$i]{'rstr'} =~ s/[^0-9-+]//g;
             delete($qso[$i]{'rst_rcvd'});
         }
 
@@ -3787,13 +3787,26 @@ for my $i ( 0 .. $#qso ) {                    # iterate through Array of Hashes
             delete($qso[$i]{'contest_id'});                    # delete contest_id 
         }
 
-        # Rename GRIDSQUARE to GRID if it looks valid.
+        # WSJT-X uses station_callsign as operator
+        if (defined($qso[$i]{"station_callsign"})) {
+            $qso[$i]{"operator"} = $qso[$i]{"station_callsign"};
+            delete($qso[$i]{"station_callsign"});
+        }
 
+        # WSJT-X uses my_gridsquare. move to gridsquare field.
+        if (defined($qso[$i]{"my_gridsquare"})) {
+            $qso[$i]{"gridsquare"} = $qso[$i]{"my_gridsquare"};
+            delete($qso[$i]{"my_gridsquare"});
+        }
+
+        # Rename GRIDSQUARE to GRID if it looks valid.
         if (defined($qso[$i]{"gridsquare"})) {
             if ($qso[$i]{"gridsquare"} =~ /^[A-Z]{2}[0-9]{2}/) {
                 $qso[$i]{"grid"} = "\U$qso[$i]{'gridsquare'}";
                 delete($qso[$i]{'gridsquare'});    
             }
+        } elsif (defined($qso[$i]{"my_gridsquare"})) {
+
         }
         
         # Comments go into the value for key 'rem'. Note that it might already
@@ -3896,6 +3909,9 @@ for my $i ( 0 .. $#qso ) {                    # iterate through Array of Hashes
         else {                            # no qsl-rcvd, set to "N"
             $qso[$i]{'qslr'} = "N";
         }
+
+        # FIXME don't throw errors if we don't use this information
+        delete($qso[$i]{"qso_date_off"});
         
         # made all neccessary changes to the QSO hash 
 
@@ -4260,7 +4276,7 @@ do {
         
     $ch = &getch2();                             # Get keyboard input
 
-    if ($ch eq KEY_DOWN) {                    # arrow key down was pressed
+    if ($ch eq KEY_DOWN || $ch eq 'j') {                    # arrow key down was pressed
         # 1. Can we go down => $$pos < $count?
         # 2. do we have to scroll down? => $aline < 15?
         if ($$pos < $count) {                # we can go down!
@@ -4276,7 +4292,7 @@ do {
         }
     } # key down
 
-    elsif ($ch eq KEY_UP) {                    # arrow key down was pressed
+    elsif ($ch eq KEY_UP || $ch eq 'k') {                    # arrow key down was pressed
         # 1. Can we go up => $$pos > 1?
         # 2. do we have to scroll up? => $aline = 0?
         if ($$pos > 1) {                        # we can go up!
