@@ -58,6 +58,8 @@ if ($havehamdb) {
     $hamdb->initialize_dbs();
 }
 
+my $haveqrz = eval "require Ham::Reference::QRZ;";
+
 
 # We load the default values for some variables that can be changed in .yfklog
 
@@ -123,6 +125,9 @@ my @dxinput;    # main thread -> DX cluster thread (keyboard input lines)
 my %wkdcalls = ();  # worked calls - those will not be highlighted on the bandmap
 
 our $cursoron = 1;                   # show cursor all the time? (makes things easy for people with a screen reader)
+
+our $qrzuser = "";    # QRZ.com username for querying data from QRZ.com
+our $qrzpass = "";    # QRZ.com password (NOT the API key)
 
 share(@dxspots);
 share(@dxlines);
@@ -491,7 +496,12 @@ while (defined (my $line = <CONFIG>))   {            # Read line into $line
     elsif ($line =~ /^cursoron=(.+)/) {
             $cursoron = $1;
     }
-
+    elsif ($line =~ /^qrzuser=(.+)/) {
+            $qrzuser = $1;
+    }
+    elsif ($line =~ /^qrzpass=(.+)/) {
+            $qrzpass = $1;
+    }
 }
 close CONFIG;    # Configuration read.
 
@@ -1632,6 +1642,33 @@ sub callinfo {
             refresh($wi[7]);
             $foundlog = 1;
         }
+
+       	# If QTH or name is empty, query qrz.com to add missing details.	
+
+	if ($haveqrz && ($qrzuser ne "") && ($qrzpass ne "") && 
+		((${$_[0]}[7] == "") || (${$_[0]}[7] == ""))) {
+	    my $qrz = Ham::Reference::QRZ->new(
+	        callsign => $call,
+	        username => $qrzuser,
+	        password => $qrzpass
+	    );
+
+	    my $listing = $qrz->get_listing;
+
+	    # If no name has been found in a previous qso, grab name from qrz
+	    if (${$_[0]}[7] == "") {
+		my $qrzname = $listing->{fname}." ".$listing->{name};
+		${$_[0]}[7] = $qrzname;
+		addstr($wi[7],0,0,"$qrzname");
+		refresh($wi[7]);
+	    }
+	    # If no QTH has been found in a previous qso, grab QTH from qrz
+	    if (${$_[0]}[6] == "") {
+		${$_[0]}[6] = $listing->{addr2};
+		addstr($wi[6],0,0,"$listing->{addr2}");
+		refresh($wi[6]);
+	    }
+	}
         
         
         # Now the previous QSOs with the station will be displayed. A database
@@ -3275,11 +3312,12 @@ sub emptyqslqueue {
 # if $_[1] is 'adif', all QSOs are exported
 # if $_[1] is 'lotw', all QSOs where QSLRL = 'N' are exported and set to 'R'
 #          for 'Requested'. 
+# if $_[1] is 'queue', all QSOs where QSLS = 'Q' are exported
 ##############################################################################
 
 sub adifexport {
     my $filename = $_[0];                # Where to save the exported data
-    my $export = $_[1];                    # 'lotw' or 'adi'.
+    my $export = $_[1];                  # 'lotw', 'queue' or 'adi'.
     my $daterange= $_[2];                # date range for exporting
     my $nr=0;                            # number of QSOs exported. return value
     my $sql = 'WHERE ';
@@ -3290,6 +3328,7 @@ sub adifexport {
     print ADIF "Exported from the logbook of $mycall by YFKlog.\n<eoh>";
 
     $sql .= " QSLRL = 'N' AND " if ($export eq 'lotw');
+    $sql .= " QSLS = 'Q' AND " if ($export eq 'queue');
 
     $sql .= $daterange;
 
@@ -3383,6 +3422,8 @@ sub adifexport {
     if ($export eq 'lotw') {
         $dbh->do("UPDATE log_$mycall set qslrl='R' where qslrl='N' and $daterange")
     }
+    $dbh->do("UPDATE log_$mycall set qsls='Y' where qsls='Q' AND ".$daterange) if 
+                                                        ($export eq 'queue');
 
     return $nr;            # return number of exported QSOs...
 }    # end of ADIF export

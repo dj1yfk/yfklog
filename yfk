@@ -719,6 +719,7 @@ while ($status == 2) {
     "Edit Name/QTH DB  - Edit the database used to save Names and QTHs",
     "Import from LoTW  - Read LoTW report and update the confirmations",
     "Export to LoTW    - Generate ADIF file of QSOs not uploaded yet",
+    "Export QSL ADIF   - Generate ADIF file of QSOs with QSL status 'Q'",
     "Setup YFKlog      - Most logbook settings can be changed here",
     "DX cluster        - Console for the DX cluster"
     );
@@ -779,11 +780,14 @@ while ($status == 2) {
     elsif ($choice == 12) {            # LoTW export
         $status = 14;
     }
-    elsif ($choice == 13) {            # Setup mode
+    elsif ($choice == 13) {            # Queued QSL export
         $status = 15;
     }
     elsif ($choice == 14) {            # Setup mode
         $status = 16;
+    }
+    elsif ($choice == 15) {            # Setup DX cluster
+        $status = 17;
     }
     
 } # end of $status == 2, Main menu
@@ -1123,9 +1127,10 @@ while ($status == 6) {
 ##############################################################################
 # ADIF EXPORT MODE  $status = 7
 # LoTW ADIF export mode, $status = 14
+# Queued QSL ADIF export mode, $status = 15
 ##############################################################################
 
-while (($status == 7) || ($status == 14)) {
+while (($status == 7) || ($status == 14) || ($status == 15)) {
     my $filename;                # filename for the adif/lotw file
     my $nr;                        # number of exported QSOs    
     my ($date1, $date2, $daterange) = ('','','1');
@@ -1140,6 +1145,9 @@ while (($status == 7) || ($status == 14)) {
 
     addstr($whead, 0,0, "YFKlog v$yfkver - LoTW export mode - Active Logbook: ".
        "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 14);
+
+    addstr($whead, 0,0, "YFKlog v$yfkver - Queued QSL export mode - Active Logbook: ".
+       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 15);
 
     addstr($whelp, 0,0, "Enter a filename to export. F1: Main Menu  F12: Exit"." " x 70);
     addstr($wmain,0,0," "x(80*($row-2)));            # clear main window
@@ -1224,6 +1232,7 @@ while (($status == 7) || ($status == 14)) {
     # Export the log to $filename
     $nr = &adifexport($filename, 'adif', $daterange) if ($status == 7); 
     $nr = &adifexport($filename, 'lotw', $daterange) if ($status == 14); 
+    $nr = &adifexport($filename, 'queue', $daterange) if ($status == 15);
 
     # if the user was impatient and pressed enter, he will not see the
     # following screen, so flush the input buffer
@@ -2002,13 +2011,13 @@ while ($status == 13) {
 } # end of $status = 13, LoTW import
 
 ##############################################################################
-# SETUP MODE  $status == 15
+# SETUP MODE  $status == 16
 # All settings of the .yfklog config file can be set/modified here. This will
 # be the default mode at startup, when YFKlog cannot find a .yfklog file
 # anywhere.
 ##############################################################################
 
-while ($status == 15) {
+while ($status == 16) {
     attron($wmain, COLOR_PAIR(4));
     addstr($whead, 0,0, "YFKlog v$yfkver - Setup - Active Logbook: ".
        "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
@@ -2062,7 +2071,9 @@ while ($status == 15) {
     sprintf("dxcport=%-15s      - DX cluster port", $yfksubs::dxcport),
     sprintf("dxccall=%-15s      - DX cluster login call", $yfksubs::dxccall),
     sprintf("dxcmode=%-15s      - DX cluster mode (B = bandmap, N = normal)", $yfksubs::dxcmode),
-    sprintf("cursoron=%-15s     - Cursor always visible (1/0)", $yfksubs::cursoron)
+    sprintf("cursoron=%-15s     - Cursor always visible (1/0)", $yfksubs::cursoron),
+    sprintf("qrzuser=%-15s      - QRZ.com user name", $yfksubs::qrzuser),
+    sprintf("qrzpass=%-15s      - QRZ.com password (NOT the API key)", $yfksubs::qrzpass)
     );
 
     my $choice = &selectlist(\$wmain, 2, 1, $row-6, 78, \@setup);
@@ -2440,6 +2451,22 @@ while ($status == 15) {
             &changeconfig($original, "cursoron=$ret");
         }
     }
+    elsif ($choice == 40) { 
+        $original = "qrzuser=$yfksubs::qrzuser";
+        my $ret = &askbox(10,5,4,70, '[01]', "QRZ.com user name", $yfksubs::qrzuser);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "qrzuser=$ret");
+        }
+    }
+    elsif ($choice == 41) { 
+        $original = "qrzpass=$yfksubs::qrzpass";
+        my $ret = &askbox(10,5,4,70, '[01]', "QRZ.com password (NOT the API key)", $yfksubs::qrzpass);
+        if ($ret eq 'm') { last }
+        elsif ($ret ne '') {
+            &changeconfig($original, "qrzpass=$ret");
+        }
+    }
  
     &readconfig;
     &readsubconfig;
@@ -2449,7 +2476,7 @@ while ($status == 15) {
 # DX cluster console
 ##############################################################################
 
-while ($status == 16) {
+while ($status == 17) {
     my $in;
     attron($wmain, COLOR_PAIR(4));
     addstr($whead, 0,0, "YFKlog v$yfkver - DX cluster console - Active Logbook: ".
