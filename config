@@ -233,3 +233,11 @@ usehamdb=0
 # Values 0/1. Default is on (1).
 
 cursoron=1
+
+# (O) qrzuser: QRZ.com user name (typically your callsign)
+
+qrzuser=
+
+# (O) qrzpass: QRZ.com password (NOT your API key)
+
+qrzpass=

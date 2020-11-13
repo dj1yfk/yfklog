@@ -65,7 +65,7 @@ my $dpwr ="100";        # life is too long for QRO
 my $dqsls="Q";            # default QSL sent: Q = put in queue
 my $dqslr="N";            # default QSL recvd: N - No
 my $workcall = "";        # The station we are currently working
-my $status=15;            # status: 1: Logging 2: menu  3: QSL mode 15: setup
+my $status=16;            # status: 1: Logging 2: menu  3: QSL mode 15: setup
 my @wi;                    # contains the windows inside the input-window
                         # 0 Callsign, 1  Date, 2 time on, 3 time off
                         # 4 QRG, 5 Mode, 6 QTH, 7 Name, 8 QSL-TX, 9 QSL-RX
@@ -2451,17 +2451,19 @@ while ($status == 16) {
             &changeconfig($original, "cursoron=$ret");
         }
     }
-    elsif ($choice == 40) { 
+    elsif ($choice == 40) {
         $original = "qrzuser=$yfksubs::qrzuser";
-        my $ret = &askbox(10,5,4,70, '[01]', "QRZ.com user name", $yfksubs::qrzuser);
+        my $ret = &askbox(10,20,4,30, '\w', "QRZ.com user name",
+                $yfksubs::qrzuser);
         if ($ret eq 'm') { last }
         elsif ($ret ne '') {
             &changeconfig($original, "qrzuser=$ret");
         }
     }
-    elsif ($choice == 41) { 
+    elsif ($choice == 41) {
         $original = "qrzpass=$yfksubs::qrzpass";
-        my $ret = &askbox(10,5,4,70, '[01]', "QRZ.com password (NOT the API key)", $yfksubs::qrzpass);
+        my $ret = &askbox(10,20,4,30, '\w', "QRZ.com password",
+                $yfksubs::qrzpass);
         if ($ret eq 'm') { last }
         elsif ($ret ne '') {
             &changeconfig($original, "qrzpass=$ret");
