@@ -278,14 +278,23 @@ they are not important.</p>
 		previous QSOs when entering a new callsign in the main logging
 		mode.</li>
 
-		<li><strong>rigmodel</strong> - Rig model for Hamlib.pm cat support.</li>
+		<li><strong>hamlibaddr</strong> - IP address of the system on which the 
+		hamlib rigctld daemon is running (default 127.0.0.1).</li>
 
-		<li><strong>rigpath</strong> - Path to the device used by Hamlib, e.g.
-		<code>/dev/ttyS0</code></li>
+		<li><strong>hamlibport</strong> - Port number of the hamlib rigctld daemon
+		to which yfklog should connect (default: 4532)</li>
 		
 		<li><strong>autoqueryrig</strong> - When 1, the frequency and mode is
 		automatically queried from the radio.</li>
 		
+		<li><strong>qrzuser</strong> - Your QRZ.com user name. This is needed
+		for querying qrz.com data in the logging screen. A subscription might
+		be needed for this.</li>
+
+		<li><strong>qrzpass</strong> - Your QRZ.com password. This is needed
+		for querying qrz.com data in the logging screen. A subscription might
+		be needed for this.</li>
+
 		<li><strong>lotwdetails</strong> - Whether or not to use QSO details
 		from LoTW to update the log.</li>
 
@@ -383,6 +392,8 @@ following sections; some are self explanatory. A quick overview:</p>
 		database can be changed or deleted in this menu point.</li>
 		<li><strong>Import/Export LoTW</strong> - Support for working with
 		ARRL's LoTW. See <a href="#lotw">chapter LoTW</a> for details.</li>
+		<li><strong>Export QSL ADIF</strong> -  Generate an ADIF file of 
+		all QSOs from the QSL queue.</li>
 		<li><strong>Setup YFKlog</strong> - Most settings mentioned in <a href="#setup">Setup</a> can be changed here. </li>
         <li><strong>DX cluster</strong> - Send commands to the DX cluster.</li>
 </ul>
@@ -441,13 +452,11 @@ respectively.</p>
 		</ul>
 
 		<li> This window shows information about the callsign entered, derived
-		from the country file <code>cty.dat</code>. The last line also shows -
-		if available
-		- known <a href="#clubs">club memberships</a>, if the DXCC was worked before,
-		and if so on which bands, and if the callsign appears in any other log,
-		as specified by <a href="">checklogs</a> in the config file.  <a
-				href="logmode2.png">This is an example</a> where all these
-		information are shown.</li>
+		from the country file <code>cty.dat</code> and - if configured - from qrz.com.
+		The last line also shows - if available - known <a href="#clubs">club memberships</a>,
+		if the DXCC was worked before, and if so on which bands, and if the callsign
+		appears in any other log, as specified by <a href="">checklogs</a> in the config file.  
+		<a href="logmode2.png">This is an example</a> where all these information are shown.</li>
 
 		<li>The last few QSOs in the log are shown in Window 3. You can jump
 		here by pressing <strong>F9</strong> and select any QSO to edit it. The
@@ -554,6 +563,16 @@ sent), and you can continue with the next card.</p>
 <p>If you finished writing your cards, pressing <strong>F2</strong> will
 save all changed QSL-flags, <strong>F3</strong> cancels all changes and returns
 to the main menu.</p>
+
+<h4>6.2.3 Export ADIF files for external labeling/printing</h4>
+
+<p>To export an ADIF file for using other software or services for printing labels
+or QSL cards, YFKlog offers the submenu "Export QSL ADIF". For details on ADIF
+exports and how to specify date ranges, please see the next chapter "7. ADIF 
+import and export".</p>
+
+<p>After exporting a QSL ADIF, the QSL status of all affected QSOs will be
+changed from "Q" (queued) to "Y" (yes, sent).
 
 <hr>
 
@@ -758,13 +777,18 @@ Perl bindings.</p>
 
 <h3>13.1 Hamlib setup</h3>
 
-<p>The config file contains two parameters for hamlib: <code>rigmodel</code>
-and <code>rigpath</code>. The first is the number of the transceiver to be
-used, as shown in <code>rigctl --list</code>. The second is the path to the
-device to which the transceiver is connected, e.g. <code>/dev/ttyS0</code>.
+<p>The config file contains two parameters for hamlib: <code>hamlibaddr</code>
+and <code>hamlibport</code>. The first is the IP address of the rigctld that
+should be polled, the second parameter the TCP port number. The defaults are:</p>
 
-<code><pre>$ ./rigctl --list 2> /dev/null | grep K2
-221     Elecraft        K2                      0.5     Beta</pre> </code>
+<p><code>hamlibaddr=127.0.0.1</code></br>
+<code>hamlibport=4532</code></p>
+
+<p>You need to have a rigctld instance running somewhere - either on the same
+system or somewhere network accessible. The following is an example of 
+<code>rigctld</code> in combination with a Yaesu FT-450D:</p>
+
+<p><code>rigctld -m 127 -r /dev/ttyUSB0</code></p>
 
 <h3>13.2 Usage</h3>
 
