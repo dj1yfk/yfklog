@@ -155,13 +155,14 @@ screenlayout=1
 
 checklogs=
 
-# (O) hamlib rig model. 0 for no hamlib.
+# (O) IP address of rigctld. If executed on the same system, you can
+# use the default: 127.0.0.1
 
-rigmodel=0
+hamlibaddr=127.0.0.1
 
-# (O) hamlib path to the device. For example /dev/ttyS0 etc.
+# (O) TCP port of rigctld. You propably don't want to change this.
 
-rigpath=/dev/ttyS0
+hamlibport=4532
 
 # (O) autoqueryrig: If set to 1, YFKlog queries the frequency from the
 # transceiver via hamlib at every new QSO automatically.

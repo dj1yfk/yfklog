@@ -2050,8 +2050,8 @@ while ($status == 16) {
     sprintf("awardmodes=%-15s   - Modes for awards", $yfksubs::modes),
     sprintf("screenlayout=%-15s - Layout, 1 or 0 (requires restart to take eff.)", $yfksubs::screenlayout),
     sprintf("checklogs=%-15s    - Other logs to check for QSOs", $yfksubs::checklogs),
-    sprintf("rigmodel=%-15s     - hamlib rig model number (0 = disable hamlib)", $yfksubs::rigmodel),
-    sprintf("rigpath=%-15s      - hamlib rig path (e.g. /dev/ttyS0)", $yfksubs::rigpath),
+    sprintf("hamlibaddr=%-15s   - IP address of rigctld (default: localhost)", $yfksubs::hamlibaddr),
+    sprintf("hamlibport=%-15s   - Port number of rigctl (default: 4532)", $yfksubs::hamlibport),
     sprintf("autoqueryrig=%-15s - Query hamlib automatically?", $yfksubs::autoqueryrig),
     sprintf("operator=%-15s     - Operator's callsign", $yfksubs::operator),
     sprintf("lotwdetails=%-15s  - Include details from LoTW?", $yfksubs::lotwdetails),
@@ -2082,7 +2082,6 @@ while ($status == 16) {
         &readconfig;
         &readsubconfig;
         &connectdb;
-        &connectrig;
         $firstrun = 0;
         $status = 2;
 #        endwin;
@@ -2258,21 +2257,21 @@ while ($status == 16) {
         }
     }
     elsif ($choice == 18) {
-        $original = "rigmodel=$yfksubs::rigmodel";
-        my $ret = &askbox(10,20,4,30, '\d', "Enter hamlib rigmodel (0=no rig)",
-                $yfksubs::rigmodel);
+        $original = "hamlibaddr=$yfksubs::hamlibaddr";
+        my $ret = &askbox(10,20,4,30, '[0-9.]', "Enter IP address of rigctld",
+                $yfksubs::hamlibaddr);
         if ($ret eq 'm') { last }
         elsif ($ret ne '') {
-            &changeconfig($original, "rigmodel=$ret");
+            &changeconfig($original, "hamlibaddr=$ret");
         }
     }
     elsif ($choice == 19) {
-        $original = "rigpath=$yfksubs::rigpath";
-        my $ret = &askbox(10,20,4,30, 'filename', "Enter hamlib rigpath",
-                $yfksubs::rigpath);
+        $original = "hamlibport=$yfksubs::hamlibport";
+        my $ret = &askbox(10,20,4,30, '[0-9]', "Enter port number of rigctld",
+                $yfksubs::hamlibport);
         if ($ret eq 'm') { last }
         elsif ($ret ne '') {
-            &changeconfig($original, "rigpath=$ret");
+            &changeconfig($original, "hamlibport=$ret");
         }
     }
     elsif ($choice == 20) {

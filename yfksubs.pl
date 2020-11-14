@@ -33,7 +33,7 @@ preparelabels labeltex emptyqslqueue adifexport ftpupload adifimport getlogs
 changemycall newlogtable oldlogtable choseeditqso geteditqso editw updateqso checkdate
 awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
-connectdb connectrig jumpfield receive_qso tqslsign getlotwlocations 
+connectdb jumpfield receive_qso tqslsign getlotwlocations 
 getlotwstartdate downloadlotw redraw create_windows rundxc getch2 waitkey
 senddxc mycurs_set);
 
@@ -88,8 +88,8 @@ our $lon1      = "-8";                            # Longitude of own station
 our $bands = '160 80 40 30 20 17 15 12 10 2';    # bands for award purposes
 our $modes = 'CW SSB';                            # modes for award purposes
 our $screenlayout=0;                                # screen layout, 0 or 1
-our $rigmodel = 0;                                # for hamlib
-our $rigpath = '/dev/ttyS0';                        # for hamlib
+#our $rigmodel = 0;                                # for hamlib
+#our $rigpath = '/dev/ttyS0';                        # for hamlib
 my $rig=0;
 my $dband = '80';
 my $dmode = 'CW';
@@ -107,7 +107,8 @@ our $askme=0;                        # ask before clearing QSOs etc
 our $logsort="N";                                # Order of log display
 our $prevsort="D";                                # Order of prev. QSOs
 our $browser='dillo';
-our $hamlibtcpport = 4532;
+our $hamlibport = 4532;
+our $hamlibaddr = '127.0.0.1';
 our $lotwlocation="";                 # LoTW station locations in format: CALL:location,CALL:location
 our $lotwuser="";                     # Username for automatic LoTW download
 our $lotwpass="";                     # Password for automatic LoTW download
@@ -432,11 +433,11 @@ while (defined (my $line = <CONFIG>))   {            # Read line into $line
     elsif ($line =~ /^screenlayout=(.+)/) {            # screen layout, see doc.
             $screenlayout= $1;
     }
-    elsif ($line =~ /^rigmodel=(.+)/) {
-            $rigmodel= $1;
+    elsif ($line =~ /^hamlibaddr=(.+)/) {
+            $hamlibaddr= $1;
     }
-    elsif ($line =~ /^rigpath=(.+)/) {
-            $rigpath = $1;
+    elsif ($line =~ /^hamlibport=(.+)/) {
+            $hamlibport= $1;
     }
     elsif ($line =~ /^checklogs=(.+)/) {
             $checklogs = $1;
@@ -512,7 +513,6 @@ return 1;
 # Only open Database when config file was read.
 if (&readsubconfig()) {
     &connectdb;
-    &connectrig;
 }
 
 ## We connect to the Database now...
@@ -530,18 +530,6 @@ else {    # MYSQL, only if defined.
     $dbh = DBI->connect("DBI:mysql:$dbname;host=$dbserver",$dbuser,$dbpass)
         or die "Could not connect to MySQL database: " . DBI->errstr;
 }
-}
-
-
-# Open Rig for Hamlib
-
-sub connectrig {
-    if ( $autoqueryrig eq 1) {
-        if (-r '/usr/local/share/yfklog/rigctld.sh') {
-            system('sh /usr/local/share/yfklog/rigctld.sh');
-            sleep 1;                                            
-        }
-    }
 }
 
 
@@ -5714,8 +5702,8 @@ sub queryrig {
 
     my ($freq, $mode);
 
-    my $sock = new IO::Socket::INET ( PeerAddr => 'localhost', 
-            PeerPort => $hamlibtcpport, Proto => 'tcp');
+    my $sock = new IO::Socket::INET ( PeerAddr => $hamlibaddr,
+            PeerPort => $hamlibport, Proto => 'tcp');
 
     return 0 unless $sock;
 
