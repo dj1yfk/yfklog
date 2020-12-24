@@ -1160,9 +1160,10 @@ sub saveqso {
 #            again because $aw is still 1, but then it starts at the callsign
 #            field again.
 # 2. F3  --> clears out the current QSO.
-# 3. F5  --> Reads frequency and mode from the rig
-# 3. F9  --> return 2 as next active window $aw. --> $wlog.
-# 4. F10 --> returns 3 as next active window --> $wqsos
+# 3. F4  --> updates date and start time in current QSO
+# 4. F5  --> Reads frequency and mode from the rig
+# 5. F9  --> return 2 as next active window $aw. --> $wlog.
+# 6. F10 --> returns 3 as next active window --> $wqsos
 #
 # If a regular entry was made, the return value is 1, because we stay in active
 # window 1
@@ -1396,6 +1397,14 @@ sub readw {
                 return 4;                        # return 4 -> to window 0 (call)
             }
         
+        }
+
+        # F4 -> update start time of the QSO
+        elsif ($ch eq KEY_F(4)) {
+            ${$_[3]}[2] = &gettime;
+            addstr(@{$_[0]}[2],0,0,&gettime);
+            refresh(@{$_[0]}[2]);
+            return 4;
         }
 
         # F5 -> get frequency and mode from the transceiver
