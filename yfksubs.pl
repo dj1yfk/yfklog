@@ -41,7 +41,7 @@ use strict;
 use POSIX;                # needed for acos in distance/direction calculation
 use Curses;
 use Net::FTP;
-use IO::Socket;
+use IO::Socket::Timeout;
 use DBI;
 use IPC::SysV qw(IPC_PRIVATE IPC_RMID IPC_NOWAIT IPC_CREAT);
 use LWP::UserAgent ();
@@ -5703,27 +5703,50 @@ sub queryrig {
     my ($freq, $mode);
 
     my $sock = new IO::Socket::INET ( PeerAddr => $hamlibaddr,
-            PeerPort => $hamlibport, Proto => 'tcp');
+		PeerPort => $hamlibport, Proto => 'tcp');
 
-    return 0 unless $sock;
+    if ($sock) {
+        IO::Socket::Timeout->enable_timeouts_on($sock);
+        $sock->read_timeout(0.5);
+        $sock->autoflush;
 
-    print $sock "f\n";
-    $freq = <$sock>;
-    chomp($freq);
-    
-    print $sock "m\n";
-    $mode = <$sock>;
-    chomp($mode);
+        print $sock "f\n";
+        $freq = <$sock>;
+        chomp($freq);
 
-    if ($mode eq 'CWR') {
-        $mode = 'CW';
+        print $sock "m\n";
+        $mode = <$sock>;
+        chomp($mode);
+
+        if ($mode eq 'CWR') {
+            $mode = 'CW';
+        }
+        elsif ($mode eq 'USB' || $mode eq 'LSB') {
+            $mode = 'SSB';
+        }
+
+        $freq = &freq2band($freq/1000);
     }
-    elsif ($mode eq 'USB' || $mode eq 'LSB') {
-        $mode = 'SSB';
+
+    if ($freq == 0) {   # query failed (no hamlib or timeout)
+        ERR:
+        my $win = &makewindow(1,80,$main::row-1,0,6);
+        mycurs_set(0);
+        if (!$sock) {
+            addstr($win, 0, 0, "Error querying hamlib. Cannot connect to $hamlibaddr:$hamlibport"." "x80);
+        }
+        else {
+            addstr($win, 0, 0, "Error querying hamlib. Timeout while querying frequency and mode."." "x80);
+        }
+        refresh($win);
+        sleep 1;
+        delwin($win);
+        touchwin($main::whelp);
+        refresh($main::whelp);
+        mycurs_set(1);
+        return 0;
     }
 
-    $freq = &freq2band($freq/1000);
-            
     ${$_[0]} = $freq;
     ${$_[1]} = $mode;
 
