@@ -1069,9 +1069,9 @@ sub saveqso {
                 $dbh->do("UPDATE log_$mycall SET `CALL`='$qso[0]',
                         `DATE`='$qso[1]',
                         `T_ON`='$qso[2]', `T_OFF`='$qso[3]', `BAND`='$qso[4]',
-                        `MODE`='$qso[5]', `QTH`='$qso[6]', `NAME`='$qso[7]',
+                        `MODE`='$qso[5]', `QTH`=".$dbh->quote($qso[6]).", `NAME`=".$dbh->quote($qso[7]).",
                         `QSLS`='$qso[8]', `QSLR`='$qso[9]', `RSTS`='$qso[10]',
-                        `RSTR`='$qso[11]', `REM`='$qso[12]', `PWR`='$qso[13]',
+                        `RSTR`='$qso[11]', `REM`=".$dbh->quote($qso[12]).", `PWR`='$qso[13]',
                         `QSLINFO`='$qslinfo' WHERE NR='$editnr';");
             }
             else {                        # new QSO
@@ -1081,9 +1081,9 @@ sub saveqso {
                     `DXCC`, `PFX`, `CONT`, `QSLINFO`,
                     `ITUZ`, `CQZ`, `IOTA`, `STATE`, `QSLRL`, `OPERATOR`, `GRID`)
                     VALUES ('$qso[0]', '$qso[1]', '$qso[2]', '$qso[3]', 
-                            '$qso[4]', '$qso[5]', '$qso[6]', '$qso[7]', 
+                            '$qso[4]', '$qso[5]', ".$dbh->quote($qso[6]).", ".$dbh->quote($qso[7]).", 
                             '$qso[8]', '$qso[9]', '$qso[10]', '$qso[11]', 
-                            '$qso[12]', '$qso[13]', '$dxcc', '$pfx', 
+                            ".$dbh->quote($qso[12]).", '$qso[13]', '$dxcc', '$pfx', 
                             '$cont', '$qslinfo', '$ituz', '$cqz', '$iota',
                             '$state', 'N', '$operator', '$grid');");
             }
@@ -1111,7 +1111,7 @@ sub saveqso {
             unless ($sth->fetch()) {    # check if callsign not in DB
                 if (($qso[7] ne "") || ($qso[6] ne "")) {    # new things to add
                     $dbh->do("INSERT INTO `calls` (`CALL`, `NAME`, `QTH`) VALUES
-                            ('$call', '$qso[7]', '$qso[6]');");    
+                            ('$call', ".$dbh->quote($qso[7]).", ".$dbh->quote($qso[6]).");");    
                 }
             }
 
@@ -1216,7 +1216,7 @@ sub readw {
     # For the Name, QTH and Remarks letters, figures and punctuation is allowed 
     # to achieve this, invoke readw with $_[1] = 3
     if ((defined $_[1]) && ($_[1] == "3")) {     
-        $match = '[\w\d!"$%&/()=?.,;:\-@ ]';        # set match expression
+        $match = "[\\w\\d!'\"$%&/()=?.,;:\\-@ ]";        # set match expression
     }
     
     #  In the BAND-field, numbers and a decimal point are allowed.
