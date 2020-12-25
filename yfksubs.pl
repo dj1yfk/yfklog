@@ -166,8 +166,8 @@ sub create_windows {
     # depending on $screenlayout, the windows for previous QSOs and the recent
     # logbook are either next to each other or on top of each other.
     if ($screenlayout==0) {                     # original YFKlog style
-        $main::wlog   = &makewindow(16,30,7,0,3);     # Logbook
-        $main::wqsos  = &makewindow(16,50,7,30,4);    # prev. QSOs window
+        $main::wlog   = &makewindow(($row-8),30,7,0,3);     # Logbook
+        $main::wqsos  = &makewindow(($row-8),50,7,30,4);    # prev. QSOs window
     }
     elsif ($screenlayout==1) {                  # more info, smaller windows
         # 8 lines are used for other stuff, so we have ($row-8)/2 lines left for
@@ -1480,8 +1480,8 @@ sub lastqsos {
     }
     
     if ($screenlayout == 0) {        # original screen layout, 16 QSOs, small
-        $nr = 16;
-        $y=15;                    # y-position in $wlog
+        $nr = $main::row - 8;
+        $y = $nr - 1;                    # y-position in $wlog
     }
     elsif ($screenlayout == 1) {    # windows above each other, 8 QSOs
         $nr = ($main::row - 8)/2;
@@ -1680,7 +1680,9 @@ sub callinfo {
         # call of the current QSO)
         
         my $nbr;                            # different layouts
-        if ($screenlayout == 0) {$nbr=16;}
+        if ($screenlayout == 0) {
+            $nbr = $main::row - 8;
+        }
         if ($screenlayout == 1) {
             $nbr = ($main::row - 8)/2;
         }
@@ -1989,8 +1991,8 @@ sub choseqso {
 
     # set active (highlighted) line according to screen layout
     if ($screenlayout == 0) {
-        $aline = 15;
-        $nbr = 16;
+        $nbr = $main::row-8;
+        $aline = $nbr - 1;
     }
     elsif ($screenlayout == 1) {
         $nbr = ($main::row-8)/2;
@@ -2195,7 +2197,7 @@ sub chosepqso {
 
     # set number of QSOs to display at once.
     if ($screenlayout == 0) {
-        $nbr = 16;
+        $nbr = $main::row-8;
     }
     elsif ($screenlayout == 1) {
         $nbr = ($main::row-8)/2;
