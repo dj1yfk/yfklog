@@ -1059,6 +1059,12 @@ sub saveqso {
                     $qso[12] = $1." ".$3;
             }
 
+            # searching for a GRID in the QTH field
+            if ($qso[6] =~ /^([A-Z]{2}[0-9]{2}[A-Z]{2}|[A-Z]{2}[0-9]{2})$/i){ 
+                    $grid = uc($1);
+                    $qso[6] = uc($1);
+            }
+
             # trim remark
             $qso[12] =~ s/\s*$//;
 
