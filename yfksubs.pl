@@ -6447,7 +6447,7 @@ sub getlotwstartdate {
 
 sub downloadlotw {
     my $startdate = shift;
-    my $url = "https://lotw.arrl.org/lotwuser/lotwreport.adi?qso_query=1&login=$lotwuser&password=$lotwpass&qso_qsl=yes&qso_withown=yes&qso_qslsince=$startdate";
+    my $url = "https://lotw.arrl.org/lotwuser/lotwreport.adi?qso_query=1&login=$lotwuser&password=$lotwpass&qso_qsl=yes&qso_withown=yes&qso_qsldetail=yes&qso_qslsince=$startdate";
 
     my $filename = "/tmp/$mycall-lotw-download.adi";
 

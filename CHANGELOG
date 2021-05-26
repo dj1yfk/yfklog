@@ -6,6 +6,7 @@
   will perform a lookup of this locator (and if it's a 6 character locator,
   of the square) in the log and print on which the square was worked/cfmed
   before, and which callsigns were logged from it.
+- Download all details from LoTW (Zone, Grid, ...), not just basic QSO info
 
 2019-Sep-08:   Version 0.6.0
 -------------------------------------------------------------------------------
