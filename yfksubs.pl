@@ -35,7 +35,7 @@ awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
 connectdb jumpfield receive_qso tqslsign getlotwlocations 
 getlotwstartdate downloadlotw redraw create_windows rundxc getch2 waitkey
-senddxc mycurs_set);
+senddxc mycurs_set gridinfo);
 
 use strict;
 use POSIX;                # needed for acos in distance/direction calculation
@@ -1541,6 +1541,119 @@ sub lastqsos {
     
     refresh($wlog);
 }
+
+##############################################################################
+# &gridinfo   When a new GRID is entered in the input form, this sub is
+# called and it prints
+# 1) The distance and heading
+# 2) Previous stations from that grid in $wqsos window
+##############################################################################
+
+sub gridinfo {
+    my $grid = ${$_[0]}[0];         # grid to analyse
+    my $band = ${$_[0]}[4];         # band of the current QSO
+    my $dxwin = $_[1];              # window where to print DXCC/Pfx 
+    my @wi = @{$_[2]};              # reference to input-windows
+    my $wqsos = $_[3];              # qso-b4-window
+    my $PI=3.14159265;              # PI for the distance and bearing
+    my $RE=6371;                    # Earth radius
+
+    my $grid4 = substr($grid, 0, 4);
+
+    addstr($dxwin, 1,38, sprintf("%-6d", 1000));
+    addstr($dxwin, 1,58, sprintf("%3d", 359));
+        
+    my $nbr;                            # different layouts
+    if ($screenlayout == 0) {
+        $nbr = $main::row - 8;
+    }
+    if ($screenlayout == 1) {
+        $nbr = ($main::row - 8)/2;
+    }
+
+    addstr($wqsos, 0, 0, " "x(80*$nbr));
+
+    # cfmed on which bands?
+    my $q = $dbh->prepare("SELECT distinct(band) FROM log_$mycall WHERE substr(GRID, 1, 4) = '$grid4' and (qslr='Y' or qslrl='Y')");
+    $q->execute();
+    my %cfmedbands;
+    while (my @b = $q->fetchrow_array()) {
+        $cfmedbands{$b[0]} = 1;
+    }
+   
+    # wkd on which bands? 
+    $q = $dbh->prepare("SELECT distinct(band) FROM log_$mycall WHERE substr(GRID, 1, 4) = '$grid4' order by band asc");
+    $q->execute();
+    my %wkdbands;
+    my $new = 1;
+    my $newb = 1;
+    while (my @b = $q->fetchrow_array()) {
+        $wkdbands{$b[0]} = defined($cfmedbands{$b[0]}) ? 'C' : 'W';
+        $new = 0;
+        if ($b[0] == $band) {
+            $newb = 0;
+        }
+    }
+
+    if ($new) {
+        $new = " New Grid!";
+    }
+    elsif ($newb and $band) {
+        $new = " New Grid on $band!";
+    }
+    else {
+        $new = '';
+    }
+
+    my $line = "$grid4: ";
+    foreach (sort { $a <=> $b } keys %wkdbands) {
+        $line .= $_.$wkdbands{$_}." ";
+    }
+
+    addstr($wqsos, 0, 0, $line." ".$new." "x80);
+
+    # callsigns worked from this exact grid
+    $q = $dbh->prepare("SELECT distinct(`call`) from log_$mycall where grid like '$grid%'");
+    $q->execute();
+    my @calls;
+    while (my @b = $q->fetchrow_array()) { 
+        push(@calls, $b[0]);
+    }
+    my $cls = "@calls";
+    $cls =~ s/(.{73}[^\s]*)\s+/$1\n/g;
+    @calls = split(/\n/, $cls);
+
+    addstr($wqsos, 2, 0, "Wkd from $grid:");
+    my $y = 3;
+    foreach (@calls) {
+        addstr($wqsos, $y++, 0, $_);
+    }
+ 
+    # for full grids, also search for calls from the same square
+    if (length($grid) == 6) {
+        $q = $dbh->prepare("SELECT distinct(`call`) from log_$mycall where grid like '$grid4%'");
+        $q->execute();
+        my @calls;
+        while (my @b = $q->fetchrow_array()) { 
+            push(@calls, $b[0]);
+        }
+
+        $cls = "@calls";
+        $cls =~ s/(.{73}[^\s]*)\s+/$1\n/g;
+        @calls = split(/\n/, $cls);
+        $y++;
+        addstr($wqsos, $y++, 0, "Wkd from $grid4:");
+        foreach (@calls) {
+            addstr($wqsos, $y++, 0, $_);
+        }
+        
+    }
+
+    refresh($wqsos);
+    refresh($dxwin);
+    return;
+}
+
 
 
 ##############################################################################

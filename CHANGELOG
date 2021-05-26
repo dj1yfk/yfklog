@@ -1,3 +1,12 @@
+2021-xxx-xx:   Version 0.x.x
+-------------------------------------------------------------------------------
+- If a the QTH field contains a Maidenhead grid locator, save it in the
+  corresponding database field.
+- Entering a Maidenhead locator (4 or 6 characters) in the callsign field
+  will perform a lookup of this locator (and if it's a 6 character locator,
+  of the square) in the log and print on which the square was worked/cfmed
+  before, and which callsigns were logged from it.
+
 2019-Sep-08:   Version 0.6.0
 -------------------------------------------------------------------------------
 - Bandmap: Perform all screen updates in the main thread (avoid display problems

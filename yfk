@@ -344,6 +344,16 @@ if ($af == 1) {                            # READ CALLSIGN FIELD
     # When a new callsign is entered, the DATE, TIME ON, Band, Mode, QSL and
     # PWR fields are automatically filled like specified in the config file
     if ($qso[0] ne $workcall) {            # callsign has been changed!
+
+        # not a new callsign, but a GRID: Look up grid info and clear callsign
+        # field.
+        if ($qso[0] =~ /([A-Z]{2}[0-9]{2}[A-Z]{2}|[A-Z]{2}[0-9]{2})/) {
+            &gridinfo($qso,$winfo,$wi,$wqsos,$editnr);
+            $af = 1;
+            $qso[0] = "";
+            next;
+        }
+
         if ($qso[1] eq "") {                # No date yet entered?
             $qso[1] = &getdate;                # set $qso[1] to current date 
         }
