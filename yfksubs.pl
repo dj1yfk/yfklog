@@ -5463,6 +5463,9 @@ sub lotwimport {
         }
         elsif ($line =~ /GRIDSQUARE:\d+>(\w+)/) {
             $grid= $1;
+            if (length($grid) > 6) {
+                $grid = substr($grid, 0, 6);
+            }
         }
         elsif ($line =~ /STATE:\d+>(\w+)/) {
             $state= $1;
