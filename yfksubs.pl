@@ -4371,7 +4371,7 @@ sub choseeditqso {
         $sql2 .= "AND DATE = '".substr($qso[1],4,4).'-'.substr($qso[1],2,2).'-'
                                 .substr($qso[1],0,2)."' ";
     }
-    $sql2 .= "AND  `BAND` ='$qso[4]' " if $qso[4];
+    $sql2 .= "AND  abs(`BAND` - $qso[4]) <= 0.1 " if $qso[4];
     $sql2 .= "AND `MODE`='$qso[5]' " if $qso[5];
     $sql2 .= "AND `QTH` LIKE '\%$qso[6]\%' " if $qso[6];
     $sql2 .= "AND `NAME`  LIKE '\%$qso[7]\%' " if $qso[7];
