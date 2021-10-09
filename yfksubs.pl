@@ -5467,7 +5467,7 @@ sub lotwimport {
                 $grid = substr($grid, 0, 6);
             }
         }
-        elsif ($line =~ /STATE:\d+>(\w+)/) {
+        elsif ($line =~ /STATE:2>([A-Z]{2})/) {
             $state= $1;
         }
         elsif ($line =~ /<eor>/) {
