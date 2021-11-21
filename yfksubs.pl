@@ -4214,9 +4214,9 @@ for my $i (0 .. $#qso) {                    # iterate through Array of Hashes
     }
 
     # check if this is a new call in the current log
-    unless (defined($wkdcalls{$qso[$i]{'call'}})) {
-        my $c = $qso[$i]{'call'};
-        $c =~ s/'//g;
+    my $c = $qso[$i]{'call'};
+    $c =~ s/'//g;
+    unless (defined($wkdcalls{$c})) {
         push @newcalls, $c;
     }
     
