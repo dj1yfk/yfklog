@@ -3607,6 +3607,7 @@ my $war=0;                        # number of warnings (unk. fields)
 my $ch;                            # process adif-file $ch by $ch..
 my $header=1;                    # while header=1, we are still before <eoh>
 my $parsecount=1;
+my @newcalls;                    # find all new calls from imported ADIF
 
 $filename =~ /([^\/]+)$/;
 my $basename = $1;
@@ -3614,6 +3615,14 @@ my $basename = $1;
 open(ERROR, ">>/tmp/$mycall-import-from-$basename.err");
 
 print ERROR "-"x80;
+
+# remember all worked calls from the log, so after the import we can
+# show a list of new unique calls that were imported
+my $q = $dbh->prepare("SELECT distinct `call` FROM log_$mycall;");
+$q->execute();
+while (my @r = $q->fetchrow_array()) {
+    $wkdcalls{$r[0]} = 1;
+}
 
 addstr($win,0,0, "Parsing ADIF-File, that might take a while..."." "x80);
 refresh($win);
@@ -4203,6 +4212,13 @@ for my $i (0 .. $#qso) {                    # iterate through Array of Hashes
                 ('$call',$qso[$i]{'name'},$qso[$i]{'qth'});");
         }
     }
+
+    # check if this is a new call in the current log
+    unless (defined($wkdcalls{$qso[$i]{'call'}})) {
+        my $c = $qso[$i]{'call'};
+        $c =~ s/'//g;
+        push @newcalls, $c;
+    }
     
 }
 
@@ -4211,7 +4227,7 @@ close ERROR;
 
 addstr($win,0,0,"Done. Import complete.                                          ");
 refresh($win);
-return($nr, $err, $war);
+return($nr, $err, $war, @newcalls);
     
 } # end of adifimport
 

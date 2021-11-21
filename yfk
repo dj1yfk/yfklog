@@ -1481,6 +1481,7 @@ while ($status == 9) {
     my $nr;                            # nr of imported QSOs
     my $err;                        # nr of errors during import
     my $war;                        # nr of warnings during import
+    my @newcalls;
 
     attron($wmain, COLOR_PAIR(4));
     addstr($whead, 0,0, "YFKlog v$yfkver - ADIF import mode - Active Logbook: ".
@@ -1543,7 +1544,7 @@ while ($status == 9) {
         last;
     }
     else {                            # we want to import $adifiles[$adifile]
-         ($nr, $err, $war) = &adifimport($adifiles[$adifile],$whelp);
+         ($nr, $err, $war, @newcalls) = &adifimport($adifiles[$adifile],$whelp);
     }
 
     attron($wmain, COLOR_PAIR(4));        # selectlist changed attributes
@@ -1553,18 +1554,22 @@ while ($status == 9) {
     if ($nr > 0) {                                    # OK, QSOs imported
         $adifiles[$adifile] =~ /([^\/]+)$/;
         my $basename = $1;
-        addstr($wmain,  8,20, "QSOs processed: $nr. Successful: ".($nr-$err));
-        addstr($wmain, 11,6, "Errors: $err. See detailed information in ".
+        addstr($wmain,  4,20, "QSOs processed: $nr. Successful: ".($nr-$err));
+        addstr($wmain, 5,6, "Errors: $err. See detailed information in ".
                 "/tmp/$mycall-import-from-$basename.err") if $err;
-        addstr($wmain, 12,5, "Warnings: $war. See detailed information in ".
+        addstr($wmain, 6,5, "Warnings: $war. See detailed information in ".
                "/tmp/$mycall-import-from-$basename.err") if $war;
+
+        addstr($wmain, 8,30, " New Calls: ");
+        &selectlist(\$wmain, 9, 25, $row-13, 20, \@newcalls);
+        attron($wmain, COLOR_PAIR(4));
     }
     else {            # No QSOs imported, huh?
         addstr($wmain,  7,10, "No QSOs imported. Possibly this file doesn't meet the ADIF");
         addstr($wmain,  8,10, "specifications. Make sure there the header is terminated");
         addstr($wmain,  9,10, "with <eoh>. If you think the file is OK, contact author.");
     }
-        refresh($wmain);
+    refresh($wmain);
 
     &waitkey();
 
