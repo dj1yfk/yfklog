@@ -298,7 +298,7 @@ sub showdxc {
 
     # fill array of worked calls
     unless (keys %wkdcalls) {
-        # my @a = qw/dj1yfk/;
+        my @a = qw//;   # calls that should always be checked - TBD
         push @a, $mycall;
         foreach (@a) {
             my $q = $dbh->prepare("SELECT distinct `call` FROM log_$_;");
