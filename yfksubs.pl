@@ -294,16 +294,21 @@ sub showdxc {
     my $rows = $main::row;
 
     return unless (defined($win));
+    return unless (defined($dbh));
 
     # fill array of worked calls
     unless (keys %wkdcalls) {
-        my $q = $dbh->prepare("SELECT distinct `call` FROM log_$mycall;");
-        $q->execute();
-        while (my @r = $q->fetchrow_array()) {
-            $wkdcalls{$r[0]} = 1;
+        # my @a = qw/dj1yfk/;
+        push @a, $mycall;
+        foreach (@a) {
+            my $q = $dbh->prepare("SELECT distinct `call` FROM log_$_;");
+            $q->execute();
+            while (my @r = $q->fetchrow_array()) {
+                $wkdcalls{$r[0]} = 1;
+            }
         }
     }
- 
+
     # each column in the bandmap requires 25 characters. from the total number
     # of available columns, 80 are already used by the logger, so we can
     # calculate the number of bandmap columns as follows: 
