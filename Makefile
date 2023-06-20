@@ -2,6 +2,8 @@ VERSION=0.6.0
 
 DESTDIR ?= /usr
 
+.PHONY: install uninstall clean dist
+
 all: 
 	@echo "Nothing to do. make install|uninstall|clean|dist [DESTDIR=/usr]"
 
