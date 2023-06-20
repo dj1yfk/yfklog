@@ -3432,6 +3432,8 @@ sub emptyqslqueue {
 # T_ON, T_OFF, BAND, MODE, QTH, NAME, QSLS, QSLR, RSTS, RSTR, REM, PWR, PFX,
 # QSLINFO, ITUZ, CQZ, STATE, IOTA, CONT and GRID are exported into their
 # appropriate fields.  
+# If it exists, entries like SOTA:XX/YY-nnnn and WFF:XXFF-nnnnn will be
+# exported too.
 # if $_[1] is 'adif', all QSOs are exported
 # if $_[1] is 'lotw', all QSOs where QSLRL = 'N' are exported and set to 'R'
 #          for 'Requested'. 
@@ -3495,7 +3497,7 @@ sub adifexport {
         print ADIF "<time_on:".length($q[2]).">$q[2] ";
         print ADIF "<time_off:".length($q[3]).">$q[3] ";
         print ADIF "<band:".length($q[4]).">$q[4] ";
-        print ADIF "<mode:".length($q[5]).">$q[5] \n";
+        print ADIF "<mode:".length($q[5]).">$q[5] ";
         print ADIF "<rst_sent:".length($q[10]).">$q[10] ";
         print ADIF "<rst_rcvd:".length($q[11]).">$q[11] ";
         print ADIF "<qsl_sent:".length($q[8]).">$q[8] ";
@@ -3508,7 +3510,7 @@ sub adifexport {
             print ADIF "<qth:".length($q[6]).">$q[6] ";
         }
         unless ($q[7] eq '') {                    
-            print ADIF "<name:".length($q[7]).">$q[7] \n";
+            print ADIF "<name:".length($q[7]).">$q[7] ";
         }
         unless ($q[12] eq '') {
             print ADIF "<comment:".length($q[12]).">$q[12] ";
@@ -3536,6 +3538,15 @@ sub adifexport {
         }
         unless ($q[22] eq '') {
             print ADIF "<gridsquare:".length($q[22]).">$q[22] ";
+        }
+
+        # finally, check if we have a SOTA or WFF info in the remarks field
+        #if ($q[12] =~ /SOTA:([A-Z0-9]{1-2}\/[A-Z0-9]{2}-\d+)/) {
+        if ($q[12] =~ /SOTA:(.*?)(\s|$)/) {
+            print ADIF "<SOTA_REF:".length($1).">$1 ";
+        }
+        if ($q[12] =~ /WFF:(.*?)(\s|$)/) {
+            print ADIF "<WWFF_REF:".length($1).">$1 ";
         }
         print ADIF '<eor>';                        # QSO done
     } # no more lines to fetch..

@@ -595,6 +595,10 @@ from YFKlog. There are two exceptions:</p>
 	<li>Exported logs from YFKlog currently don't include any DXCC information.</li>
 </ol>
 
+<p>SOTA and WWFF references which are logged in the comment field (format e.g.
+<code>SOTA:xx/yy-nnnn</code> or <code>WFF:xxFF-nnnn</code>) are automatically
+exported into the <code>SOTA_REF</code> and <code>WWFF_REF</code> fields.</p>
+
 <p>To export the current logbook to an ADIF file, chose "ADIF export" in the
 main menu. You'll be asked to enter a filename (or accept the default,
 <code>yourcall.adi</code>) and specify a date-range for the log to be exported
@@ -677,7 +681,7 @@ can be used for this purpose, in the format "$award:$value". For example to
 save a DOK for a QSO, an entry like "DOK:S07", "DOK:N16" has to be saved in the
 remarks field. Accordingly, RDAs would be entered as "RDA:MO-01", "RDA:VO-12"
 etc. In the award mode "Custom", you can generate statistics of those items
-(DOK, RDA, whatever), by specifying the name of the item. All QSOs are then
+(DOK, RDA, WWFF, SOTA, whatever), by specifying the name of the item. All QSOs are then
 searched for matching comments and  statistics like for the other awards are
 generated.</p>
 
