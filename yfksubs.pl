@@ -266,7 +266,10 @@ sub updatedxc {
             }
             for my $call ( sort { $fr->{$band}{$a} <=> $fr->{$band}{$b} } keys %{ $fr->{$band} } ) {
                 my $age = int((time - $tr->{$band}{$call})/60);
+
+                # flag 0 = new call, 1 = wkd call, 2 = own call
                 my $flag = defined($wkdcalls{$call}) ? 1 : 0;
+                if ($call eq uc($mycall)) { $flag = 2; }
                 push @dxspots, sprintf("$age$flag%7.1f  %s", $fr->{$band}{$call}, $call);
                 $c++;
 
@@ -339,8 +342,14 @@ sub showdxc {
                 attron($win, A_BOLD);
             }
 
-            if ($flag ne "1") {
+            if ($flag eq "0") { # new call
                 attron($win, COLOR_PAIR(8));
+            }
+            elsif ($flag eq "1") { # worked call
+                attron($win, COLOR_PAIR(5));
+            }
+            elsif ($flag eq "2") { # own call
+                attron($win, COLOR_PAIR(1));
             }
             addstr($win, $mrow , 1 + $mcol*25, substr($line, 2));
             attroff($win, A_BOLD);
