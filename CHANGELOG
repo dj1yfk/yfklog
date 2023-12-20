@@ -1,4 +1,4 @@
-2021-xxx-xx:   Version 0.x.x
+2024-Jan-01:   Version 0.7.0
 -------------------------------------------------------------------------------
 - If a the QTH field contains a Maidenhead grid locator, save it in the
   corresponding database field.
@@ -7,6 +7,13 @@
   of the square) in the log and print on which the square was worked/cfmed
   before, and which callsigns were logged from it.
 - Download all details from LoTW (Zone, Grid, ...), not just basic QSO info
+- Allow negative values in RST field (for FT8, etc.)
+- Include SOTA and WFF references in ADIF export (taken from comment field)
+- Show new calls when ADIF is imported
+- Improved bandmap (fresh spots bold, new calls green, own call yellow)
+- Use vi key bindings (jk) where applicable (tnx DO5EOL)
+- Fixes in hamlib integration (tnx DK1MI)
+- F4 updates start time of current QSO to "now"
 
 2019-Sep-08:   Version 0.6.0
 -------------------------------------------------------------------------------

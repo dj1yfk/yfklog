@@ -1195,6 +1195,7 @@ sub readw {
     my $input = ${$_[3]}[$_[2]];                # stores what the user entered,
                                                 # init from @qso.
     my $match = "[a-zA-Z0-9\/]";                # default match expression
+    my $mode_rst = 0;                           # are we in RST mode?
     my $pos = 0;                                # cursor position in the field
     my $strpos = $pos;                            # cursor position in the string
     my $wlog = ${$_[4]};                        # reference to log-windw
@@ -1244,6 +1245,12 @@ sub readw {
         $match = '[0-9.]';                            # set match expression
     }
 
+    #  In the RST-fields, numbers and a minus sign at the start are allowed
+    if ((defined $_[1]) && ($_[1] == "5")) {     
+        $match = '[0-9\-]';
+    }
+
+
     # Now the main loop starts which is waiting for any input from the keyboard
     # which is stored in $ch. If it is a valid character that matches $match,
     # it will be added to the string $input at the proper place.
@@ -1279,13 +1286,19 @@ sub readw {
         
         $ch = &getch2();
 
+        # in RST mode, the - is only allowed at strpos = 0
+        my $matchexpr = $match;
+        if ($_[1] == 5 and $strpos > 0) {
+            $matchexpr = '\d';
+        }
+
         # We first check if it is a legal character of the specified $match,
         # and if the string will not be too long.
         # if so, it will be added to the string (at the proper position!) 
-        if (($ch =~ /^$match$/) && 
+
+        if (($ch =~ /^$matchexpr$/) && 
             ((length($input) < $strlen) || ($strpos < $strlen && $ovr)) 
         ) {
-
             unless ($_[1] == 3) {                    # Unless Name, QTH, Remarks
                 $ch =~ tr/[a-z]/[A-Z]/;                # make letters uppercase
             }

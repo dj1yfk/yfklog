@@ -528,7 +528,7 @@ elsif ($af == 10) {
 } # end of $af=10
 
 elsif ($af == 11) {
-    $aw=&readw($wi,1,10,$qso,\$wlog,     # rst sent (and optional serial)
+    $aw=&readw($wi,5,10,$qso,\$wlog,     # rst sent (and optional serial)
         \$editnr, 1, 7);
     if ($aw == 1) {                        # Normal exit. next field!
         $af = &jumpfield($af, 'n');
@@ -543,7 +543,7 @@ elsif ($af == 11) {
 } # end of $af=11
 
 elsif ($af == 12) {
-    $aw=&readw($wi,1,11,$qso,\$wlog,     # rst received
+    $aw=&readw($wi,5,11,$qso,\$wlog,     # rst received
         \$editnr, 1, 7);
     if ($aw == 1) {                        # Normal exit. next field!
         $af = &jumpfield($af, 'n');
@@ -1382,9 +1382,9 @@ while ($aw == 1) {
     if ($aw ne '1' ) { last; }
     $aw = &editw($wi,2,9,\@qso, 1, 1);     # edit QSLr
     if ($aw ne '1' ) { last; }
-    $aw = &editw($wi,1,10,\@qso, 1, 7);     # edit RSTs
+    $aw = &editw($wi,5,10,\@qso, 1, 7);     # edit RSTs
     if ($aw ne '1' ) { last; }
-    $aw = &editw($wi,1,11,\@qso, 1, 7);     # edit RSTr
+    $aw = &editw($wi,5,11,\@qso, 1, 7);     # edit RSTr
     if ($aw ne '1' ) { last; }
     $aw = &editw($wi,3,12,\@qso, 0, 55);     # edit Remarks
     if ($aw ne '1' ) { last; }
