@@ -1,4 +1,4 @@
-2024-Jan-01:   Version 0.7.0
+2024-Oct-01:   Version 0.7.0
 -------------------------------------------------------------------------------
 - If a the QTH field contains a Maidenhead grid locator, save it in the
   corresponding database field.
@@ -14,6 +14,7 @@
 - Use vi key bindings (jk) where applicable (tnx DO5EOL)
 - Fixes in hamlib integration (tnx DK1MI)
 - F4 updates start time of current QSO to "now"
+- Select lists (e.g. logbook) have a search/filter function now
 
 2019-Sep-08:   Version 0.6.0
 -------------------------------------------------------------------------------

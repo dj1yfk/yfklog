@@ -746,7 +746,7 @@ while ($status == 2) {
 
     # A (scrollable) list appears, where you can select any menu item. It
     # returns the number of the item.
-    $choice = &selectlist(\$wmain, 2, 5, 20, 70, \@menuitems);
+    $choice = &selectlist(\$wmain, 2, 5, 20, 70, \@menuitems, 0);
 
     # This is a bit chaotic. Every Menu item has a correspondent main program
     # status ($status), but there is no relation between their numbers.
@@ -889,7 +889,7 @@ while ($status == 4) {
     addstr($wmain, 6, 5, "Please select where to store the online-log file.");
     refresh($wmain);
 
-    $choice = &selectlist(\$wmain, 8, 3, 20, 74, \@menuitems);
+    $choice = &selectlist(\$wmain, 8, 3, 20, 74, \@menuitems, 0);
 
     if ($choice eq "m") {            # User pressed F1->back to menu
         $status = 2;                # Menu status
@@ -1038,7 +1038,7 @@ while ($status == 6) {
     }
     
     # Show a selectable list of the menu items and let the user select one
-    $labeltype = &selectlist(\$wmain, 10,5 ,$a+1,70, \@menuitems);
+    $labeltype = &selectlist(\$wmain, 10,5 ,$a+1,70, \@menuitems, 0);
     attron($wmain, COLOR_PAIR(4));        # selectlist leaves attribs changed
 
     if ($labeltype eq "m") {            # User pressed F1 -> back to main menu!
@@ -1122,7 +1122,7 @@ while ($status == 6) {
     my @items = ("  OK", "Cancel");            # Items for selection
     my $choice;                                # Choice variable...
     
-    $choice = &selectlist(\$wmain, 15,37,2,6, \@items);
+    $choice = &selectlist(\$wmain, 15,37,2,6, \@items, 0);
 
     if ($choice eq "0") {                    # OK, update log!
         # update QSLS=Q to QSLS=Y...
@@ -1267,7 +1267,7 @@ while (($status == 7) || ($status == 14) || ($status == 15)) {
             refresh($wmain);
             mycurs_set(0);
             unshift (@lotwlocations, "  Cancel  ");
-            my $choice = &selectlist(\$wmain, 14,30,6,22, \@lotwlocations);
+            my $choice = &selectlist(\$wmain, 14,30,6,22, \@lotwlocations, 1);
             attron($wmain, COLOR_PAIR(4));
             mycurs_set(0);
             if ($choice ne "m" and $choice > 0) {
@@ -1537,7 +1537,7 @@ while ($status == 9) {
 
     if ($y > 15) { $y = 15; }
 
-    $adifile = &selectlist(\$wmain, 4,15, $y ,50, \@adifiles);
+    $adifile = &selectlist(\$wmain, 4,15, $y ,50, \@adifiles, 1);
 
     if ($adifile eq 'm') {            # F1 pressed, go back to the menu
         $status = 2;
@@ -1561,7 +1561,7 @@ while ($status == 9) {
                "/tmp/$mycall-import-from-$basename.err") if $war;
 
         addstr($wmain, 8,30, " New Calls: ");
-        &selectlist(\$wmain, 9, 25, $row-13, 20, \@newcalls);
+        &selectlist(\$wmain, 9, 25, $row-13, 20, \@newcalls, 1);
         attron($wmain, COLOR_PAIR(4));
     }
     else {            # No QSOs imported, huh?
@@ -1601,9 +1601,9 @@ while ($status == 10) {
     @logs = &getlogs();                        # get list of logbooks
     push(@logs, " Create new Logbook ");    # add option to make new one
     @logs = sort @logs;
-     push(@logs, " Delete Logbook ");    # add option to make new one
-     @logs = sort @logs;
-    # After dorting, the " Create new Logbook " entry will be at the first
+    push(@logs, " Delete Logbook ");    # add option to make new one
+    @logs = sort @logs;
+    # After sorting, the " Create new Logbook " entry will be at the first
     # position because it starts with a whitespace. This is needed because the
     # case of creating a new logbook has to be treated different.
 
@@ -1614,7 +1614,7 @@ while ($status == 10) {
     my $y = scalar(@logs);
     if ($y > $max) { $y = $max; }
 
-    $choice = &selectlist(\$wmain, 4,30, $y ,20, \@logs);
+    $choice = &selectlist(\$wmain, 4,30, $y ,20, \@logs, 1);
     
     # Now check what the user chosed: If it is the first entry, a new database
     # has to be created. Otherwise only the $mycall has to be changed.
@@ -1697,7 +1697,7 @@ while ($status == 11) {
         );
 
     # Let the user select one of the awards
-    my $choice = &selectlist(\$wmain, 4,30, 12 ,20, \@menu);
+    my $choice = &selectlist(\$wmain, 4,30, 12 ,20, \@menu, 0);
     attron($wmain, COLOR_PAIR(4));
 
     erase($wmain);
@@ -1910,7 +1910,7 @@ while ($status == 13) {
 
     my @options = ('Open local file', 'Download from LoTW');
 
-    my $choice = &selectlist(\$wmain, 4,15, 10 , 50, \@options);
+    my $choice = &selectlist(\$wmain, 4,15, 10 , 50, \@options, 0);
     attron($wmain, COLOR_PAIR(4));
 
     if ($choice eq "m") {
@@ -1990,7 +1990,7 @@ while ($status == 13) {
 
         if ($y > 15) { $y = 15; }
 
-        $lotwfile = &selectlist(\$wmain, 4,15, $y , 50, \@lotwfiles);
+        $lotwfile = &selectlist(\$wmain, 4,15, $y , 50, \@lotwfiles, 1);
         $lotwfile = $lotwfiles[$lotwfile];
     } # select file
 
@@ -2012,7 +2012,7 @@ while ($status == 13) {
         addstr($wmain,  4,15, "QSOs processed: $nr. Matches: $match. Not found: $nf");
         addstr($wmain, 5,5, "See /tmp/$mycall-LoTW-update-from-$basename.err for QSLs that were not found.") if $nf;
 
-        &selectlist(\$wmain, 7, 15, $row-10, 55, \@updates);
+        &selectlist(\$wmain, 7, 15, $row-10, 55, \@updates, 0);
         attron($wmain, COLOR_PAIR(4));
     }
     else {            # Nothing
@@ -2093,7 +2093,7 @@ while ($status == 16) {
     sprintf("qrzpass=%-15s      - QRZ.com password (NOT the API key)", $yfksubs::qrzpass)
     );
 
-    my $choice = &selectlist(\$wmain, 2, 1, $row-6, 78, \@setup);
+    my $choice = &selectlist(\$wmain, 2, 1, $row-6, 78, \@setup, 0);
 
     if ($choice eq 'm') {        # back to main menu
         &readconfig;

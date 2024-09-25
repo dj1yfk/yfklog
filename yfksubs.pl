@@ -2543,6 +2543,7 @@ else {
 # $_[3] is the height of the list
 # $_[4] is the width of the list 
 # $_[5] is a reference to an array of menu items
+# $_[6] defines whether or not we can limit the list choices by typing letters
 # Pressing F1 returns "m" (used to go to the menu), F12 quits.
 ##############################################################################
 
@@ -2555,10 +2556,12 @@ my $xstart = $_[2];            # x start position
 my $height = $_[3];            # height of the list
 my $width = $_[4];            # width of the items
 my @items = @{$_[5]};        # list items
+my $allow_filter = $_[6];    # list items
 my $item;                    # a single item
 my $y=0;                    # y position in the window
 my $yoffset=0;                # y offset, in case we scrolled
 my $aline=0;                # active line (absolute position in @items) 
+my $filter = "";
 
 # Possibly the number of menu items is lower than the specified height. If this
 # is the case, the height is lowered to the number of menu items.
@@ -2580,6 +2583,8 @@ for (my $i=0; $i < @items; $i++) {                    # iterate through items
     }
 }
 
+# we remember the original $items list, so we can restore it after filtering it
+my @items_orig = @items;
 
 do {
     my $hly = 0;
@@ -2604,7 +2609,7 @@ refresh($win);
 
 $ch = getch2();
 
-if ($ch eq KEY_DOWN || $ch eq 'j') {            # Arrow down was pressed 
+if ($ch eq KEY_DOWN || (!$allow_filter && $ch eq 'j')) {            # Arrow down was pressed 
     if ($aline < $#items) {        # not at last position
         # We can savely increase $aline, because we are not yet at the end of the
         # items array. 
@@ -2620,7 +2625,7 @@ if ($ch eq KEY_DOWN || $ch eq 'j') {            # Arrow down was pressed
         $yoffset = 0;
     }
 }
-elsif ($ch eq KEY_UP || $ch eq 'k') {        # arrow up
+elsif ($ch eq KEY_UP || (!$allow_filter && $ch eq 'k')) {        # arrow up
     if ($aline > 0) {        # we are not at 0
         # We can savely decrease the $aline position, but maybe we have to scroll
         # up
@@ -2664,9 +2669,34 @@ elsif (ord($ch) eq '27') {
         return "m";
     }
 }
+elsif ($allow_filter && ($ch eq KEY_BACKSPACE || (ord($ch)==8) || (ord($ch)==0x7F))) {
+    $filter = ".";
+}
+elsif ($allow_filter && $ch =~ /^[a-z0-9]$/i) {
+    if ($filter eq ".") {
+        $filter = $ch;
+    }
+    else {
+        $filter .= $ch;
+    }
+    $aline = 0;
+}
+
+# if we have a filter, adjust the @items array accordingly.
+@items = grep(/$filter/i, @items_orig);
 
 } until ($ch =~ /\s/);
 
+# $aline is the active line within the possibly filtered @items array.
+# find the position in the @items_orig array
+
+for (my $i = 0; $i < @items_orig; $i++) {
+    if ($items_orig[$i] eq $items[$aline]) {
+        return $i;
+    }
+}
+
+# should never happen
 return $aline;
 } # selectlist
 
