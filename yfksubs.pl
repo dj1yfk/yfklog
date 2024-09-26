@@ -2561,7 +2561,7 @@ my $item;                    # a single item
 my $y=0;                    # y position in the window
 my $yoffset=0;                # y offset, in case we scrolled
 my $aline=0;                # active line (absolute position in @items) 
-my $filter = "";
+my $filter = ".";           # regex to filter the selection list with
 
 # Possibly the number of menu items is lower than the specified height. If this
 # is the case, the height is lowered to the number of menu items.
