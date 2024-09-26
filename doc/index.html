@@ -1,7 +1,7 @@
 <html>
 
 <head>
-		<title>YFKlog v0.6.0 Manual</title>
+		<title>YFKlog v0.7.0 Manual</title>
 </head>
 
 <style>
@@ -29,8 +29,8 @@ figure figcaption {
 
 <body>
 
-<h1>YFKlog v0.6.0 Manual</h1>
-<p><code>Copyright (c)  2008-2019  Fabian Kurz, DJ1YFK &lt;<a href="fabianto:&#64;fkurz.net">fabian&#64;fkurz.net</a>&gt;<br>
+<h1>YFKlog v0.7.0 Manual</h1>
+<p><code>Copyright (c)  2008-2024  Fabian Kurz, DJ5CW (ex DJ1YFK) &lt;<a href="fabianto:&#64;fkurz.net">fabian&#64;fkurz.net</a>&gt;<br>
 		Permission is granted to copy, distribute and/or modify this document<br>
 		under the terms of the GNU Free Documentation License, Version 1.2<br>
 		or any later version published by the Free Software Foundation;<br>
@@ -122,9 +122,9 @@ YFKlog (or clone the latest version from git) and unpack the tarball to a direct
 
 <h3>Install from distribution archive</h3>
 <code><pre>
-$ wget http://fkurz.net/ham/yfklog/yfklog-0.6.0.tar.gz
-$ tar zxfv yfklog-0.6.0.tar.gz
-$ cd yfklog-0.6.0 
+$ wget http://fkurz.net/ham/yfklog/yfklog-0.7.0.tar.gz
+$ tar zxfv yfklog-0.7.0.tar.gz
+$ cd yfklog-0.7.0 
 $ sudo make install
 </pre></code>
 
@@ -165,13 +165,13 @@ whole database. It's trivial to back up and (if needed) accessible via the
 
 <h3>1.2 MySQL</h3>
 <p>Create a database (in this example it's called <code>YFKlog</code>, the user
-is <code>dj1yfk</code> and the password is <code>notmypassword</code>) and
+is <code>dj5cw</code> and the password is <code>notmypassword</code>) and
 grant the user the neccessary permissions:
 
 <code><pre>
 $ mysqladmin -u root -p create YFKlog
 $ mysql -u root -p
-mysql&gt; GRANT ALL ON YFKlog.* TO dj1yfk@localhost IDENTIFIED BY 'notmypassword';
+mysql&gt; GRANT ALL ON YFKlog.* TO dj5cw@localhost IDENTIFIED BY 'notmypassword';
 mysql&gt; FLUSH PRIVILEGES;
 mysql&gt; quit
 </pre></code>
@@ -331,9 +331,9 @@ they are not important.</p>
         <li><strong>lotwuser</strong> - LoTW web user name to download reports</li>
         <li><strong>lotwpass</strong> - LoTW web password</li>
         
-        <li><strong>dxchost</strong> - DX cluster hostname (e.g. foc.dj1yfk.de)</li>
-        <li><strong>dxcport</strong> - DX cluster port (e.g. 7300)</li>
-        <li><strong>dxccall</strong> - DX cluster login call (e.g. DJ1YFK-9)</li>
+        <li><strong>dxchost</strong> - DX cluster hostname (e.g. rbn.telegraphy.de)</li>
+        <li><strong>dxcport</strong> - DX cluster port (e.g. 7000)</li>
+        <li><strong>dxccall</strong> - DX cluster login call (e.g. DJ5CW-9)</li>
         <li><strong>dxcmode</strong> - DX cluster mode. B = Bandmap, N = Normal telnet display</li>
         <li><strong>cursoron</strong> - Whether or not to show the cursor
             permanently on the screen (even e.g. in selection menus). This is
@@ -445,7 +445,7 @@ respectively.</p>
 				<li><strong>GRID:JO61UA</strong> - Saves JO61UA as gridsquare
 				of the worked station.</li>
 
-				<li><strong>OPERATOR:DJ1YFK</strong> - Saves DJ1YFK as the
+				<li><strong>OPERATOR:DJ5CW</strong> - Saves DJ5CW as the
 				operator of the current QSO. All following QSOs will be logged
 				with the same operator. Initially set from <code>
 				~/.yfklog/config</code></li>
@@ -738,8 +738,8 @@ automatically.</p>
 up and working on your PC before you can use it from YFKlog) you need to specify at least
 one station location in the configuration value <code>lotwlocation</code> for
 each callsign. An example value would be:
-<pre>lotwlocation=DJ1YFK:Rheine,DJ1YFK:Dresden,DJ1YFK:Munich,SO5CW:Warka</pre>
-which defines three station locations for DJ1YFK and one for SO5CW. Once you
+<pre>lotwlocation=DJ5CW:Rheine,DJ5CW:Dresden,DJ5CW:Munich,SO5CW:Warka</pre>
+which defines three station locations for DJ5CW and one for SO5CW. Once you
 have exported the ADIF data for LoTW, YFKlog will ask you if you would like to
 sign and upload the file; you can select one of the defined station locations.</p>
 
@@ -845,8 +845,8 @@ cluster mode, as shown <a href="dxcluster.png">here</a>.</p>
 
 <p>The intended purpose of the bandmap is to display data from the
 <a href="http://reversebeacon.net/">Reverse Beacon Network</a>. If
-you like to try it, connect to <code>foc.dj1yfk.de</code> on port
-<code>7300</code>. Use the telnet command <code>set/raw</code> to
+you like to try it, connect to <code>rbn.telegraphy.de</code> on port
+<code>7000</code>. Use the telnet command <code>set/raw</code> to
 disable all filters.</p>
 
 <p>Spots in the bandmap have a lifetime of 5 minutes before they

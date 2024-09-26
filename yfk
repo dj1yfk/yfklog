@@ -4,7 +4,7 @@
 
 # yfklog - a general purpose ham radio logbook
 # 
-# Copyright (C) 2005-2019  Fabian Kurz, DJ1YFK
+# Copyright (C) 2005-2024  Fabian Kurz, DJ5CW (ex DJ1YFK)
 #
 # This program is free software; you can redistribute it and/or modify 
 # it under the terms of the GNU General Public License as published by 
@@ -48,7 +48,7 @@ if (-f './yfk' && -f './yfksubs.pl' && -f 'THANKS') {
 }
 import yfksubs;
 
-our $yfkver = '0.6.0';    # Program Version
+our $yfkver = '0.7.0';    # Program Version
 our $VERSION = $yfkver;
 
 
@@ -58,7 +58,7 @@ our $VERSION = $yfkver;
 my $firstrun = 1;        # At first run, start in setup mode, and create DBs.    
 my $mycall='';            # will be the callsign of the active log
 my $dband="80";            # default band 80m. 3525kHz precisely :-)
-my $bands = '160 80 40 30 20 17 15 12 10 2';    # bands for award purposes
+my $bands = '160 80 60 40 30 20 17 15 12 10 6 2';    # bands for award purposes
 my $modes = 'CW SSB';    # modes for award purposes
 my $dmode="CW";            # of course we want CW as default mode
 my $dpwr ="100";        # life is too long for QRO

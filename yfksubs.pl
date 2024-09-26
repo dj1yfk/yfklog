@@ -4,7 +4,7 @@
 
 # Several subroutines for yfklog, a amateur radio logbook software 
 # 
-# Copyright (C) 2005-2019  Fabian Kurz, DJ1YFK
+# Copyright (C) 2005-2024  Fabian Kurz, DJ5CW (ex DJ1YFK)
 #
 # This program is free software; you can redistribute it and/or modify 
 # it under the terms of the GNU General Public License as published by 

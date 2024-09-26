@@ -1,11 +1,12 @@
-2024-Oct-01:   Version 0.7.0
+2024-Sep-26:   Version 0.7.0
 -------------------------------------------------------------------------------
 - If a the QTH field contains a Maidenhead grid locator, save it in the
   corresponding database field.
-- Entering a Maidenhead locator (4 or 6 characters) in the callsign field
-  will perform a lookup of this locator (and if it's a 6 character locator,
-  of the square) in the log and print on which the square was worked/cfmed
-  before, and which callsigns were logged from it.
+- Entering a Maidenhead locator (4 characters) in the callsign field
+  will perform a lookup of the square in the log and print the bands on
+  which this square was worked/confirmed and a list of callsigns. A full
+  6 character locator can be entered with the suffix /G (e.g. KO01MW/G)
+  to perform the same lookup for the exact subsquare.
 - Download all details from LoTW (Zone, Grid, ...), not just basic QSO info
 - Allow negative values in RST field (for FT8, etc.)
 - Include SOTA and WFF references in ADIF export (taken from comment field)
