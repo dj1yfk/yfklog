@@ -48,7 +48,7 @@ if (-f './yfk' && -f './yfksubs.pl' && -f 'THANKS') {
 }
 import yfksubs;
 
-our $yfkver = '0.7.0';    # Program Version
+our $yfkver = '1.0.0';    # Program Version
 our $VERSION = $yfkver;
 
 
@@ -56,7 +56,8 @@ our $VERSION = $yfkver;
 # changed later when reading the config-file .yfklog.
 
 my $firstrun = 1;        # At first run, start in setup mode, and create DBs.    
-my $mycall='';            # will be the callsign of the active log
+my $mycall='';           # callsign of the active log
+my $mycall_filename='';  # callsign of the active log, lc(), s/\//_/g
 my $dband="80";            # default band 80m. 3525kHz precisely :-)
 my $bands = '160 80 60 40 30 20 17 15 12 10 6 2';    # bands for award purposes
 my $modes = 'CW SSB';    # modes for award purposes
@@ -96,7 +97,7 @@ unless (-e "$ENV{HOME}/.yfklog/config") { return 0; }
 open CONFIG, "$ENV{HOME}/.yfklog/config" or die "Cannot open configuration file. Error: $!";
 
 while (defined (my $line = <CONFIG>)) {            # Read line into $line
-    if ($line =~ /^mycall=(.+)/) { $mycall= "\L$1"; }
+    if ($line =~ /^mycall=(.+)/) { $mycall= uc($1); $mycall_filename = lc($1); $mycall_filename =~ s/\//_/g; }
     if ($line =~ /^dband=(.+)/)  { $dband= $1; }
     if ($line =~ /^awardbands=(.+)/)  { $bands = $1; }
     if ($line =~ /^awardmodes=(.+)/)  { $modes = $1; }
@@ -287,7 +288,7 @@ my $af=1;                # Active field within $winput (Call, Date...)
                         
 # The text which does not change during the log-session is written:
 addstr($whead, 0,0, "YFKlog v$yfkver - Logging Mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver");
+       "$mycall"." - DB: $dbname @ $dbserver");
 addstr($winput, 0,0, &entrymask(0));            # creates the input entry mask
 addstr($winput, 1,0, &entrymask(1));
 addstr($winput, 2,0, &entrymask(2));
@@ -737,7 +738,7 @@ while ($status == 2) {
     );
         
     addstr($whead, 0,0, "YFKlog v$yfkver - Main Menu - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver"." "x30);
+       "$mycall"." - DB: $dbname @ $dbserver"." "x30);
     addstr($whelp, 0,0, "Use the cursor keys to choose. F12 exits."." " x 70);
     refresh($whead);                        
     refresh($whelp);                        
@@ -819,7 +820,7 @@ while ($status == 3) {
     attron($wmain, COLOR_PAIR(4));
     mycurs_set(1);
     addstr($whead, 0,0, "YFKlog v$yfkver - QSL receive mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver");
+       "$mycall"." - DB: $dbname @ $dbserver");
     addstr($whelp, 0,0, "Enter a call and select QSOs. F1 Main menu  F2 Save  F3 Cancel  F12 Exit"." " x 70);
     refresh($whead);                        
     refresh($whelp);                        
@@ -876,7 +877,7 @@ while ($status == 4) {
     
     attron($wmain, COLOR_PAIR(4));
     mycurs_set(0);
-    addstr($whead, 0,0, "YFKlog v$yfkver - Updating Online Log - Active Logbook: \U$mycall"." " x 30);
+    addstr($whead, 0,0, "YFKlog v$yfkver - Updating Online Log - Active Logbook: $mycall"." " x 30);
     addstr($whelp, 0,0, "Update in progress ..."." " x 70);
     refresh($whead);                        
     refresh($whelp);                        
@@ -924,7 +925,7 @@ while ($status == 5) {
     
     # change text in head and help lines ...
     addstr($whead, 0,0, "YFKlog v$yfkver - QSL write mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' 'x30);
+       "$mycall"." - DB: $dbname @ $dbserver".' 'x30);
     addstr($whelp, 0,0, "F1: Main Menu  F2: Save  F3: Cancel  SPACE: Toggle QSL status"." " x 70);
     refresh($whelp);
     refresh($whead);
@@ -955,7 +956,7 @@ while ($status == 6) {
     mycurs_set(0);                        # Make the cursor invisble
     # change text in head and help lines ...
     addstr($whead, 0,0, "YFKlog v$yfkver - QSL print mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
 
     addstr($wmain,0,0," "x(80*($row-2)));            # clear main window
     
@@ -1100,7 +1101,7 @@ while ($status == 6) {
     
     addstr($wmain, 5,23, "Generated $1 labels on $2 pages(s).");
 
-    $filename = "qsl-$mycall-".&getdate;        # assemble filename for labels
+    $filename = "qsl-$mycall_filename-".&getdate;        # assemble filename for labels
     
     open TEX, ">/tmp/$filename.tex";            # save the LaTeX document
          print TEX $tex;
@@ -1153,13 +1154,13 @@ while (($status == 7) || ($status == 14) || ($status == 15)) {
     # change text in head and help lines ...
     
     addstr($whead, 0,0, "YFKlog v$yfkver - ADIF export mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 7);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 7);
 
     addstr($whead, 0,0, "YFKlog v$yfkver - LoTW export mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 14);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 14);
 
     addstr($whead, 0,0, "YFKlog v$yfkver - Queued QSL export mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 15);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30) if ($status == 15);
 
     addstr($whelp, 0,0, "Enter a filename to export. F1: Main Menu  F12: Exit"." " x 70);
     addstr($wmain,0,0," "x(80*($row-2)));            # clear main window
@@ -1167,11 +1168,11 @@ while (($status == 7) || ($status == 14) || ($status == 15)) {
     refresh($wmain);
     refresh($whead);
 
-    $filename = $directory."/".$mycall.".adi";
+    $filename = $directory."/".$mycall_filename.".adi";
 
     # Now ask the user for the name of the file. Allow all \w characters.
     $filename= 
-    &askbox(10, 15,4,50, 'filename', "Enter a filename (default $mycall.adi).",
+    &askbox(10, 15,4,50, 'filename', "Enter a filename (default $mycall_filename.adi).",
             $filename);
     mycurs_set(0);
     
@@ -1180,7 +1181,7 @@ while (($status == 7) || ($status == 14) || ($status == 15)) {
         last;                            # go out of while loop
     }
     elsif ($filename eq "") {            # no filename -> default
-        $filename = $directory.'/'.$mycall.'.adi';
+        $filename = $directory.'/'.$mycall_filename.'.adi';
     }
     elsif (!($filename =~ /[.]adi/i)) {    # add extension if needed.
         $filename .= '.adi';
@@ -1334,7 +1335,7 @@ while ($status == 8) {
     
     attron($wmain, COLOR_PAIR(4));
     addstr($whead, 0,0, "YFKlog v$yfkver - Search & Edit mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
     erase($wedit);
     addstr($wedit,0,0, ' 'x(80*5));
     addstr($wedit, 0,0, &entrymask(0));        # creates the input entry mask
@@ -1485,7 +1486,7 @@ while ($status == 9) {
 
     attron($wmain, COLOR_PAIR(4));
     addstr($whead, 0,0, "YFKlog v$yfkver - ADIF import mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
     addstr($whelp, 0,0, 'Select a directory. F1 to abort.');
     erase($wmain);
     addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
@@ -1556,9 +1557,9 @@ while ($status == 9) {
         my $basename = $1;
         addstr($wmain,  4,20, "QSOs processed: $nr. Successful: ".($nr-$err));
         addstr($wmain, 5,6, "Errors: $err. See detailed information in ".
-                "/tmp/$mycall-import-from-$basename.err") if $err;
+                "/tmp/$mycall_filename-import-from-$basename.err") if $err;
         addstr($wmain, 6,5, "Warnings: $war. See detailed information in ".
-               "/tmp/$mycall-import-from-$basename.err") if $war;
+               "/tmp/$mycall_filename-import-from-$basename.err") if $war;
 
         addstr($wmain, 8,30, " New Calls: ");
         &selectlist(\$wmain, 9, 25, $row-13, 20, \@newcalls, 1);
@@ -1583,7 +1584,7 @@ while ($status == 9) {
 ##############################################################################
 
 while ($status == 10) {
-    my @logs;                # all log_{call}-tables in the database    
+    my @logs;                  # all logs in the database    
     my $choice;                # logbook which is chosen
     my $oldcall=$mycall;
     
@@ -1632,9 +1633,10 @@ while ($status == 10) {
         my $msg = &newlogtable($new);
         addstr($wmain, 15, (40-(length($msg." ($new)")/2)), $msg." ($new)");
         if ($msg =~ /successfully/) {        # new call OK
-            $mycall = "\L$new";                # take it as MYCALL
-            $mycall =~ s/\//_/g;            # / -> _
-            &changemycall($mycall);            # change $mycall also in yfksubs.pl
+            $mycall = $new;                  # take it as MYCALL
+            $mycall_filename = lc($mycall);
+            $mycall_filename =~ s/\//_/g;
+            &changemycall($mycall);          # change $mycall also in yfksubs.pl
         }
         refresh($wmain);
         &waitkey();
@@ -1654,10 +1656,10 @@ while ($status == 10) {
         &waitkey();
     }
     else {                                # change $mycall to selected log
-        $mycall = $logs[$choice];        # Callsign is here
-        $mycall =~ s/\//_/g;            # change / to _
-        $mycall =~ tr/[A-Z]/[a-z]/;        # make letters lowercase
-        &changemycall($mycall);            # change $mycall also in yfksubs.pl
+        $mycall = uc($logs[$choice]);     # Callsign is here
+        $mycall_filename = lc($mycall);
+        $mycall_filename =~ s/\//_/g;
+        &changemycall($mycall);           # change $mycall also in yfksubs.pl
     }
 
     if ($mycall ne $oldcall) {
@@ -1682,7 +1684,7 @@ while ($status == 11) {
     
     attron($wmain, COLOR_PAIR(4));
     addstr($whead, 0,0, "YFKlog v$yfkver - Award mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
     addstr($whelp, 0,0, 'Select an award to generate statistics for ..'.' 'x50);
     erase($wmain);
     addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
@@ -1782,9 +1784,7 @@ while ($status == 11) {
     mycurs_set(0);                        # cursor invisible    
 
     addstr($wmain,0,0, ' 'x(80*($row-2)));        # clear window    
-    addstr($wmain, 2, 25, "$menu[$choice] Statistics for " .
-           uc(join('/', split(/_/, $mycall))) .
-           " in " . join(', ', split(/\s+/, $modes)));
+    addstr($wmain, 2, 25, "$menu[$choice] Statistics for $mycall in " . join(', ', split(/\s+/, $modes)));
     addstr($whelp, 0,0, "$menu[$choice] statistics".' 'x50);
     refresh($whelp);
 
@@ -1819,7 +1819,7 @@ while ($status == 11) {
         }
         addstr($wmain, $y, 20, sprintf("%-4s" ,"All")); # only overwrite 9999 with All
 
-        addstr($wmain, $y+2,5, "Created detailed HTML-summary at $directory/$mycall-$menu[$choice].html");
+        addstr($wmain, $y+2,5, "Created detailed HTML-summary at $directory/$mycall_filename-$menu[$choice].html");
     }
 
     # For QSO / Continent and QSO / Band other queries have to be made...
@@ -1836,11 +1836,11 @@ while ($status == 11) {
             &statistics("MODE", \$wmain, $daterange, $bands, $modes);# result: MODE ->nr of QSOs
             $filename="MODE";
         }
-        addstr($wmain, 20,5, "Created detailed HTML-summary at $directory/$mycall-$filename.html");
+        addstr($wmain, 20,5, "Created detailed HTML-summary at $directory/$mycall_filename-$filename.html");
     }
     elsif ($choice eq '9') {        # Generate Marker file for xplanet
             &xplanet($modes);
-            addstr($wmain, 8,5, "Output file $directory/$mycall-earth written.");
+            addstr($wmain, 8,5, "Output file $directory/$mycall_filename-earth written.");
     }
     elsif ($choice eq '11') {
         &qslstatistics($wmain);
@@ -1862,7 +1862,7 @@ while ($status == 12) {
     my $call;            # The callsign to edit.
     attron($wmain, COLOR_PAIR(4));
     addstr($whead, 0,0, "YFKlog v$yfkver - Name/DB edit mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
     addstr($whelp, 0,0, 'Enter the callsign to edit.  F1: Menu  F12: Quit'.' 'x50);
     erase($wmain);
     addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
@@ -1899,7 +1899,7 @@ while ($status == 13) {
 
     attron($wmain, COLOR_PAIR(4));
     addstr($whead, 0,0, "YFKlog v$yfkver - LoTW import mode - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
     addstr($whelp, 0,0, 'Select source of LoTW file. F1 to abort.');
     erase($wmain);
     addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
@@ -2010,7 +2010,7 @@ while ($status == 13) {
         $lotwfile =~ /([^\/]+)$/;
         my $basename = $1;
         addstr($wmain,  4,15, "QSOs processed: $nr. Matches: $match. Not found: $nf");
-        addstr($wmain, 5,5, "See /tmp/$mycall-LoTW-update-from-$basename.err for QSLs that were not found.") if $nf;
+        addstr($wmain, 5,5, "See /tmp/$mycall_filename-LoTW-update-from-$basename.err for QSLs that were not found.") if $nf;
 
         &selectlist(\$wmain, 7, 15, $row-10, 55, \@updates, 0);
         attron($wmain, COLOR_PAIR(4));
@@ -2037,7 +2037,7 @@ while ($status == 13) {
 while ($status == 16) {
     attron($wmain, COLOR_PAIR(4));
     addstr($whead, 0,0, "YFKlog v$yfkver - Setup - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
     addstr($whelp, 0,0, 'Select the value you want to change. F1: Back to Menu.  F12: Exit.'.' 'x50);
     erase($wmain);
     addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background
@@ -2114,8 +2114,7 @@ while ($status == 16) {
         my $ret = &askbox(10,20,4,30, '[A-Za-z0-9\/]', "Enter new mycall", $mycall);
         if ($ret eq 'm') { last }
         elsif ($ret ne '') {
-            $ret = lc($ret);
-            $ret =~ s/\//_/g;
+            $ret = uc($ret);
             &changeconfig($original, "mycall=$ret");
         }
     }
@@ -2498,7 +2497,7 @@ while ($status == 17) {
     my $in;
     attron($wmain, COLOR_PAIR(4));
     addstr($whead, 0,0, "YFKlog v$yfkver - DX cluster console - Active Logbook: ".
-       "\U$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
+       "$mycall"." - DB: $dbname @ $dbserver".' ' x 30);
     addstr($whelp, 0,0, 'Enter commands to send to the cluster. F1: Menu  F12: Quit'.' 'x50);
     erase($wmain);
     addstr($wmain,0,0, ' 'x(80*($row-2)));            # blue background

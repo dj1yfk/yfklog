@@ -29,7 +29,7 @@ require Exporter;
 @EXPORT = qw( wpx dxcc makewindow clearinputfields qsotofields saveqso readw
 lastqsos callinfo getdate gettime splashscreen choseqso getqso chosepqso
 entrymask fkeyline winfomask selectlist askbox toggleqsl onlinelog
-preparelabels labeltex emptyqslqueue adifexport ftpupload adifimport getlogs
+preparelabels labeltex emptyqslqueue adifexport ftpupload adifimport getlogs getlogs_old
 changemycall newlogtable oldlogtable choseeditqso geteditqso editw updateqso checkdate
 awards statistics qslstatistics editdb editdbw savedbedit lotwimport
 databaseupgrade xplanet queryrig tableexists changeconfig readsubconfig
@@ -70,7 +70,7 @@ our $dbport = 3306;                                # standard MySQL port
 our $dbuser = "";                                # DB username
 our $dbpass = "";                                # DB password
 our $dbname = "";                                # DB name
-my $dbh;
+our $dbh;
 our $onlinedata = "`CALL`, `DATE`, round(`BAND`,2), `MODE`";
                                                 # Fields for online search log
 our $ftpserver = "127.0.0.1";                    # ftp for online log / backup
@@ -79,6 +79,7 @@ my $ftpuser   = "";                                # ftp user
 my $ftppass   = "";                                # ftp passwd
 my $ftpdir    = "log/";                            # ftp directory
 our $mycall    = "L1D";                            # too stupid to set it? :-))
+our $mycall_filename = "";
 our $dpwr      = "100";                            # default PWR
 our $dqslsi    = "N";                            # def. QSL-s for import
 our $dqsls    = "N";                            # def. QSL-s 
@@ -304,7 +305,7 @@ sub showdxc {
         my @a = qw//;   # calls that should always be checked - TBD
         push @a, $mycall;
         foreach (@a) {
-            my $q = $dbh->prepare("SELECT distinct `call` FROM log_$_;");
+            my $q = $dbh->prepare("SELECT distinct `call` FROM yfklogtbl where mycall='$mycall'");
             $q->execute();
             while (my @r = $q->fetchrow_array()) {
                 $wkdcalls{$r[0]} = 1;
@@ -394,7 +395,9 @@ while (defined (my $line = <CONFIG>))   {            # Read line into $line
             $dbport = $1;
     }
     elsif ($line =~ /^mycall=(.+)/) {                # We read the own call
-            $mycall = "\L$1";
+            $mycall = uc($1);
+            $mycall_filename = lc($mycall);
+            $mycall_filename =~ s/\//_/g;
     }
     elsif ($line =~ /^dbuser=(.+)/) {                # We read the db Username
             $dbuser = $1;
@@ -943,7 +946,7 @@ sub qsotofields {
 }
 
 ##############################################################################
-# &saveqso  Saves the passed array into the table log_$mycall, also adds
+# &saveqso  Saves the passed array into the table, also adds
 # DXCC, Prefix, Continent and QSL-Info fields. 
 # The QSL-Info is taken from the REMarks field, if it contains "via:<sth>".
 # the same applies for ITU, CQZ and IOTA, OPERATOR. Those can be entered in
@@ -968,8 +971,7 @@ sub saveqso {
     my $editnr = shift;                    # QSO we edit
 
     if ($editnr) {                # if existing QSO try get qslinfo
-        my $n = $dbh->prepare("SELECT `QSLINFO` FROM log_$mycall
-                        WHERE `NR`='$editnr';");
+        my $n = $dbh->prepare("SELECT `QSLINFO` FROM yfklogtbl WHERE `NR`='$editnr';");
         $n->execute();
         my @qslinfo = $n->fetchrow_array(); # local variable for info array
         $qslinfo = $qslinfo[0];
@@ -1086,7 +1088,7 @@ sub saveqso {
             # new QSO or if we are changing an existing QSO.
             
             if ($editnr) {                # we change an existing QSO 
-                $dbh->do("UPDATE log_$mycall SET `CALL`='$qso[0]',
+                $dbh->do("UPDATE yfklogtbl SET `CALL`='$qso[0]',
                         `DATE`='$qso[1]',
                         `T_ON`='$qso[2]', `T_OFF`='$qso[3]', `BAND`='$qso[4]',
                         `MODE`='$qso[5]', `QTH`=".$dbh->quote($qso[6]).", `NAME`=".$dbh->quote($qso[7]).",
@@ -1095,17 +1097,17 @@ sub saveqso {
                         `QSLINFO`='$qslinfo' WHERE NR='$editnr';");
             }
             else {                        # new QSO
-                $dbh->do("INSERT INTO log_$mycall 
+                $dbh->do("INSERT INTO yfklogtbl
                     (`CALL`, `DATE`, `T_ON`, `T_OFF`, `BAND`, `MODE`, `QTH`,
                     `NAME`, `QSLS`, `QSLR`, `RSTS`, `RSTR`, `REM`, `PWR`,
                     `DXCC`, `PFX`, `CONT`, `QSLINFO`,
-                    `ITUZ`, `CQZ`, `IOTA`, `STATE`, `QSLRL`, `OPERATOR`, `GRID`)
+                    `ITUZ`, `CQZ`, `IOTA`, `STATE`, `QSLRL`, `OPERATOR`, `GRID`, `MYCALL`)
                     VALUES ('$qso[0]', '$qso[1]', '$qso[2]', '$qso[3]', 
                             '$qso[4]', '$qso[5]', ".$dbh->quote($qso[6]).", ".$dbh->quote($qso[7]).", 
                             '$qso[8]', '$qso[9]', '$qso[10]', '$qso[11]', 
                             ".$dbh->quote($qso[12]).", '$qso[13]', '$dxcc', '$pfx', 
                             '$cont', '$qslinfo', '$ituz', '$cqz', '$iota',
-                            '$state', 'N', '$operator', '$grid');");
+                            '$state', 'N', '$operator', '$grid', '$mycall');");
             }
 
         
@@ -1125,8 +1127,7 @@ sub saveqso {
                 }
             }
     
-            my $sth = $dbh->prepare("SELECT `CALL` FROM calls WHERE 
-                                    `CALL`='$call';");
+            my $sth = $dbh->prepare("SELECT `CALL` FROM calls WHERE `CALL`='$call';");
             $sth->execute();
             unless ($sth->fetch()) {    # check if callsign not in DB
                 if (($qso[7] ne "") || ($qso[6] ne "")) {    # new things to add
@@ -1525,7 +1526,7 @@ sub lastqsos {
     # date needed.
     my $l = $dbh->prepare("SELECT `CALL`, `BAND`, `MODE`, `DATE`, `T_ON`,
             `NAME`, `QTH`, `RSTS`, `RSTR`, `QSLS`, `QSLR`, `QSLRL` FROM
-            log_$mycall
+            yfklogtbl where `mycall`='$mycall'
             ORDER BY $by LIMIT $nr");    
     $l->execute();
     # temporary vars
@@ -1601,7 +1602,7 @@ sub gridinfo {
     addstr($wqsos, 0, 0, " "x(80*$nbr));
 
     # cfmed on which bands?
-    my $q = $dbh->prepare("SELECT distinct(band) FROM log_$mycall WHERE substr(GRID, 1, 4) = '$grid4' and (qslr='Y' or qslrl='Y')");
+    my $q = $dbh->prepare("SELECT distinct(band) FROM yfklogtbl WHERE mycall = '$mycall' and substr(GRID, 1, 4) = '$grid4' and (qslr='Y' or qslrl='Y')");
     $q->execute();
     my %cfmedbands;
     while (my @b = $q->fetchrow_array()) {
@@ -1609,7 +1610,7 @@ sub gridinfo {
     }
    
     # wkd on which bands? 
-    $q = $dbh->prepare("SELECT distinct(band) FROM log_$mycall WHERE substr(GRID, 1, 4) = '$grid4' order by band asc");
+    $q = $dbh->prepare("SELECT distinct(band) FROM yfklogtbl WHERE mycall = '$mycall' and substr(GRID, 1, 4) = '$grid4' order by band asc");
     $q->execute();
     my %wkdbands;
     my $new = 1;
@@ -1640,7 +1641,7 @@ sub gridinfo {
     addstr($wqsos, 0, 0, $line." ".$new." "x80);
 
     # callsigns worked from this exact grid
-    $q = $dbh->prepare("SELECT distinct(`call`) from log_$mycall where grid like '$grid%'");
+    $q = $dbh->prepare("SELECT distinct(`call`) from yfklogtbl where mycall = '$mycall' and grid like '$grid%'");
     $q->execute();
     my @calls;
     while (my @b = $q->fetchrow_array()) { 
@@ -1658,7 +1659,7 @@ sub gridinfo {
  
     # for full grids, also search for calls from the same square
     if (length($grid) == 6) {
-        $q = $dbh->prepare("SELECT distinct(`call`) from log_$mycall where grid like '$grid4%'");
+        $q = $dbh->prepare("SELECT distinct(`call`) from yfklogtbl where mycall = '$mycall' and grid like '$grid4%'");
         $q->execute();
         my @calls;
         while (my @b = $q->fetchrow_array()) { 
@@ -1834,20 +1835,21 @@ sub callinfo {
         }
 
         # First count...
-        my $lqcount = $dbh->prepare("SELECT count(*) FROM log_$mycall WHERE
+        my $lqcount = $dbh->prepare("SELECT count(*) FROM yfklogtbl WHERE mycall = '$mycall' and (
                 `CALL` = '$call' OR `CALL` LIKE '\%/$call' OR
-                `CALL` LIKE '\%/$call/\%' OR `CALL` LIKE '$call/\%';");
+                `CALL` LIKE '\%/$call/\%' OR `CALL` LIKE '$call/\%');");
         $lqcount->execute();
 
         my $count = $lqcount->fetchrow_array();
 
         my $lq = $dbh->prepare("SELECT `CALL`, `DATE`, `T_ON`, `BAND`, `MODE`,
                 `QSLS`, `QSLR`, `NAME`, `QTH`, `RSTS`, `RSTR`, `QSLRL` from
-                log_$mycall
-                WHERE     `CALL` = '$call' OR
+                yfklogtbl 
+                WHERE   mycall = '$mycall' and
+                (       `CALL` = '$call' OR
                         `CALL` LIKE '\%/$call' OR
                         `CALL` LIKE '\%/$call/\%' OR
-                        `CALL` LIKE '$call/\%'
+                        `CALL` LIKE '$call/\%')
                 ORDER BY `DATE` $ascdesc, `T_ON` $ascdesc;");
         $lq->execute();    
         my ($lcall, $ldate, $ltime, $lband, $lmode, $lqsls, $lqslr, $lname,
@@ -1916,25 +1918,24 @@ sub callinfo {
 
         my $qsoinotherlogs='';
 
-        $checklogs =~ s#/#_#g;
-        my @calls = split(/\s+/, "\L$checklogs");
+        my @ccalls;
+        foreach (split(/\s+/, uc($checklogs))) {
+            push @ccalls, "'".$_."'" unless ($_ eq $mycall);
+        }
+        my $checkcalls = join(",", @ccalls);
 
-        foreach my $callsign (@calls) {
-            my $sth = $dbh->prepare("SELECT `CALL` FROM log_$callsign WHERE 
+        my $sth = $dbh->prepare("SELECT distinct(`MYCALL`) FROM yfklogtbl WHERE `mycall` in ($checkcalls) and (
                                     `CALL` = '$call' OR
                                     `CALL` LIKE '\%\/$call' OR
                                     `CALL` LIKE '\%\/$call\/\%' OR
-                                    `CALL` LIKE '$call\/\%'
-                                    ");    # No more regex with SQlite..
-            $sth->execute();
-            if ($sth->fetch()) {
-                $qsoinotherlogs.= "\U$callsign " unless ($callsign eq $mycall);
-            }
-
+                                    `CALL` LIKE '$call\/\%')
+                                    ");
+        $sth->execute();
+        while (my @a = $sth->fetchrow_array()) {
+            $qsoinotherlogs.= $a[0]." " unless ($a[0] eq $mycall);
         }
 
         if ($qsoinotherlogs ne '') {
-            $qsoinotherlogs =~ s#_#/#g;
             $clubline .= 'Wkd as: '.$qsoinotherlogs;
         }
 
@@ -1942,16 +1943,13 @@ sub callinfo {
         # Show DXCC bandpoints for the $call, also add to club-line. if new
         # DXCC or bandpoint, give extra notice.
 
-        my $dx = $dbh->prepare("SELECT count(*) from log_$mycall WHERE 
-                                                        DXCC='$dxcc[7]';");
+        my $dx = $dbh->prepare("SELECT count(*) from yfklogtbl WHERE mycall='$mycall' and DXCC='$dxcc[7]';");
         $dx->execute();
 
         my $newdxcc = $dx->fetchrow_array();
 
         if ($newdxcc) {                # DXCC already wkd, show bands
-            $dx = $dbh->prepare("SELECT `band`, `qslr`, `QSLRL` from
-                    log_$mycall WHERE 
-                        DXCC='$dxcc[7]';");
+            $dx = $dbh->prepare("SELECT `band`, `qslr`, `QSLRL` from yfklogtbl WHERE mycall='$mycall' and DXCC='$dxcc[7]';");
 
             $dx->execute();
 
@@ -2163,12 +2161,8 @@ do  {            # loop and get keyboard input
     
     my $cq = $dbh->prepare("SELECT `NR`, `CALL`, `BAND`, `MODE`, `DATE`,
             `T_ON`, `NAME`, `QTH`, `RSTS`, `RSTR`, `QSLS`, `QSLR`, `QSLRL` FROM
-            log_$mycall ORDER BY $by LIMIT $offset, $nbr");    
+            yfklogtbl where mycall='$mycall' ORDER BY $by LIMIT $offset, $nbr");    
     $cq->execute();
-    
-#    my $nrofrows = $cq->execute();
-
-#    if ($nrofrows eq "0E0") { return "i"; }        # nothing, back to log input
     
     # temporary vars
     my ($nr, $call, $band, $mode, $date, $time, $name, $qth, $rsts,
@@ -2297,7 +2291,7 @@ sub getqso {
 my @qso;                    # QSO array
 my $q = $dbh->prepare("SELECT `CALL`, `DATE`, `T_ON`, `T_OFF`, `BAND`, `MODE`,
         `QTH`, `NAME`, `QSLS`, `QSLR`, `RSTS`, `RSTR`, `REM`, `PWR` FROM
-        log_$mycall WHERE `NR`='$_[0]'");
+        yfklogtbl WHERE `NR`='$_[0]'");
 $q->execute;
 @qso = $q->fetchrow_array;
 # proper format for the date (yyyy-mm-dd ->  ddmmyyyy)
@@ -2361,11 +2355,11 @@ sub chosepqso {
     }
 
     # First we want to know how many QSOs there are...
-    my $lq = $dbh->prepare("SELECT count(*) from log_$mycall WHERE 
+    my $lq = $dbh->prepare("SELECT count(*) from yfklogtbl WHERE mycall='$mycall' and (
                          `CALL` = '$call' OR
                         `CALL` LIKE '\%/$call' OR
                         `CALL` LIKE '\%/$call/\%' OR
-                        `CALL` LIKE '$call/\%'");
+                        `CALL` LIKE '$call/\%')");
 
 
     $lq->execute();            # number of prev. QSOs in $count
@@ -2377,10 +2371,10 @@ sub chosepqso {
 do {                                    # we start looping here
     my $lq = $dbh->prepare("SELECT `NR`, `CALL`, `DATE`, `T_ON`, `BAND`, `MODE`,
                `QSLS`, `QSLR`, `NAME`, `QTH`, `RSTS`, `RSTR`, `QSLRL` FROM
-            log_$mycall WHERE     `CALL` = '$call' OR
+            yfklogtbl WHERE mycall = '$mycall' and (`CALL` = '$call' OR
                         `CALL` LIKE '\%/$call' OR
                         `CALL` LIKE '\%/$call/\%' OR
-                        `CALL` LIKE '$call/\%'
+                        `CALL` LIKE '$call/\%')
              ORDER BY `DATE` $ascdesc, `T_ON` $ascdesc
             LIMIT $offset, $nbr");    
     
@@ -2859,7 +2853,7 @@ else {    # receive
 
 if ($write) {                        # QSL Write mode
     # Check if there are any QSLs in the queue...
-    my $c = $dbh->prepare("SELECT count(*) from log_$mycall WHERE QSLS='Q'");
+    my $c = $dbh->prepare("SELECT count(*) from yfklogtbl WHERE mycall='$mycall' and QSLS='Q'");
     $c->execute();            # number of queued QSLs in $count
 
     $count = $c->fetchrow_array();
@@ -2878,8 +2872,7 @@ if ($write) {                        # QSL Write mode
 else {                                # QSL receive mode
     # check if there are any QSOs that match with the string
     # we entered...
-    my $c = $dbh->prepare("SELECT count(*) from log_$mycall WHERE 
-                            `CALL` LIKE '\%$call\%';");
+    my $c = $dbh->prepare("SELECT count(*) from yfklogtbl WHERE mycall='$mycall' and `CALL` LIKE '\%$call\%';");
 
     $c->execute() or die "Can't count nr of queued QSLs!";
 
@@ -2915,8 +2908,8 @@ do {                                    # we start looping here
                    `NR`, `CALL`, `NAME`, `QSLINFO`, `DATE`,
                 `T_ON`, `BAND`, `MODE`, `QSLS`, `QSLR`, `PWR`, `QTH`, `RSTS`,
                 `RSTR`, `REM`, `DXCC`, `IOTA`, `STATE`, `QSLRL`, `OPERATOR`, `GRID` 
-                FROM log_$mycall
-                WHERE `QSLS`='Q' OR `QSLS`='X' ORDER BY `CALL`, `DATE`, `T_ON`
+                FROM yfklogtbl
+                WHERE mycall='$mycall' and (`QSLS`='Q' OR `QSLS`='X') ORDER BY `CALL`, `DATE`, `T_ON`
                 LIMIT $offset, $yh");    
     }
     else {
@@ -2924,9 +2917,9 @@ do {                                    # we start looping here
                    `NR`, `CALL`, `NAME`, `QSLINFO`, `DATE`,
                 `T_ON`, `BAND`, `MODE`, `QSLS`, `QSLR`, `PWR`, `QTH`, `RSTS`,
                 `RSTR`, `REM`, `DXCC`, `IOTA`, `STATE`, `QSLRL`, `OPERATOR`, `GRID` 
-                FROM log_$mycall
-                WHERE `CALL` LIKE 
-                '\%$call\%' ORDER BY `DATE`, `T_ON` LIMIT $offset, $yh");    
+                FROM yfklogtbl
+                WHERE mycall='$mycall' and
+                `CALL` LIKE '\%$call\%' ORDER BY `DATE`, `T_ON` LIMIT $offset, $yh");    
     
     }
     
@@ -3008,14 +3001,12 @@ do {                                    # we start looping here
             if ($qslstat eq "Q") { $qslstat = "X" }
             elsif ($qslstat eq "X") { $qslstat = "Q"}
             # Update database record...    
-            $dbh->do("UPDATE log_$mycall SET QSLS='$qslstat' 
-                                                     WHERE NR='$chnr';");
+            $dbh->do("UPDATE yfklogtbl SET QSLS='$qslstat' WHERE NR='$chnr';");
         }
         else {                                        # QSL receive mode N->Y
             if ($qslstat eq "N") { $qslstat = "Y" }
             elsif ($qslstat eq "Y") { $qslstat = "N" }
-            $dbh->do("UPDATE log_$mycall SET QSLR='$qslstat' 
-                                                     WHERE NR='$chnr';");
+            $dbh->do("UPDATE yfklogtbl SET QSLR='$qslstat' WHERE NR='$chnr';");
         }
     } # end of Spacebar handling
 
@@ -3031,8 +3022,7 @@ do {                                    # we start looping here
         if ($qslstat2 eq "N") { $qslstat2 = "X" }
         elsif ($qslstat2 eq "X") { $qslstat2 = "Q" }
         elsif ($qslstat2 eq "Q") { $qslstat2 = "N" }
-        $dbh->do("UPDATE log_$mycall SET QSLS='$qslstat2' 
-                                                     WHERE NR='$chnr';");
+        $dbh->do("UPDATE yfklogtbl SET QSLS='$qslstat2' WHERE NR='$chnr';");
     }
     
     # If we want to go down, we also have to ensure that we are not yet at the
@@ -3089,7 +3079,7 @@ do {                                    # we start looping here
 
         if ($k =~ /y/i) {
             # changed QSL sent flags back to Y
-            $dbh->do("UPDATE log_$mycall SET QSLS='Y' WHERE QSLS='X';");
+            $dbh->do("UPDATE yfklogtbl SET QSLS='Y' WHERE QSLS='X' where mycall='$mycall';");
             return 2;    
         }
     }
@@ -3102,7 +3092,7 @@ do {                                    # we start looping here
     # anymore...
 
     elsif ($ch eq KEY_F(2)) {
-        $dbh->do("UPDATE log_$mycall SET QSLS='Y' WHERE QSLS='X';");
+        $dbh->do("UPDATE yfklogtbl SET QSLS='Y' WHERE QSLS='X' and mycall='$mycall';");
         if ($write) { 
             return 2; 
         }
@@ -3124,10 +3114,10 @@ do {                                    # we start looping here
         while ((my $nr, my $qsl) =  each %changes) {
             # Depending on the mode (QSL write or receive), update DB fields
             if ($write) {
-                $dbh->do("UPDATE log_$mycall SET QSLS='$qsl' WHERE NR='$nr';");
+                $dbh->do("UPDATE yfklogtbl SET QSLS='$qsl' WHERE NR='$nr';");
             }
             else {    
-                $dbh->do("UPDATE log_$mycall SET QSLR='$qsl' WHERE NR='$nr';");
+                $dbh->do("UPDATE yfklogtbl SET QSLR='$qsl' WHERE NR='$nr';");
             }
         }
         # Same for %changes2, the QSL-S changes while in QSL-R mode (replying)
@@ -3137,7 +3127,7 @@ do {                                    # we start looping here
                     # Impossible here :)
             }
             else {    
-                $dbh->do("UPDATE log_$mycall SET QSLS='$qsl' WHERE NR='$nr';");
+                $dbh->do("UPDATE yfklogtbl SET QSLS='$qsl' WHERE NR='$nr';");
             }
         }
         if ($write) { return 2 }                # write -> Back to main menu
@@ -3166,12 +3156,12 @@ sub onlinelog {
     my @qso;            # Every QSO we fetch from the DB will be stored here
     my $nr;                # Number of QSOs that are exported.
 
-    open ONLINELOG, ">$directory/$mycall.log";
+    open ONLINELOG, ">$directory/$mycall_filename.log";
 
     # We query the database for the fields specified in $onlinedata (by default
     # or from the config file).
     
-    my $ol = $dbh->prepare("SELECT $onlinedata FROM log_$mycall ORDER BY `DATE`");    
+    my $ol = $dbh->prepare("SELECT $onlinedata FROM yfklogtbl where mycall='$mycall' ORDER BY `DATE`");    
     $ol->execute or die DBI->errstr;        # Execute the query
 
     while (@qso = $ol->fetchrow_array()) {    # Fetch the selected data into @qso
@@ -3240,7 +3230,7 @@ sub preparelabels {
 
     my $queue = $dbh->prepare("SELECT `CALL`, `NAME`, `DATE`, `T_ON`, `BAND`, 
                 `MODE`, `RSTS`, `PWR`, `QSLINFO`, `QSLR`, `OPERATOR` FROM
-                log_$mycall WHERE `QSLS`='Q' AND $daterange
+                yfklogtbl WHERE mycall= '$mycall' and `QSLS`='Q' AND $daterange
                 ORDER BY `CALL`, `DATE`, `T_ON`");
 
     my $x = $queue->execute();                            # Execute Query
@@ -3309,8 +3299,7 @@ sub preparelabels {
             $mgr =~ s/0/\\O{}/g;                    # replace 0 with slashed O
             $$lr =~ s/HISCALL/$call/;                # replace things
             $$lr =~ s/MANAGER/$mgr/;
-            $$lr =~ s/MYCALL/\U$mycall/;
-            $$lr =~ s/_/\//g;                        # _ to /
+            $$lr =~ s/MYCALL/$mycall/;
             $$lr =~ s/NAME/$name/;
             $$lr =~ s/TXPOWER/$pwr/;
             $$lr =~ s/OPERATOR/$op/;
@@ -3476,7 +3465,7 @@ return $latex;                # return the document
 ##############################################################################
 
 sub emptyqslqueue {
-     return    $dbh->do("UPDATE log_$mycall SET QSLS='Y' WHERE QSLS ='Q';");
+     return    $dbh->do("UPDATE yfklogtbl SET QSLS='Y' WHERE QSLS ='Q' and mycall='$mycall';");
 }
 
 ##############################################################################
@@ -3497,7 +3486,7 @@ sub adifexport {
     my $export = $_[1];                  # 'lotw', 'queue' or 'adi'.
     my $daterange= $_[2];                # date range for exporting
     my $nr=0;                            # number of QSOs exported. return value
-    my $sql = 'WHERE ';
+    my $sql = '';
     my @q;                                # QSOs from the DB..
     
     open ADIF, ">$filename";            # Open ADIF file
@@ -3512,7 +3501,7 @@ sub adifexport {
     my $adif = $dbh->prepare("SELECT `CALL`, `DATE`, `T_ON`, `T_OFF`, `BAND`,
             `MODE`, `QTH`, `NAME`, `QSLS`, `QSLR`, `RSTS`, `RSTR`, `REM`,
             `PWR`, `PFX`, `CONT`, `QSLINFO`, `CQZ`, `ITUZ`, `IOTA`, `STATE`,
-            `OPERATOR`, `GRID` FROM log_$mycall $sql"); 
+            `OPERATOR`, `GRID` FROM yfklogtbl where mycall='$mycall' and $sql"); 
     
     $adif->execute();
 
@@ -3606,10 +3595,9 @@ sub adifexport {
     close ADIF;
 
     if ($export eq 'lotw') {
-        $dbh->do("UPDATE log_$mycall set qslrl='R' where qslrl='N' and $daterange")
+        $dbh->do("UPDATE yfklogtbl set qslrl='R' where mycall='$mycall' and qslrl='N' and $daterange")
     }
-    $dbh->do("UPDATE log_$mycall set qsls='Y' where qsls='Q' AND ".$daterange) if 
-                                                        ($export eq 'queue');
+    $dbh->do("UPDATE yfklogtbl set qsls='Y' where mycall='$mycall' and qsls='Q' AND ".$daterange) if ($export eq 'queue');
 
     return $nr;            # return number of exported QSOs...
 }    # end of ADIF export
@@ -3635,11 +3623,11 @@ sub ftpupload {
 
     $ftp->cwd($ftpdir);                # change into the log directory
 
-    $ftp->put($directory.'/'.$mycall.'.log') || return "Cannot put $mycall.log, $!";
+    $ftp->put($directory.'/'.$mycall_filename.'.log') || return "Cannot put $mycall_filename.log, $!";
 
     $ftp->quit();
 
-    return "Log uploaded successfully to $ftpdir$mycall.log!";    
+    return "Log uploaded successfully to $ftpdir$mycall_filename.log!";    
 } # end of ftp upload
 
 
@@ -3680,13 +3668,13 @@ my @newcalls;                    # find all new calls from imported ADIF
 $filename =~ /([^\/]+)$/;
 my $basename = $1;
 
-open(ERROR, ">>/tmp/$mycall-import-from-$basename.err");
+open(ERROR, ">>/tmp/$mycall_filename-import-from-$basename.err");
 
 print ERROR "-"x80;
 
 # remember all worked calls from the log, so after the import we can
 # show a list of new unique calls that were imported
-my $q = $dbh->prepare("SELECT distinct `call` FROM log_$mycall;");
+my $q = $dbh->prepare("SELECT distinct `call` FROM yfklogtbl where mycall='$mycall';");
 $q->execute();
 while (my @r = $q->fetchrow_array()) {
     $wkdcalls{$r[0]} = 1;
@@ -4212,8 +4200,8 @@ for my $i (0 .. $#qso) {                    # iterate through Array of Hashes
     # INSERT INTO log_dj1yfk (call, date, ...) VALUES ('DJ1YFK',
     # '2001-01-01'... ) since SQLite doesn't support the SET x=y syntax.
 
-    $sql= "INSERT INTO log_$mycall (";        # start buildung SQL string
-    $sqlvalues = ") VALUES (";
+    $sql= "INSERT INTO yfklogtbl (`mycall`, ";        # start building SQL string
+    $sqlvalues = ") VALUES ('$mycall', ";
 
     # Now iterate through hash keys. if its valid, i.e. contained in the
     # %fields hash, it will be added to the SQL string, otherwise written to
@@ -4239,7 +4227,6 @@ for my $i (0 .. $#qso) {                    # iterate through Array of Hashes
     $sql .= $sqlvalues;
 
     # MySQL5 doesn't like CALL, so change it to `CALL`
-
     $sql =~ s/call=/`CALL`=/gi;
 
     # Now put the QSO into the database:
@@ -4268,16 +4255,14 @@ for my $i (0 .. $#qso) {                    # iterate through Array of Hashes
             }    
         }
 
-        my $sth = $dbh->prepare("SELECT `CALL` FROM `calls` WHERE 
-                                    `CALL`='$call';");
+        my $sth = $dbh->prepare("SELECT `CALL` FROM `calls` WHERE `CALL`='$call';");
         $sth->execute();
         unless ($sth->fetch()) {        # nothing to fetch -> call is unknown!
             # Add information from ADIF to the database, if QTH/Name is now
             # know, just a empty field.
             unless (defined($qso[$i]{'name'})) {$qso[$i]{'name'}="''";}
             unless (defined($qso[$i]{'qth'})) {$qso[$i]{'qth'}="''";}
-            $dbh->do("INSERT INTO calls (`CALL`, `NAME`, `QTH`) VALUES
-                ('$call',$qso[$i]{'name'},$qso[$i]{'qth'});");
+            $dbh->do("INSERT INTO calls (`CALL`, `NAME`, `QTH`) VALUES ('$call',$qso[$i]{'name'},$qso[$i]{'qth'});");
         }
     }
 
@@ -4310,6 +4295,20 @@ return($nr, $err, $war, @newcalls);
 
 sub getlogs {
     my @logs;                    # logs in the database
+
+    my $q = $dbh->prepare("SELECT distinct `mycall` FROM yfklogtbl;");
+    $q->execute();
+    while (my @r = $q->fetchrow_array()) {
+            push @logs, $r[0];
+        }
+    return @logs;
+} # getlogs
+
+# get logs from old database format used before 1.0.0 where each log had
+# its own table log_$callsign
+
+sub getlogs_old {
+    my @logs;                    # logs in the database
     my $showtables = "SHOW TABLES";
 
     if ($db  eq 'sqlite') {
@@ -4330,6 +4329,8 @@ sub getlogs {
     return @logs;
 } # getlogs
 
+
+
 ##############################################################################
 # changemycall  -- changes $mycall (lexical variable with scope within
 # yfksubs.pl) to $_[0], from yfk.pl
@@ -4337,6 +4338,8 @@ sub getlogs {
 
 sub changemycall {
     $mycall = $_[0];
+    $mycall_filename = lc($mycall);
+    $mycall_filename =~ s/\//_/g;
 }
 
 ##############################################################################
@@ -4346,39 +4349,7 @@ sub changemycall {
 ##############################################################################
 
 sub newlogtable {
-    my $call = $_[0];                    # callsign of the new database
-
-    my $filename = "$prefix/share/yfklog/db_log.sql";
-    if ($db eq 'sqlite') {
-        $filename = "$prefix/share/yfklog/db_log.sqlite";
-    }
-
-    open DB, $filename;                # database definition in this file
-    my @db = <DB>;                        # read database def. into @db
-
-    # We assume that the callsign in $_[0] is valid, because the &askbox()
-    # which produced it only accepted valid callsign-letters.
-    # only exception: empty callsign!
-    
-    if ($call eq '') {
-        return "**** Invalid callsign! ****";
-    }
-    
-    $call =~ tr/\//_/;                    # convert "/" to "_"
-    $call =~ tr/[A-Z]/[a-z]/;            # make call lowercase
-
-    
-    # Now check if there is also a table existing with the same name
-
-    unless (&tableexists("log_$call")) {    # If logbook does not yet exist, create it
-        my $db = "@db";
-        $db =~ s/MYCALL/$call/g;# replace the callsign placeholder    
-        $dbh->do($db);            # create it!
-        return "Logbook successfully created!";
-    }
-    else {                            # log already existed
-        return "Logbook with same name already exists!";
-    }    
+    return "Logbook created.";  # XXX 
 } # newlogtable
 
 ##############################################################################
@@ -4389,38 +4360,7 @@ sub newlogtable {
 
 sub oldlogtable {
     my $call = $_[0];                    # callsign to delete 
-
-    my $filename = "$prefix/share/yfklog/db_log.sql";
-    if ($db eq 'sqlite') {
-        $filename = "$prefix/share/yfklog/db_log.sqlite";
-    }
-
-    open DB, $filename;                # database definition in this file
-    my @db = <DB>;                        # read database def. into @db
-
-    # We assume that the callsign in $_[0] is valid, because the &askbox()
-    # which produced it only accepted valid callsign-letters.
-    # only exception: empty callsign!
-    
-    if ($call eq '') {
-        return "**** Invalid callsign! ****";
-    }
-    
-    $call =~ tr/\//_/;                    # convert "/" to "_"
-    $call =~ tr/[A-Z]/[a-z]/;            # make call lowercase
-
-    
-    # Now check if there is a table with an existing name
-
-    if (&tableexists("log_$call")) {    # If logbook does exist, delete it
-        my $db = "@db";
-#        $db =~ s/MYCALL/$call/g;# replace the callsign placeholder    
-        $dbh->do("DROP table log_$call");            # erase it!
-        return "Logbook successfully erased!";
-    }
-    else {                            # log already existed
-        return "No logbook for this call!";
-    }    
+    # XXX TBD
 } # oldlogtable
 
 ##############################################################################
@@ -4430,25 +4370,25 @@ sub oldlogtable {
 ##############################################################################
 
 sub choseeditqso {
-    my $offset=0;                # offset when scrolling in the list
+    my $offset=0;               # offset when scrolling in the list
     my $aline=0;                # active / highlighted line
-    my $ch;                        # character read from keyboard
+    my $ch;                     # character read from keyboard
     my $ret;                    # return number
-    my $goon=1;                    # becomes 0 when we are done
-    my $count;                    # number of entries/QSOs matching
-    my $pos=$_[2];                # ref position in the QSOs from 1 .. $count
+    my $goon=1;                 # becomes 0 when we are done
+    my $count;                  # number of entries/QSOs matching
+    my $pos=$_[2];              # ref position in the QSOs from 1 .. $count
 
-    my $win = ${$_[0]};            # Window where output goes. height = 17
+    my $win = ${$_[0]};         # Window where output goes. height = 17
     my $sql;                    # SQL string with search criteria
     my $sql2=' AND 1 ';
-    my @qso = @{$_[1]};            # search criteria
+    my @qso = @{$_[1]};         # search criteria
     
     my $nlines = $main::row - 7;
     
     # Assemble a SQL string which contains the search criteria. First the
     # columns which should be displayed.  
     $sql = "SELECT `NR`, `CALL`, `NAME`, `DATE`, `T_ON`, `BAND`, `MODE`,
-    `QSLS`, `QSLR`, `DXCC`, `QSLINFO`, `QSLRL` FROM log_$mycall WHERE `NR` ";
+    `QSLS`, `QSLR`, `DXCC`, `QSLINFO`, `QSLRL` FROM yfklogtbl WHERE `NR` ";
     # The rest of the string now depends on the content of the @qso-array:
     $sql2 = "AND `CALL` LIKE '\%$qso[0]\%' " if $qso[0];
     if ($qso[1]) {
@@ -4477,7 +4417,7 @@ sub choseeditqso {
 
     # We have to know how many QSOs are fitting the current search criteria:
 
-    my $eq = $dbh->prepare("SELECT count(*) from log_$mycall where 1 $sql2;");
+    my $eq = $dbh->prepare("SELECT count(*) from yfklogtbl where mycall='$mycall' $sql2;");
     $eq->execute();
     $count = $eq->fetchrow_array();
     
@@ -4615,7 +4555,7 @@ my @qso;                    # QSO array
 my $q = $dbh->prepare("SELECT `CALL`, `DATE`, `T_ON`, `T_OFF`, `BAND`, `MODE`,
         `QTH`, `NAME`, `QSLS`, `QSLR`, `RSTS`, `RSTR`, `REM`, `PWR`, `DXCC`,
         `PFX`, `CONT`, `ITUZ`, `CQZ`, `QSLINFO`, `IOTA`, `STATE`, `NR`,
-        `QSLRL`, `OPERATOR`, `GRID` FROM log_$mycall WHERE `NR`='$_[0]'");
+        `QSLRL`, `OPERATOR`, `GRID` FROM yfklogtbl WHERE `NR`='$_[0]'");
 $q->execute;
 @qso = $q->fetchrow_array;
 # proper format for the date (yyyy-mm-dd ->  ddmmyyyy)
@@ -4848,7 +4788,7 @@ sub editw {
             "Are you sure you want to delete the above QSO *permanently*?  (yes/no)", '');
             if ($answer eq 'm') { return 2 }        # menu
             elsif ($answer eq 'yes') {                # yes, delete! 
-                $dbh->do("DELETE from log_$mycall WHERE NR='${$_[3]}[22]'");
+                $dbh->do("DELETE from yfklogtbl WHERE NR='${$_[3]}[22]'");
                 for (0 .. 25) {                        # iterate through windows
                     addstr(@{$_[0]}[$_],0,0," "x80);    # clear it
                     refresh(@{$_[0]}[$_]);
@@ -4922,7 +4862,7 @@ sub updateqso {
             $qso[3] = substr($qso[3],0,2).":".substr($qso[3],2,2).":00";# add seconds, :
 
             # we are now ready to save the QSO
-            $dbh->do("UPDATE log_$mycall SET `CALL`='$qso[0]', `DATE`='$qso[1]',
+            $dbh->do("UPDATE yfklogtbl SET `CALL`='$qso[0]', `DATE`='$qso[1]',
                         `T_ON`='$qso[2]', `T_OFF`='$qso[3]', `BAND`='$qso[4]',
                         `MODE`='$qso[5]', `QTH`='$qso[6]', `NAME`='$qso[7]',
                         `QSLS`='$qso[8]', `QSLR`='$qso[9]', `RSTS`='$qso[10]',
@@ -5013,17 +4953,17 @@ foreach my $band (@bands) {
     my ($sth, $dx, $qslr, $qslrl);
     if ($custom) {
         $sth = $dbh->prepare("SELECT REM, QSLR, QSLRL  FROM
-                log_$mycall WHERE $rband='$band' AND MODE IN ($modes)
+                yfklogtbl WHERE mycall='$mycall' and $rband='$band' AND MODE IN ($modes)
                 AND $daterange AND REM LIKE \"%$custom:%\"");
         $sth->execute() or die "Error, couldn't select ($custom)!";
         $sth->bind_columns(\$dx, \$qslr, \$qslrl);
     }
     else {
         $sth = $dbh->prepare("SELECT $awardtype, QSLR, QSLRL  FROM
-                log_$mycall WHERE $rband='$band' AND $daterange
+                yfklogtbl WHERE mycall='$mycall' and $rband='$band' AND $daterange
                 AND MODE IN ($modes)");
 
-        $sth->execute() or die "Error selecting $awardtype from log_$mycall!";
+        $sth->execute() or die "Error selecting $awardtype!";
         $sth->bind_columns(\$dx,\$qslr, \$qslrl);
     }
 
@@ -5094,11 +5034,10 @@ $resultcp{'All'} = scalar(keys(%abdxcccp));
 $resultcl{'All'} = scalar(keys(%abdxcccl));
 
 # Create a HTML-output of the full award score.
-open HTML, ">$directory/$mycall-$awardtype.html";
+open HTML, ">$directory/$mycall_filename-$awardtype.html";
 
 # Generate Header and Table header
-my $string = "$awardtype Status for ". uc(join('/', split(/_/, $mycall))) .
-    " in " . join(', ', @modes);
+my $string = "$awardtype Status for $mycall in " . join(', ', @modes);
 print HTML "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">";
 print HTML "<html>\n<head>\n<title>" . $string . "</title>\n</head>\n";
 print HTML "<body>\n<h1>" . $string . "</h1>\n";
@@ -5210,7 +5149,7 @@ sub statistics {
     my $bands = join(',', @bands);
     my $modes = "'" . join("','", @modes) . "'";
 
-    my $sth = $dbh->prepare("SELECT $type FROM log_$mycall WHERE $daterange
+    my $sth = $dbh->prepare("SELECT $type FROM yfklogtbl WHERE mycall='$mycall' and $daterange
                     and BAND in ($bands) and MODE in ($modes)");
     $sth->execute();
     my $type_item;
@@ -5220,11 +5159,10 @@ sub statistics {
     }    
 
     # Create a HTML-output of the full award score.
-    open HTML, ">$directory/$mycall-$type.html";
+    open HTML, ">$directory/$mycall_filename-$type.html";
     
     # Generate Header and Table header
-    my $string = "$type Statistics for ". uc(join('/', split(/_/, $mycall))) .
-        " in " . join(', ', @modes);
+    my $string = "$type Statistics for $mycall in " . join(', ', @modes);
     print HTML "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">";
     print HTML "<html>\n<head>\n<title>" . $string . "</title>\n</head>\n";
     print HTML "<body>\n<h1>" . $string . "</h1>\n";
@@ -5482,29 +5420,13 @@ sub lotwimport {
     addstr($win,0,0," "x80);
     refresh($win);
 
-    # Check for which calls we can update the database:
-    my $showtables = "SHOW TABLES";
-
-    if ($db  eq 'sqlite') {
-        $showtables = "select name from sqlite_master where type='table';"
-    }
-
-    my $gl = $dbh->prepare($showtables);
-    $gl->execute();
-
-    while (my $x = $gl->fetchrow_array()) {
-        if ($x =~ /log_/) { $logs .= "$x "; }
-    }
-    
-    $logs =~ s/log_//g;
-    $logs =~ s#_#/#g;        # there are now some tables which are not logs,
-    $logs = uc($logs);        # but they will not likely match a callsign...
+    $logs = join(" ", &getlogs());
 
     open LOG, "$filename";
 
     $filename =~ /([^\/]+)$/;
     my $basename = $1;
-    open ERROR, ">/tmp/$mycall-LOTW-update-from-$basename.err";
+    open ERROR, ">/tmp/$mycall_filename-LOTW-update-from-$basename.err";
 
     # Only continue if real lotwreport file.. 
     while ($line = <LOG>) {
@@ -5588,13 +5510,12 @@ sub lotwimport {
 
                     $qsodate =~ s/(\d{4})(\d{2})(\d{2})/$1-$2-$3/g;
                     $time =~ s/(\d{2})(\d{2})(\d{2})/$1:$2/g;        # cut secs
-                    $stncall =~ s#/#_#g; $stncall = lc($stncall);
 
                     my $rband = 'round(`band`, 4)';
                     if ($db eq 'sqlite') { $rband = 'band'; };
 
-                    my $sth = $dbh->prepare("update log_$stncall set $update
-                    where `call`='$call' and $rband = '$band' and
+                    my $sth = $dbh->prepare("update yfklogtbl set $update
+                    where `mycall`='$stncall' and `call`='$call' and $rband = '$band' and
                     mode='$mode' and date='$qsodate' and t_on like '$time%';");
 
                     my $rows = $sth->execute();
@@ -5692,25 +5613,8 @@ else {
 
 # MYCALL
 
-unless (&tableexists("log_$mycall")) {
-    my $logtable = "$prefix/share/yfklog/db_log.sql";
-
-    if ($db eq 'sqlite') { $logtable = "$prefix/share/yfklog/db_log.sqlite"; }
-
-    open LOG, $logtable;
-    my @log = <LOG>;
-    close LOG;
-
-    my $log = "@log";
-    $log =~ s/MYCALL/$mycall/g;
-
-    $dbh->do($log) or die 
-                    "Couldn't create log table $mycall from $logtable";
-    printw "Created log table $mycall from $logtable\n";
-}
-else {
-    printw "Log table $mycall found...\n";
-}
+# XXX TODO check if yfklogtbl exists, or create
+printw "Log table $mycall found...\n";
 
 # Get a list of all logs....
 
@@ -5732,6 +5636,10 @@ while($l = $gl->fetchrow_array()) {
     }
 }
 
+# XXX
+printw "Press any key to continue.\n";
+refresh();
+return;
 
 printw "\nChecking Database version.\n";
 
@@ -5879,8 +5787,8 @@ sub xplanet {
     }
     close CTY;
 
-    my $sth = $dbh->prepare("SELECT DXCC, QSLR, QSLRL FROM log_$mycall
-                            WHERE MODE in ($modes)");
+    my $sth = $dbh->prepare("SELECT DXCC, QSLR, QSLRL from yfklogtbl
+                            WHERE mycall='$mycall' and MODE in ($modes)");
     $sth->execute() or die "Execute failed!";
     
     my ($dx,$qslr, $qslrl);
@@ -5897,7 +5805,7 @@ sub xplanet {
         }
     }
 
-    open EARTH, ">$directory/$mycall-earth";
+    open EARTH, ">$directory/$mycall_filename-earth";
 
     # special sorting to put green on top of yellow and red
     foreach (sort {if ($dxcc{$a} eq 'Red') {return -1;}
@@ -6380,26 +6288,24 @@ sub freq2band {
 sub qslstatistics {
     my $win = $_[0];
     my ($total, $sent, $received, $queued, $lotwsent, $lotwreceived);
-    my ($rate, $lotwrate, $call);
+    my ($rate, $lotwrate);
 
-    $call = lc($mycall);
-
-    my $qsl = $dbh->prepare("SELECT count(*) from log_$call");
+    my $qsl = $dbh->prepare("SELECT count(*) from yfklogtbl where mycall='$mycall' ");
     $qsl->execute;
     $total = $qsl->fetchrow_array();
-    $qsl = $dbh->prepare("SELECT count(*) from log_$call where qsls = 'Y'");
+    $qsl = $dbh->prepare("SELECT count(*) from yfklogtbl where mycall='$mycall' and qsls = 'Y'");
     $qsl->execute;
     $sent = $qsl->fetchrow_array();
-    $qsl = $dbh->prepare("SELECT count(*) from log_$call where qslr = 'Y'");
+    $qsl = $dbh->prepare("SELECT count(*) from yfklogtbl where mycall='$mycall' and qslr = 'Y'");
     $qsl->execute;
     $received = $qsl->fetchrow_array();
-    $qsl = $dbh->prepare("SELECT count(*) from log_$call where qsls = 'Q'");
+    $qsl = $dbh->prepare("SELECT count(*) from yfklogtbl where mycall='$mycall' and qsls = 'Q'");
     $qsl->execute;
     $queued = $qsl->fetchrow_array();
-    $qsl = $dbh->prepare("SELECT count(*) from log_$call where qslrl= 'R'");
+    $qsl = $dbh->prepare("SELECT count(*) from yfklogtbl where mycall='$mycall' and qslrl= 'R'");
     $qsl->execute;
     $lotwsent = $qsl->fetchrow_array();
-    $qsl = $dbh->prepare("SELECT count(*) from log_$call where qslrl= 'Y'");
+    $qsl = $dbh->prepare("SELECT count(*) from yfklogtbl where mycall='$mycall' and qslrl= 'Y'");
     $qsl->execute;
     $lotwreceived = $qsl->fetchrow_array();
 
@@ -6486,10 +6392,8 @@ sub waitkey {
 sub tqslsign {
     my $filename = shift;
     my $location = shift;
-    my $mycall_slash = $mycall;
-    $mycall_slash =~ s#_#/#g;
 
-    my $cmd = "xvfb-run -a tqsl -x -u -c $mycall_slash -d -l $location $filename 2>&1";
+    my $cmd = "xvfb-run -a tqsl -x -u -c $mycall -d -l $location $filename 2>&1";
     my @result = `$cmd`;
 
     unshift @result, $cmd;
@@ -6504,11 +6408,8 @@ sub getlotwlocations {
     my @a = split(/,/, $lotwlocation);
     my @ret;
 
-    my $mycall_slash = $mycall;
-    $mycall_slash =~ s#_#/#g;
-
     foreach (@a) {
-        if ($_ =~ /^$mycall_slash:(.*)/i) {
+        if ($_ =~ /^$mycall:(.*)/i) {
             push @ret, $1;
         }
     }
@@ -6520,7 +6421,7 @@ sub getlotwlocations {
 # in the current log. the next download should
 # start at this date.
 sub getlotwstartdate {
-    my $query = $dbh->prepare("SELECT date from log_$mycall where qslrl='Y' order by date desc limit 1");
+    my $query = $dbh->prepare("SELECT date from yfklogtbl where mycall='$mycall' and qslrl='Y' order by date desc limit 1");
     $query->execute;
     my $date = $query->fetchrow_array();
 
@@ -6536,7 +6437,7 @@ sub downloadlotw {
     my $startdate = shift;
     my $url = "https://lotw.arrl.org/lotwuser/lotwreport.adi?qso_query=1&login=$lotwuser&password=$lotwpass&qso_qsl=yes&qso_withown=yes&qso_qsldetail=yes&qso_qslsince=$startdate";
 
-    my $filename = "/tmp/$mycall-lotw-download.adi";
+    my $filename = "/tmp/$mycall_filename-lotw-download.adi";
 
     my $ua = LWP::UserAgent->new(timeout => 120);
     my $response = $ua->get($url);

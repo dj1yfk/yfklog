@@ -1,4 +1,4 @@
-CREATE TABLE `log_MYCALL` (
+CREATE TABLE `yfklogtbl` (
   `NR` bigint(20) NOT NULL auto_increment,
   `CALL` varchar(15) NOT NULL default '',
   `DATE` date NOT NULL default '0000-00-00',
@@ -25,7 +25,9 @@ CREATE TABLE `log_MYCALL` (
   `STATE` varchar(2) default '',
   `GRID` varchar(6) NOT NULL default '',
   `OPERATOR` varchar(6) NOT NULL default '',
+  `mycall` varchar(15) NOT NULL default '',
   PRIMARY KEY  (`NR`),
   KEY `CALL` (`CALL`),
+  KEY `mycall` (`mycall`),
   KEY `DXCC` (`DXCC`)
 ) AUTO_INCREMENT=1 ;
