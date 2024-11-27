@@ -4388,7 +4388,7 @@ sub choseeditqso {
     # Assemble a SQL string which contains the search criteria. First the
     # columns which should be displayed.  
     $sql = "SELECT `NR`, `CALL`, `NAME`, `DATE`, `T_ON`, `BAND`, `MODE`,
-    `QSLS`, `QSLR`, `DXCC`, `QSLINFO`, `QSLRL` FROM yfklogtbl WHERE `NR` ";
+    `QSLS`, `QSLR`, `DXCC`, `QSLINFO`, `QSLRL` FROM yfklogtbl WHERE mycall='$mycall' and `NR` ";
     # The rest of the string now depends on the content of the @qso-array:
     $sql2 = "AND `CALL` LIKE '\%$qso[0]\%' " if $qso[0];
     if ($qso[1]) {
