@@ -1510,7 +1510,7 @@ sub lastqsos {
     my $by = " `NR` DESC ";
 
     if ($logsort eq 'C') {
-        $by = " `DATE` DESC, `T_ON` DESC ";
+        $by = " `DATE` DESC, `T_ON` DESC, `NR` DESC ";
     }
     
     if ($screenlayout == 0) {        # original screen layout, 16 QSOs, small
